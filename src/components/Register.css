@@ -1,0 +1,259 @@
+/* src/components/Register.css */
+
+/* General Body/Container Styling */
+.register-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Purple to Blue gradient background (using your current gradient) */
+    background: linear-gradient(135deg, #1f4068 0%, #162447 50%, #1b1b2f 100%);
+    padding: 20px; /* Crucial: Ensures space around the card on all screens */
+    box-sizing: border-box; /* Ensures padding is included in the element's total width and height */
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+    color: #333;
+}
+
+/* Register Card Styling */
+.register-card {
+    background-color: #ffffff;
+    padding: 40px; /* Generous padding for a spacious feel on larger screens */
+    border-radius: 15px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3),
+                0 5px 15px rgba(0, 0, 0, 0.2);
+    width: 100%; /* Allows the card to take full width of its parent */
+    max-width: 400px; /* Limits the card's width on larger screens */
+    text-align: center;
+    transform: translateY(0);
+    transition: all 0.3s ease-in-out;
+    box-sizing: border-box; /* **IMPORTANT**: Ensures card padding is included in its 100% width calculation */
+}
+
+.register-card:hover {
+    transform: translateY(-5px) scale(1.01);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4),
+                0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Title Styling */
+.register-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #2c3e50;
+    margin-bottom: 30px;
+    letter-spacing: -0.05em;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Form Group (Label + Input) */
+.register-form .form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.register-form label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 8px;
+}
+
+/* Input Field Styling */
+.form-input {
+    width: 100%; /* Take up 100% of the parent's available width */
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    color: #333;
+    background-color: #f9f9f9;
+    transition: all 0.2s ease-in-out;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
+    box-sizing: border-box; /* **IMPORTANT**: Ensures input padding and border are included in its 100% width */
+}
+
+.form-input::placeholder {
+    color: #999;
+    opacity: 0.8;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #9b59b6; /* Purple border on focus */
+    box-shadow: 0 0 0 4px rgba(155, 89, 182, 0.3); /* Purple glow on focus */
+    background-color: #fff;
+}
+
+.form-input:disabled {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* Message (Error/Success) Styling */
+.message {
+    font-size: 0.875rem;
+    margin-bottom: 15px;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-weight: 500;
+    text-align: center;
+    line-height: 1.4;
+    box-sizing: border-box; /* Ensure messages also respect padding */
+}
+
+.error-message {
+    color: #e74c3c;
+    background-color: #fdeded;
+    border: 1px solid #e74c3c;
+}
+
+.success-message {
+    color: #27ae60;
+    background-color: #e8f8f5;
+    border: 1px solid #27ae60;
+}
+
+/* Register Button Styling */
+.register-button {
+    width: 100%;
+    padding: 14px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #ffffff;
+    background: linear-gradient(45deg, #8e44ad, #9b59b6);
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    box-shadow: 0 5px 15px rgba(142, 68, 173, 0.3);
+    box-sizing: border-box; /* Ensure button padding is included in its 100% width */
+}
+
+.register-button:hover {
+    background: linear-gradient(45deg, #9b59b6, #a672c7);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(142, 68, 173, 0.4);
+}
+
+.register-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 5px rgba(155, 89, 182, 0.4);
+}
+
+.register-button:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+    opacity: 0.6;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Footer Text and Link */
+.register-footer {
+    margin-top: 25px;
+    font-size: 0.9rem;
+    color: #777;
+}
+
+.register-footer .login-link {
+    color: #8e44ad;
+    text-decoration: none;
+    font-weight: 700;
+    transition: color 0.2s ease-in-out, text-decoration 0.2s ease-in-out;
+}
+
+.register-footer .login-link:hover {
+    color: #9b59b6;
+    text-decoration: underline;
+}
+
+/* ==================================================================== */
+/* RESPONSIVE STYLES (Refined)                     */
+/* ==================================================================== */
+
+/* Extra Small Screens (e.g., older phones, widths up to 320px) */
+@media (max-width: 320px) {
+    .register-card {
+        padding: 20px 10px; /* Reduce padding significantly to prevent overflow */
+        margin: 5px; /* Keep a minimal margin */
+    }
+
+    .register-title {
+        font-size: 1.7rem; /* Slightly smaller title */
+        margin-bottom: 15px; /* Less margin */
+    }
+
+    .form-input,
+    .register-button {
+        font-size: 0.85rem; /* Smaller font for inputs/buttons */
+        padding: 9px 9px; /* Reduce input padding */
+    }
+
+    .register-button {
+        padding: 10px 10px; /* Adjust button padding */
+    }
+
+    .register-form label,
+    .message,
+    .register-footer {
+        font-size: 0.75rem; /* Adjust text sizes for tiny screens */
+    }
+}
+
+/* Small Screens (e.g., most modern phones, 321px to 480px) */
+@media (min-width: 321px) and (max-width: 480px) {
+    .register-card {
+        padding: 25px 15px; /* Slightly more padding than XS, but less than desktop */
+        margin: 10px;
+    }
+
+    .register-title {
+        font-size: 1.9rem;
+        margin-bottom: 20px;
+    }
+
+    .form-input,
+    .register-button {
+        font-size: 0.9rem;
+        padding: 10px 12px;
+    }
+
+    .register-button {
+        padding: 12px 15px;
+    }
+}
+
+/* Medium Screens (e.g., larger phones in landscape, small tablets, 481px to 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+    .register-card {
+        padding: 35px;
+        max-width: 450px;
+    }
+
+    .register-title {
+        font-size: 2.2rem;
+    }
+
+    .form-input,
+    .register-button {
+        font-size: 1rem;
+        padding: 12px 15px;
+    }
+}
+
+/* Ensure hover effects are disabled on touch devices to prevent "sticky" hover states */
+@media (hover: none) {
+    .register-card:hover {
+        transform: none;
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3),
+                    0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    .register-button:hover {
+        transform: none;
+        box-shadow: 0 5px 15px rgba(142, 68, 173, 0.3);
+    }
+}

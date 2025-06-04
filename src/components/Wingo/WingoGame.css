@@ -1,0 +1,791 @@
+/* src/components/WingoGame.css */
+
+/* --- Base & Global Styles --- */
+.wingo-app-container {
+    background-color: #1a1a2e; /* Dark base background */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: "Segoe UI", "Roboto", sans-serif;
+    color: #ffffff; /* Default text color */
+    box-sizing: border-box; /* Crucial for consistent sizing */
+    padding-bottom: 10px; /* Space for the bottom table if it's long */
+}
+
+/* Ensure all elements inherit box-sizing */
+*,
+*::before,
+*::after {
+    box-sizing: inherit;
+}
+
+/* --- Header --- */
+.wingo-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px; /* Applied from 480px media query */
+    background-color: #0f0f1c; /* Slightly darker header background */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    position: sticky; /* Keep header visible on scroll */
+    top: 0;
+    z-index: 1000; /* Ensure it's above other content */
+}
+
+/* Prediction uniform border for predicted buttons */
+.prediction-border {
+    border: 3px solid #50f6ff !important;
+    box-shadow: 0 0 10px #50f6ff;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    animation: glowing-border 1.5s infinite alternate;
+}
+
+@keyframes glowing-border {
+    from {
+        box-shadow: 0 0 5px #50f6ff, 0 0 10px #50f6ff;
+    }
+    to {
+        box-shadow: 0 0 15px #50f6ff, 0 0 25px #50f6ff, 0 0 35px #50f6ff;
+    }
+}
+
+/* WingoGame.css - Add this to your existing CSS file */
+
+.prediction-countdown-overlay {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: auto;
+    min-width: 280px;
+    max-width: 90%;
+    height: 60vh;
+    padding: 25px 35px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(18, 11, 43, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: #00eaff;
+    text-shadow: 0 0 6px #569297, 0 0 12px #333939;
+    font-family: "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif;
+    font-size: 1.5em;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.4;
+    z-index: 100;
+    pointer-events: none;
+}
+.header-icon {
+    font-size: 1.1rem; /* Applied from 480px media query */
+    color: #b0c4de;
+    cursor: pointer;
+}
+
+.back-icon {
+    margin-right: 20px;
+}
+
+.header-logo {
+    font-size: 1.2rem; /* Applied from 480px media query */
+    font-weight: 700;
+    color: #e0e0e0;
+    flex-grow: 1;
+    text-align: center;
+}
+
+.header-icons-right {
+    display: flex;
+    gap: 15px;
+}
+
+.profile-icon {
+    background-color: #3498db;
+    border-radius: 50%;
+    padding: 3px; /* Applied from 480px media query */
+    font-size: 1.4rem; /* Applied from 480px media query */
+    color: #ffffff;
+    box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+}
+
+/* --- Game Tabs Navigation --- */
+.game-tabs-nav {
+    display: flex;
+    justify-content: space-around;
+    background-color: #1a1a2e;
+    padding: 10px 5px; /* Applied from 480px media query */
+    border-bottom: 1px solid #2a2a44;
+}
+
+.game-tab-button {
+    background-color: #2a2a44;
+    color: #b0c4de;
+    border: none;
+    padding: 8px 5px; /* Applied from 480px media query */
+    border-radius: 8px;
+    font-size: 0.75rem; /* Applied from 480px media query */
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex: 1;
+    margin: 0 3px; /* Applied from 480px media query */
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.game-tab-button.active {
+    background-color: #2ecc71;
+    color: #ffffff;
+    box-shadow: 0 0 10px rgba(46, 204, 113, 0.5),
+        inset 0 2px 5px rgba(0, 0, 0, 0.3);
+    transform: translateY(-2px);
+}
+
+/* --- Main Game Content Area --- */
+.wingo-game-main {
+    padding: 15px; /* Applied from 480px media query */
+    flex-grow: 1;
+}
+
+.game-info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #2a2a44;
+    padding: 10px; /* Applied from 480px media query */
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.next-period {
+    height: 15vh; /* Applied from 768px media query */
+    width: 60%; /* Applied from 768px media query */
+    font-size: 1rem; /* Applied from 768px media query */
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px; /* Applied from 768px media query */
+    background-color: #141426;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.next-period-number {
+    font-size: 1rem; /* Applied from 768px media query */
+    font-weight: bold;
+}
+
+.time-remaining-box {
+    text-align: right;
+    color: #41fcff; /* Applied from 768px media query */
+    padding: 2%; /* Applied from 768px media query */
+    border: 1px solid; /* Applied from 768px media query */
+    font-size: 40px; /* Applied from 768px media query */
+    height: 15vh; /* Applied from 768px media query */
+    background-color: #141426; /* Applied from 768px media query */
+    border-radius: 10px; /* Applied from 768px media query */
+    border: 1px solid rgba(255, 255, 255, 0.05); /* Applied from 768px media query */
+}
+
+.time-label {
+    font-size: 0.9rem;
+    color: #b0c4de;
+    margin-bottom: 5px;
+    display: block;
+}
+.history-number.red-violet {
+    background: linear-gradient(to right, #ff0000 50%, #800080 50%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+}
+
+.history-number.green-violet {
+    background: linear-gradient(to right, #04f704 50%, #800080 50%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+}
+
+/* Ensure the color dots also reflect the split */
+.color-dot.red-violet {
+    background: linear-gradient(to right, #ff0000 50%, #800080 50%);
+}
+
+.color-dot.green-violet {
+    background: linear-gradient(to right, #04f704 50%, #800080 50%);
+}
+
+.visual-number-sequence {
+    display: flex;
+    justify-content: center;
+    gap: 8px; /* Applied from 480px media query */
+    margin-bottom: 20px;
+    flex-wrap: wrap; /* Applied from 768px media query */
+}
+
+.visual-number-sequence .number-circle {
+    width: 30px; /* Applied from 480px media query */
+    height: 30px; /* Applied from 480px media query */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem; /* Applied from 480px media query */
+    font-weight: 700;
+    color: #ffffff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+.visual-number-sequence .number-circle.red {
+    background-color: #e74c3c;
+}
+.visual-number-sequence .number-circle.green {
+    background-color: #2ecc71;
+}
+.visual-number-sequence .number-circle.violet {
+    background-color: #9b59b6;
+}
+
+/* --- Color Selection --- */
+.color-selection {
+    display: flex;
+    justify-content: space-around;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.color-button {
+    flex: 1;
+    padding: 10px 5px; /* Applied from 480px media query */
+    border: none;
+    border-radius: 10px;
+    font-size: 0.9rem; /* Applied from 480px media query */
+    font-weight: 700;
+    color: #ffffff;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.color-button.green-button {
+    background: linear-gradient(45deg, #2ecc71, #27ae60);
+}
+.color-button.green-button:hover {
+    background: linear-gradient(45deg, #27ae60, #1e8449);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(46, 204, 113, 0.4);
+}
+
+.color-button.violet-button {
+    background: linear-gradient(45deg, #9b59b6, #8e44ad);
+}
+.color-button.violet-button:hover {
+    background: linear-gradient(45deg, #8e44ad, #7d339b);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(155, 89, 182, 0.4);
+}
+
+.color-button.red-button {
+    background: linear-gradient(45deg, #e74c3c, #c0392b);
+}
+.color-button.red-button:hover {
+    background: linear-gradient(45deg, #c0392b, #a52a22);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(231, 76, 60, 0.4);
+}
+
+/* --- Number Selection Grid --- */
+/* Update the .number-selection-grid styles */
+.number-selection-grid {
+    display: grid;
+    /* Explicitly define 5 columns, each taking an equal fraction of space */
+    grid-template-columns: repeat(5, 1fr);
+    /* Auto-place items into rows. This will naturally create 2 rows for 10 numbers */
+    grid-auto-rows: auto;
+
+    /* These are the key additions for centering within each cell */
+    justify-items: center; /* Centers grid items horizontally within their cells */
+    align-items: center; /* Centers grid items vertically within their cells */
+    /* Alternatively, you can use the shorthand 'place-items: center;' */
+
+    gap: 8px; /* Keep your existing gap */
+    margin-bottom: 25px;
+    background-color: #2a2a44;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.number-select-circle {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex; /* Kept for centering the number text inside the circle */
+    align-items: center; /* Kept for centering the number text inside the circle */
+    justify-content: center; /* Kept for centering the number text inside the circle */
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #ffffff;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(45deg, #3498db, #2980b9);
+}
+/* Number specific colors based on image */
+.number-selection-grid button:nth-child(1) {
+    /* 0 */
+    background: linear-gradient(45deg, #9b59b6, #8e44ad);
+} /* Violet */
+.number-selection-grid button:nth-child(2) {
+    /* 1 */
+    background: linear-gradient(45deg, #2ecc71, #27ae60);
+} /* Green */
+.number-selection-grid button:nth-child(3) {
+    /* 2 */
+    background: linear-gradient(45deg, #e74c3c, #c0392b);
+} /* Red */
+.number-selection-grid button:nth-child(4) {
+    /* 3 */
+    background: linear-gradient(45deg, #2ecc71, #27ae60);
+} /* Green */
+.number-selection-grid button:nth-child(5) {
+    /* 4 */
+    background: linear-gradient(45deg, #e74c3c, #c0392b);
+} /* Red */
+.number-selection-grid button:nth-child(6) {
+    /* 5 */
+    background: linear-gradient(45deg, #9b59b6, #8e44ad);
+} /* Violet */
+.number-selection-grid button:nth-child(7) {
+    /* 6 */
+    background: linear-gradient(45deg, #e74c3c, #c0392b);
+} /* Red */
+.number-selection-grid button:nth-child(8) {
+    /* 7 */
+    background: linear-gradient(45deg, #2ecc71, #27ae60);
+} /* Green */
+.number-selection-grid button:nth-child(9) {
+    /* 8 */
+    background: linear-gradient(45deg, #e74c3c, #c0392b);
+} /* Red */
+.number-selection-grid button:nth-child(10) {
+    /* 9 */
+    background: linear-gradient(45deg, #2ecc71, #27ae60);
+} /* Green */
+
+.number-select-circle:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+}
+
+.number-select-circle.selected {
+    border: 3px solid #f39c12;
+    box-shadow: 0 0 15px rgba(243, 156, 18, 0.7);
+    transform: scale(1.08);
+}
+
+/* --- Action Buttons (Random, Multipliers, Big/Small) --- */
+
+.big-small-buttons-row {
+    display: flex;
+    gap: 10px; /* Applied from 480px media query */
+    margin-bottom: 20px;
+}
+
+.big-button,
+.small-button {
+    height: 8vh;
+    flex: 1;
+    padding: 10px 12px; /* Applied from 480px media query */
+    border-radius: 10px;
+    font-size: 1rem; /* Applied from 480px media query */
+    font-weight: 700;
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    text-transform: uppercase;
+}
+.big-button {
+    background: linear-gradient(45deg, #f39c12, #e67e22);
+}
+.big-button:hover {
+    background: linear-gradient(45deg, #e67e22, #d35400);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(243, 156, 18, 0.4);
+}
+
+.small-button {
+    background: linear-gradient(45deg, #7f8c8d, #616e70);
+}
+.small-button:hover {
+    background: linear-gradient(45deg, #616e70, #4c575a);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(127, 140, 141, 0.4);
+}
+/* WingoGame.css additions */
+
+.my-prediction-history-section {
+    padding: 20px;
+    text-align: center;
+    max-height: 320px;
+    overflow-y: auto;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.05);
+}
+
+.my-prediction-history-section h2 {
+    color: #ffffff;
+    font-size: 1.4em;
+    font-weight: 600;
+    margin-bottom: 20px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.no-history-message {
+    color: #ccc;
+    font-style: italic;
+    padding: 20px;
+    border: 1px dashed rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    margin: 20px auto;
+    max-width: 90%;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.prediction-history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.prediction-history-item {
+    padding: 15px 20px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.04);
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.prediction-history-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+}
+
+.win-theme {
+    border: 1px solid rgba(0, 255, 8, 0.4);
+    background: rgba(76, 175, 80, 0.08);
+    color: #4caf50;
+}
+
+.loss-theme {
+    border: 1px solid rgba(244, 67, 54, 0.4);
+    background: rgba(244, 67, 54, 0.08);
+    color: #e53935;
+}
+
+.history-item-period {
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #eeeeee;
+    font-size: 1em;
+}
+
+.history-item-details {
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8%;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 10px;
+    margin-top: 5px;
+    flex-wrap: wrap;
+}
+
+.history-item-details p {
+    margin: 4px 0;
+    font-size: 0.95em;
+    color: #dddddd;
+}
+
+.history-item-details strong {
+    color: #ffffff;
+    font-weight: 500;
+}
+
+.result > p {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.outcome-text {
+    font-size: 2rem;
+    margin-top: 10px;
+    font-weight: 700;
+}
+
+.win-theme .outcome-text {
+    color: #00ff4c;
+}
+
+.loss-theme .outcome-text {
+    color: #ff5252;
+}
+
+.strategy-text {
+    font-size: 0.85em;
+    font-style: italic;
+    color: #bbbbbb;
+    margin-top: 4px;
+}
+
+/* From Uiverse.io by PriyanshuGupta28 */
+
+.getPrediction {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.pushable {
+    position: relative;
+    background: transparent;
+    padding: 0px;
+    border: none;
+    cursor: pointer;
+    outline-offset: 4px;
+    outline-color: deeppink;
+    transition: filter 250ms;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+.shadow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    border-radius: 8px;
+    filter: blur(2px);
+    will-change: transform;
+    transform: translateY(2px);
+    transition: transform 600ms cubic-bezier(0.3, 0.7, 0.4, 1);
+}
+
+.edge {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    border-radius: 8px;
+    background: linear-gradient(
+        to right,
+        hsl(248, 39%, 39%) 0%,
+        hsl(248, 39%, 49%) 8%,
+        hsl(248, 39%, 39%) 92%,
+        hsl(248, 39%, 29%) 100%
+    );
+}
+
+.front {
+    display: block;
+    position: relative;
+    border-radius: 8px;
+    background: hsl(248, 53%, 58%);
+    padding: 16px 32px;
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-size: 1rem;
+    transform: translateY(-4px);
+    transition: transform 600ms cubic-bezier(0.3, 0.7, 0.4, 1);
+}
+
+.pushable:hover {
+    filter: brightness(110%);
+}
+
+.pushable:hover .front {
+    transform: translateY(-6px);
+    transition: transform 250ms cubic-bezier(0.3, 0.7, 0.4, 1.5);
+}
+
+.pushable:active .front {
+    transform: translateY(-2px);
+    transition: transform 34ms;
+}
+
+.pushable:hover .shadow {
+    transform: translateY(4px);
+    transition: transform 250ms cubic-bezier(0.3, 0.7, 0.4, 1.5);
+}
+
+.pushable:active .shadow {
+    transform: translateY(1px);
+    transition: transform 34ms;
+}
+
+.pushable:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* --- Bottom Navigation Tabs --- */
+.bottom-tabs-nav {
+    display: flex;
+    justify-content: space-around;
+    background-color: #0f0f1c;
+    padding: 8px; /* Applied from 480px media query */
+    border-top: 1px solid #2a2a44;
+    position: sticky;
+    bottom: 0;
+    width: 100%;
+}
+
+.bottom-tab-button {
+    background: none;
+    border: none;
+    color: #b0c4de;
+    font-size: 0.75rem; /* Applied from 480px media query */
+    font-weight: 600;
+    padding: 6px 8px; /* Applied from 480px media query */
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex: 1;
+    text-align: center;
+}
+
+.bottom-tab-button.active {
+    color: #2ecc71;
+    background-color: rgba(46, 204, 113, 0.1);
+    box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.3);
+}
+
+.bottom-tab-button:hover:not(.active) {
+    background-color: rgba(176, 196, 222, 0.1);
+}
+
+/* --- Game History Table --- */
+.game-history-section {
+    padding: 20px;
+    background-color: #1a1a2e;
+    margin-top: 10px;
+}
+
+.history-table-header,
+.history-table-row {
+    display: grid;
+    grid-template-columns: 1.5fr 0.8fr 0.8fr 0.4fr; /* Applied from 768px media query */
+    gap: 10px;
+    padding: 8px 10px; /* Applied from 480px media query */
+    align-items: center;
+    border-radius: 8px;
+    font-size: 0.7rem; /* Applied from 480px media query */
+}
+
+.history-table-header {
+    background-color: #2a2a44;
+    font-weight: 700;
+    color: #e0e0e0;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.history-table-row {
+    background-color: #1f1f3a;
+    margin-bottom: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.history-period {
+    font-size: 0.65rem; /* Applied from 480px media query */
+    color: #b0c4de;
+}
+
+.history-number {
+    font-size: 0.9rem; /* Applied from 480px media query */
+    font-weight: 700;
+}
+.history-number.green {
+    color: #04f704;
+}
+.history-number.red {
+    color: #ff0000;
+}
+.history-number.violet {
+    color: #9b59b6;
+}
+
+.history-big-small {
+    font-size: 0.9rem;
+    color: #b0c4de;
+}
+
+.history-color {
+    display: flex;
+    justify-content: center;
+}
+.color-dot {
+    width: 12px; /* Applied from 480px media query */
+    height: 12px; /* Applied from 480px media query */
+    border-radius: 50%;
+    display: inline-block;
+    vertical-align: middle;
+}
+.color-dot.green {
+    background-color: #2ecc71;
+}
+.color-dot.red {
+    background-color: #e74c3c;
+}
+.color-dot.violet {
+    background-color: #9b59b6;
+}
+
+/* Ensure hover effects are disabled on touch devices to prevent "sticky" hover states */
+/* This media query remains useful as it targets specific device capabilities, not screen width */
+@media (hover: none) {
+    .game-tab-button:hover,
+    .how-to-play:hover,
+    .color-button:hover,
+    .number-select-circle:hover,
+    .action-button:hover,
+    .big-button:hover,
+    .small-button:hover,
+    .bottom-tab-button:hover {
+        transform: none;
+        box-shadow: initial; /* Reset box-shadow to default */
+    }
+    /* Re-apply non-hover box-shadow if needed */
+    .game-tab-button:not(.active) {
+        box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+    .color-button {
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+    .number-select-circle {
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+    .action-button:not(.active) {
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    }
+    .big-button,
+    .small-button {
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+}
