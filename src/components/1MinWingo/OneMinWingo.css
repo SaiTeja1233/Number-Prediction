@@ -1,0 +1,405 @@
+/* ========== BASE ========== */
+.one-min-wrapper {
+    padding: 20px;
+    font-family: "Segoe UI", sans-serif;
+    background: linear-gradient(160deg, #e9f1ff, #f7faff);
+    min-height: 100vh;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+h2 {
+    text-align: center;
+    color: #030838;
+    margin: 10px 0;
+    font-size: 24px;
+}
+
+p {
+    font-size: 16px;
+    margin: 6px 0;
+}
+
+/* ========== PREDICTION BOX ========== */
+.prediction-box {
+    width: 95%;
+    max-width: 950px;
+    height: auto;
+    min-height: 120px;
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    background-color: #007bff;
+    border: 1px solid #4cc6ff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+}
+
+.prediction-box-left,
+.prediction-box-right {
+    flex: 1;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.prediction-box-left {
+    border-right: 1px dashed #ffffff;
+    color: white;
+    align-items: center;
+    gap: 6px;
+}
+
+.prediction-box-left p {
+    margin: 0;
+    font-size: 1rem;
+    color: white;
+    text-align: center;
+}
+
+.next-period-num {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.prediction-box-right {
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.prediction {
+    background-color: #e9f1ff;
+    /* Removed default color to allow specific color classes to take effect */
+    border-top: 1px solid #030838;
+    border-bottom: 1px solid #030838;
+    border-left: 4px solid #030838;
+    border-right: 4px solid #030838;
+    border-radius: 8px;
+    height: 40px;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+    line-height: 40px;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+/* New CSS for prediction text color */
+.prediction.green {
+    color: green;
+}
+
+.prediction.red {
+    color: red;
+}
+
+.prediction-Num {
+    color: white;
+    font-size: 1.8rem;
+    font-weight: bold;
+    text-align: center;
+}
+
+/* ========== TABLE ========== */
+.history-table {
+    width: 95%;
+    max-width: 950px;
+    border-collapse: collapse;
+    background-color: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-top: 10px;
+}
+
+.history-table thead {
+    background-color: #007bff;
+    color: white;
+}
+
+.history-table th,
+.history-table td {
+    padding: 12px;
+    text-align: center;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.history-table td {
+    background-color: white;
+}
+
+.digital-timer-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: "Courier New", monospace;
+    font-weight: bold;
+    font-size: 28px;
+    color: white;
+}
+
+.timer-box {
+    background-color: rgba(0, 0, 0, 0.4);
+    padding: 8px 12px;
+    border-radius: 6px;
+    min-width: 20px;
+    text-align: center;
+}
+
+.colon {
+    font-size: 28px;
+    font-weight: bold;
+    color: white;
+}
+
+/* ========== NUMBER COLOR ========== */
+.number-even {
+    color: red;
+    font-weight: bold;
+}
+
+.number-odd {
+    color: green;
+    font-weight: bold;
+}
+
+/* ========== GRADIENT COLOR BACKGROUND ========== */
+.red-purple-bg {
+    background: linear-gradient(90deg, red, purple);
+    color: white;
+    border-radius: 6px;
+    padding: 4px 8px;
+}
+
+.green-purple-bg {
+    background: linear-gradient(90deg, green, purple);
+    color: white;
+    border-radius: 6px;
+    padding: 4px 8px;
+}
+
+.Wingo-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    background-color: #007bff;
+    margin-bottom: 20px;
+    border: 1px solid #4cc6ff;
+}
+
+.Wingo-header img {
+    position: absolute;
+    left: 5%;
+}
+
+.logics-menu {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logics-menu p {
+    margin: 0;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 10px 20px;
+    border-radius: 6px;
+}
+
+.logics-menu-left {
+    position: absolute;
+    left: 0;
+}
+
+.Topline {
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(
+        to right,
+        blue 0%,
+        rgb(18, 18, 97) 30%,
+        rgb(2, 2, 96) 70%,
+        rgb(1, 1, 93) 100%
+    );
+    mask-image: linear-gradient(
+        to right,
+        transparent 0%,
+        black 30%,
+        black 70%,
+        transparent 100%
+    );
+}
+/* Container for the buttons */
+.button-container {
+  display: flex;
+  gap: 15px; /* Spacing between the buttons */
+  margin-top: 20px;
+}
+
+/* Base style for all buttons */
+.button {
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  transition: all 0.2s ease-in-out;
+  text-transform: uppercase;
+  font-family: 'Segoe UI', 'Roboto', sans-serif;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Primary "Result" button style */
+.button-primary {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.button-primary:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.button-primary:active {
+  transform: translateY(0);
+  background-color: #004085;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Secondary "Copy" button style */
+.button-secondary {
+  background-color: #f8f9fa;
+  color: #343a40;
+  border-color: #ced4da;
+}
+
+.button-secondary:hover {
+  background-color: #e2e6ea;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.button-secondary:active {
+  transform: translateY(0);
+  background-color: #dae0e5;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+/* ========== RESPONSIVE ========== */
+@media (max-width: 768px) {
+    .digital-timer-container {
+        gap: 5px;
+        font-size: 20px;
+    }
+
+    .timer-box {
+        padding: 5px 5px;
+        border-radius: 6px;
+        min-width: 20px;
+    }
+
+    .colon {
+        font-size: 20px;
+    }
+
+    .one-min-wrapper {
+        padding: 0px;
+        gap: 12px;
+    }
+
+    h2 {
+        font-size: 20px;
+    }
+
+    .prediction-box {
+        height: auto;
+    }
+
+    .prediction-box-left,
+    .prediction-box-right {
+        width: 100%;
+        border: none;
+    }
+
+    .prediction-box-right {
+        border-left: 1px dashed white;
+    }
+
+    .prediction-box-right {
+        border-bottom: none;
+    }
+
+    .prediction-box-left p {
+        font-size: 14px;
+    }
+
+    .prediction-Num {
+        font-size: 1.5rem;
+    }
+
+    .prediction {
+        height: 50px;
+        width: 95%;
+        font-size: 0.9rem;
+    }
+
+    .history-table {
+        font-size: 14px;
+    }
+
+    .history-table th,
+    .history-table td {
+        padding: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .digital-timer-container {
+        gap: 2px;
+        font-size: 13px;
+    }
+
+    .timer-box {
+        padding: 4px 4px;
+        border-radius: 6px;
+        min-width: 15px;
+    }
+
+    .colon {
+        font-size: 8px;
+    }
+
+    h2 {
+        font-size: 18px;
+    }
+
+    .prediction-box-left p,
+    .next-period-num {
+        font-size: 13px;
+    }
+
+    .prediction-Num {
+        font-size: 1.3rem;
+    }
+
+    .prediction {
+        height: 45px;
+        width: 95%;
+        font-size: 0.9rem;
+    }
+
+    .history-table th,
+    .history-table td {
+        font-size: 12px;
+        padding: 6px;
+    }
+}

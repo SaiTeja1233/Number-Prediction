@@ -1,306 +1,349 @@
-/* General Body & Container Styles */
-body {
-    margin: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
-
+/* BASE */
 .dashboard-main-container {
+    font-family: "Segoe UI", sans-serif;
+    background: linear-gradient(160deg, #e9f1ff 0%, #f7faff 100%);
     min-height: 100vh;
+    padding: 0;
+    margin: 0;
     display: flex;
     flex-direction: column;
+}
+
+/* NAVBAR */
+.dashboard-navbar {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
-    background-color: #1a202c; /* Dark charcoal background */
-    color: #e2e8f0; /* Light gray text */
-    padding: 1.5rem; /* Consistent padding */
-    box-sizing: border-box; /* Include padding in element's total width and height */
+    background: linear-gradient(to right, #0047ab, #007bff);
+    padding: 1rem 2rem;
+    color: white;
+    font-family: "Segoe UI", sans-serif;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
 }
 
-.dashboard-content-wrapper {
-    background-color: #2d3748; /* Slightly lighter dark gray */
-    padding: 2.5rem; /* Generous padding for content */
-    border-radius: 1.5rem; /* More rounded corners */
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4), 0 5px 15px rgba(0, 0, 0, 0.2); /* Deeper shadow */
-    width: 100%;
-    max-width: 900px; /* Wider max-width for better layout */
-    text-align: center;
-    border: 1px solid #4a5568; /* Subtle border */
+.navbar-left {
+    font-size: 1.3rem;
+    font-weight: 700;
+    cursor: pointer;
     display: flex;
-    flex-direction: column;
-    gap: 2rem; /* Spacing between header and cards */
-    position: relative; /* Crucial for absolute positioning of logout button */
+    align-items: center;
 }
 
-/* Header Section (Adjusted slightly as logout button is now relative to content-wrapper) */
-.dashboard-header {
-    padding-bottom: 1.5rem; /* Space below header text */
-    border-bottom: 1px solid rgba(74, 85, 104, 0.5); /* Subtle separator */
-    text-align: center; /* Center the header text */
+.navbar-app-name {
+    margin-left: 0.4rem;
+    text-shadow: 1px 1px 2px rgba(0, 0, 50, 0.2);
+    color: white;
 }
 
+.orange-x {
+    color: #ffa500;
+    font-size: 1.2em;
+    font-weight: 800;
+    margin-left: 0.05em;
+}
+
+.navbar-center {
+    font-size: 1rem;
+    font-style: italic;
+    color: #e0e0ff;
+}
+
+.navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.navbar-user {
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.navbar-logout-btn {
+    background-color: #ffffff;
+    color: #0047ab;
+    padding: 0.45rem 0.9rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.navbar-logout-btn:hover {
+    background-color: #e6ecff;
+    transform: translateY(-2px);
+}
+
+/* CONTENT AREA */
+.dashboard-content {
+    padding: 2rem;
+    text-align: center;
+    flex-grow: 1;
+}
+
+/* Welcome heading */
 .dashboard-welcome-heading {
-    font-size: 2.5rem; /* Larger heading */
-    font-weight: 700; /* Bold */
-    color: #63b3ed; /* Soft blue for heading */
-    margin-bottom: 0.75rem;
-    letter-spacing: -0.04em; /* Tighter letter spacing */
+    font-size: 1.8rem;
+    color: #003366;
+    margin-bottom: 0.5rem;
 }
 
+/* Welcome message */
 .dashboard-welcome-message {
-    font-size: 1.25rem;
-    color: #a0aec0; /* Lighter gray for welcome message */
-    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+    color: #555;
+    margin-bottom: 2rem;
 }
 
 .dashboard-username {
-    font-weight: 800; /* Extra bold */
-    color: #48bb78; /* Vibrant green for username */
+    font-weight: bold;
+    color: #007bff;
 }
 
-/* Logout Button (Top Right Corner Icon) */
-.dashboard-logout-button {
-    position: absolute; /* Position absolutely relative to .dashboard-content-wrapper */
-    top: 1.5rem; /* Distance from top */
-    right: 1.5rem; /* Distance from right */
-    background-color: transparent; /* No background by default */
-    color: #a0aec0; /* Icon color */
-    border: none;
-    cursor: pointer;
-    padding: 0.5rem; /* Padding around the icon */
-    border-radius: 50%; /* Make it circular */
-    transition: all 0.3s ease; /* Smooth transitions */
-    font-size: 1.25rem; /* Base size for icon */
-    display: flex; /* For centering the icon */
-    align-items: center;
-    justify-content: center;
-    line-height: 1; /* Prevent extra space around icon */
-}
-
-.dashboard-logout-button:hover {
-    background-color: rgba(229, 62, 62, 0.2); /* Subtle red background on hover */
-    color: #e53e3e; /* Red icon on hover */
-    transform: scale(1.1); /* Slightly enlarge on hover */
-}
-
-.dashboard-logout-button:focus {
-    outline: none; /* Remove default outline */
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.5); /* Focus ring */
-}
-
-.dashboard-logout-button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    background-color: transparent;
-    color: #718096; /* Gray out icon when disabled */
-    transform: none; /* No transform when disabled */
-}
-
-.logout-icon {
-    width: 1.5rem; /* Size of the SVG icon */
-    height: 1.5rem;
-}
-
-/* Simple Spinner for Loading State */
-.dashboard-logout-button .spinner {
-    border: 3px solid rgba(255, 255, 255, 0.3);
-    border-top: 3px solid #e2e8f0; /* White spinner color */
-    border-radius: 50%;
-    width: 1.2rem;
-    height: 1.2rem;
-    animation: spin 1s linear infinite;
-    display: inline-block;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-
-/* Game Cards */
 .dashboard-game-cards {
     display: flex;
-    flex-wrap: wrap; /* Allow cards to wrap to next line */
     justify-content: center;
-    gap: 2rem; /* Spacing between cards */
-    margin-top: 1.5rem; /* Space from header */
+    margin-top: 2rem;
+    gap: 10px;
 }
 
 .dashboard-game-card {
-    flex: 1 1 300px; /* Flex-grow, flex-shrink, flex-basis */
-    max-width: 400px; /* Max width for larger screens */
-    background-color: #3e4c5b; /* Darker blue-gray for cards */
-    color: #e2e8f0;
-    padding: 2rem;
-    border-radius: 1rem;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-    border: 1px solid #5a67d8; /* Accent border color */
+    background: rgb(141, 168, 255);
+    padding: 1.5rem 2rem;
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    border: none;
     cursor: pointer;
-    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    transition: transform 0.2s ease;
+    width: 250px;
     text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between; /* Push title/desc to ends */
-    min-height: 180px; /* Ensure consistent card height */
 }
 
 .dashboard-game-card:hover {
-    transform: translateY(-8px) scale(1.02); /* More pronounced lift and slight scale */
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
-    border-color: #667eea; /* Lighter accent on hover */
-}
-
-.dashboard-game-card:active {
-    transform: translateY(-4px); /* Slight press down on click */
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+    transform: translateY(-5px);
+    background: #f0f8ff;
 }
 
 .card-title {
-    font-size: 1.8rem; /* Larger card title */
-    font-weight: 700;
-    color: #63b3ed; /* Matches main heading color */
-    margin-bottom: 0.75rem;
+    font-size: 1.4rem;
+    color: #0047ab;
+    margin-bottom: 0.5rem;
 }
 
 .card-description {
     font-size: 1rem;
-    color: #a0aec0; /* Lighter gray for description */
-    line-height: 1.5;
+    color: #333;
 }
 
-/* Loading State */
+/* LOADING & ERROR STATES */
 .dashboard-loading-container,
 .dashboard-error-container {
-    min-height: 100vh;
     display: flex;
-    flex-direction: column; /* Ensure it's a column for centering */
-    align-items: center;
     justify-content: center;
-    background-color: #1a202c;
-    color: #e2e8f0;
-    padding: 1rem;
+    align-items: center;
+    min-height: 100vh;
 }
 
-.dashboard-loading-content {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    font-size: 1.25rem;
-    color: #e2e8f0;
+.dashboard-loading-container {
+    background: #f5f8fc;
+}
+.dashboard-error-container {
+    background: #fff0f0;
+}
+
+.dashboard-loading-content,
+.dashboard-error-content {
+    text-align: center;
+    padding: 2rem;
+    border-radius: 10px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-error-content {
+    border-top: 5px solid #cc0000;
+}
+
+.dashboard-loading-content p {
+    color: #0047ab;
 }
 
 .dashboard-loading-spinner {
+    width: 50px;
+    height: 50px;
     animation: spin 1s linear infinite;
-    height: 1.8rem; /* Slightly larger spinner */
-    width: 1.8rem;
-    color: #63b3ed; /* Blue spinner */
+    margin: 1rem auto;
+    color: #007bff;
 }
 
-/* @keyframes spin defined earlier */
-
-/* Error State */
-.dashboard-error-content {
-    background-color: #991b1b;
-    padding: 2rem;
-    border-radius: 1rem;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-    color: #ffffff;
-    text-align: center;
-    max-width: 450px;
-    width: 100%;
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .dashboard-error-title {
-    font-size: 1.8rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    color: #f7fafc; /* White */
+    font-size: 2rem;
+    color: #cc0000;
+    margin-bottom: 0.5rem;
 }
 
 .dashboard-error-message {
-    font-size: 1.1rem;
-    margin-bottom: 1.5rem;
-    color: #fed7d7; /* Light red */
+    font-size: 1rem;
+    color: #990000;
+    margin-bottom: 1rem;
 }
 
 .dashboard-error-login-button {
-    display: inline-block;
-    background-color: #4299e1;
-    color: #ffffff;
-    font-weight: 600;
-    padding: 0.75rem 1.75rem;
-    border-radius: 0.5rem;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    background: #cc0000;
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
     text-decoration: none;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    font-weight: 600;
+    transition: background 0.2s ease;
+    display: inline-block;
 }
 
 .dashboard-error-login-button:hover {
-    background-color: #3182ce;
-    transform: translateY(-2px);
+    background: #990000;
 }
 
-.dashboard-error-login-button:active {
-    transform: translateY(0);
-}
-
-
-/* Media Queries for Responsiveness */
+/* ========== MOBILE RESPONSIVENESS ========== */
 @media (max-width: 768px) {
-    .dashboard-content-wrapper {
-        padding: 1.5rem;
+    .dashboard-main-container {
+        max-width: 100%;
+        border-radius: 0;
+    }
+
+    .dashboard-navbar {
+        padding: 0.8rem 1rem;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    .navbar-left {
+        order: 0;
+        justify-content: flex-start;
+        margin-left: 0;
+    }
+
+    .navbar-right {
+        order: 1;
+        flex-grow: 0;
+    }
+
+    .navbar-user {
+        font-size: 0.85rem;
+    }
+
+    .navbar-logout-btn {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.8rem;
+    }
+
+    .navbar-center {
+        display: none;
+    }
+
+    .dashboard-content {
+        padding: 1.5rem 1rem;
+        padding-top: 1.5rem;
     }
 
     .dashboard-welcome-heading {
-        font-size: 2rem;
+        font-size: 1.6rem;
     }
 
     .dashboard-welcome-message {
-        font-size: 1.1rem;
-    }
-
-    /* Adjust logout button for smaller screens */
-    .dashboard-logout-button {
-        top: 1rem; /* Adjust position */
-        right: 1rem;
-        padding: 0.4rem; /* Slightly smaller padding */
-        font-size: 1rem; /* Smaller icon */
-    }
-    .logout-icon {
-        width: 1.25rem;
-        height: 1.25rem;
+        font-size: 0.95rem;
     }
 
     .dashboard-game-cards {
-        flex-direction: column; /* Stack cards vertically */
-        align-items: center; /* Center stacked cards */
+        flex-direction: column;
+        align-items: center;
         gap: 1.5rem;
+        margin-top: 1.5rem;
     }
 
     .dashboard-game-card {
-        max-width: 90%; /* Allow cards to take more width */
+        width: 90%;
+        max-width: 300px;
+        padding: 1.2rem 1.5rem;
+    }
+
+    .card-title {
+        font-size: 1.2rem;
+    }
+
+    .card-description {
+        font-size: 0.9rem;
     }
 }
 
 @media (max-width: 480px) {
-    .dashboard-content-wrapper {
-        padding: 1rem; /* Even less padding on very small screens */
+    .dashboard-navbar {
+        padding: 0.6rem 0.8rem;
     }
-    .dashboard-welcome-heading {
-        font-size: 1.75rem;
-    }
-    .dashboard-welcome-message {
+
+    .navbar-left {
         font-size: 1rem;
     }
+
+    .navbar-user {
+        font-size: 0.8rem;
+    }
+
+    .navbar-logout-btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+
+    .dashboard-content {
+        padding: 1rem 0.8rem;
+    }
+
+    .dashboard-welcome-heading {
+        font-size: 1.2rem;
+    }
+
+    .dashboard-welcome-message {
+        font-size: 0.8rem;
+    }
+
     .dashboard-game-card {
-        padding: 1.5rem;
+        padding: 1rem;
+        width: 95%;
     }
-    .card-title {
-        font-size: 1.5rem;
+}
+
+@media (max-width: 400px) {
+    .dashboard-navbar {
+        padding: 0.5rem 0.6rem;
     }
-    .card-description {
+
+    .navbar-left {
+        font-size: 0.9rem;
+    }
+
+    .navbar-user {
+        font-size: 0.7rem;
+    }
+
+    .navbar-logout-btn {
+        padding: 0.2rem 0.4rem;
+        font-size: 0.65rem;
+    }
+
+    .dashboard-content {
+        padding: 0.8rem 0.6rem;
+    }
+
+    .dashboard-welcome-heading {
         font-size: 0.9rem;
     }
 }

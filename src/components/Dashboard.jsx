@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { account } from "../appwriteConfig"; // Remove 'databases', 'databaseId', 'userPresenceCollectionId'
+import { account } from "../appwriteConfig";
 import { Link, useNavigate } from "react-router-dom";
 import "./Dashboard.css";
 
@@ -7,19 +7,13 @@ const Dashboard = () => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-    // REMOVED: const [onlineUsersCount, setOnlineUsersCount] = useState(0);
     const navigate = useNavigate();
 
-    // REMOVED: updateUserPresence function
-    // REMOVED: getOnlineUsersCount function
-
     useEffect(() => {
-        const fetchUser = async () => { // Renamed from fetchUserAndPresence
+        const fetchUser = async () => {
             try {
                 const loggedInUser = await account.get();
                 setUser(loggedInUser);
-                // REMOVED: await updateUserPresence(loggedInUser.$id);
-                // REMOVED: presenceInterval and countInterval setup
             } catch (err) {
                 console.error("Failed to fetch user:", err);
                 setError("Please log in to view this page.");
@@ -28,16 +22,16 @@ const Dashboard = () => {
                 setLoading(false);
             }
         };
-
-        fetchUser(); // Call the updated fetchUser
-        // REMOVED: return cleanup function for intervals
-
+        fetchUser();
     }, [navigate]);
+
+    const oneminwingo = () => {
+        navigate("/oneminwingo");
+    };
 
     const handleLogout = async () => {
         setLoading(true);
         try {
-            // REMOVED: Optional: Delete user presence document on explicit logout
             await account.deleteSession("current");
             setUser(null);
             alert("Logged out successfully!");
@@ -48,14 +42,6 @@ const Dashboard = () => {
         } finally {
             setLoading(false);
         }
-    };
-
-    const handleWingoClick = () => {
-        navigate("/OneMinWingo");
-    };
-
-    const handleCoinWaveClick = () => {
-        navigate("/CoinWave");
     };
 
     if (loading) {
@@ -104,69 +90,57 @@ const Dashboard = () => {
 
     return (
         <div className="dashboard-main-container">
-            <div className="dashboard-content-wrapper">
-                <div className="dashboard-header">
-                    <h2 className="dashboard-welcome-heading">
-                        Welcome to your Prediction App
-                    </h2>
+            <nav className="dashboard-navbar">
+                <div className="navbar-left" onClick={() => navigate("/")}>
+                    <img src="hacker.png" alt="" style={{ width: "30px" }} />
+                    <span className="navbar-app-name">
+                        Predict
+                        <span className="orange-x">.X</span>
+                    </span>
+                </div>
+                <div className="navbar-right">
                     {user && (
-                        <p className="dashboard-welcome-message">
-                            Hello,{" "}
-                            <span className="dashboard-username">
-                                {user.name || user.email}
-                            </span>
-                            ! Have a safe play.
-                        </p>
+                        <span className="navbar-user">
+                            {user.name || user.email}
+                        </span>
                     )}
                     <button
                         onClick={handleLogout}
-                        className="dashboard-logout-button"
+                        className="navbar-logout-btn"
                         disabled={loading}
                         aria-label={loading ? "Logging out..." : "Logout"}
                         title="Logout"
                     >
-                        {loading ? (
-                            <span className="spinner"></span>
-                        ) : (
-                            <svg
-                                className="logout-icon"
-                                fill="currentColor"
-                                viewBox="0 0 20 20"
-                            >
-                                <path
-                                    fillRule="evenodd"
-                                    d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z"
-                                    clipRule="evenodd"
-                                />
-                            </svg>
-                        )}
+                        Logout
                     </button>
                 </div>
+            </nav>
 
-                {/* REMOVED: Online users display */}
-                {/*
-                <div className="online-users-display">
-                    <p>Users Online: <span className="online-count">{onlineUsersCount}</span></p>
-                </div>
-                */}
+            <div className="dashboard-content">
+                <h3 className="dashboard-welcome-heading">
+                    Welcome to your Prediction App
+                </h3>
 
                 <div className="dashboard-game-cards">
-                    <button
-                        className="dashboard-game-card"
-                        onClick={handleWingoClick}
-                    >
-                        <h3 className="card-title">Wingo</h3>
+                    <button className="dashboard-game-card">
+                        <h3 className="card-title">30Sec WinGo</h3>
                         <p className="card-description">
                             Predict colors and numbers to win!
                         </p>
                     </button>
                     <button
                         className="dashboard-game-card"
-                        onClick={handleCoinWaveClick}
+                        onClick={oneminwingo}
                     >
-                        <h3 className="card-title">CoinWave</h3>
+                        <h3 className="card-title">1Min WinGo</h3>
                         <p className="card-description">
-                            Flip coins and ride the wave of fortune.
+                            Predict colors and numbers to win!
+                        </p>
+                    </button>
+                    <button className="dashboard-game-card">
+                        <h3 className="card-title">3Min WinGo</h3>
+                        <p className="card-description">
+                            Predict colors and numbers to win!
                         </p>
                     </button>
                 </div>

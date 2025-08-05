@@ -1,4 +1,3 @@
-// src/App.jsx - This is correct for your current goal
 import React from "react";
 import {
     BrowserRouter as Router,
@@ -9,8 +8,7 @@ import {
 import Dashboard from "./components/Dashboard";
 import Register from "./components/RegisterForm";
 import Login from "./components/LoginForm";
-import OneMinWingo from "./components/Wingo/OneMinWingo";
-import CoinWave from "./components/Coinwin/CoinWave";
+import OneMinWingo from "./components/1MinWingo/OneMin_Wingo";
 
 function App() {
     return (
@@ -20,10 +18,7 @@ function App() {
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/dashboard" element={<Dashboard />} />
-                    {/* This route is correctly defined */}
-                    <Route path="/OneMinWingo" element={<OneMinWingo />} />
-                    <Route path="/CoinWave" element={<CoinWave />} />
-
+                    <Route path="/oneminwingo" element={<OneMinWingo />} />
                     <Route
                         path="*"
                         element={<Navigate to="/login" replace />}
