@@ -201,22 +201,108 @@ p {
 }
 
 .logics-menu {
+    border: 1px solid;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
+    padding: 2%;
 }
 
 .logics-menu p {
-    margin: 0;
     font-size: 14px;
     cursor: pointer;
-    padding: 10px 20px;
-    border-radius: 6px;
+    display: flex;
+    text-align: center;
+}
+/* AI Glitch Button */
+.ai-logic-tracker-button {
+    padding: 8px 15px;
+    font-size: 20px;
+    border: none;
+    border-radius: 5px;
+    color: rgb(8, 0, 166);
+    background-color: transparent;
+    position: relative;
+    font-family: "Segoe UI", sans-serif;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
 }
 
-.logics-menu-left {
+.ai-logic-tracker-button::after {
+    --move1: inset(50% 50% 50% 50%);
+    --move2: inset(31% 0 40% 0);
+    --move3: inset(39% 0 15% 0);
+    --move4: inset(45% 0 40% 0);
+    --move5: inset(45% 0 6% 0);
+    --move6: inset(14% 0 61% 0);
+    clip-path: var(--move1);
+    content: "AI Logic Tracker";
     position: absolute;
+    top: 0;
     left: 0;
+    right: 0;
+    bottom: 0;
+    display: block;
+}
+
+.ai-logic-tracker-button:hover::after {
+    animation: glitch_4011 1s;
+    animation-timing-function: steps(2, end);
+    text-shadow: -1px -1px 0px #1df2f0, 1px 1px 0px #e94be8; /* Subtler glitch effect */
+    border: 3px solid rgb(0, 255, 213);
+}
+
+.ai-logic-tracker-button:hover {
+    background-color: #007bff; /* Vibrant blue on hover */
+    border: 1px solid rgb(0, 255, 213);
+    box-shadow: 0px 10px 10px -10px rgb(0, 255, 213);
+}
+
+@keyframes glitch_4011 {
+    0% {
+        clip-path: var(--move1);
+        transform: translate(0px, -10px);
+    }
+    10% {
+        clip-path: var(--move2);
+        transform: translate(-10px, 10px);
+    }
+    20% {
+        clip-path: var(--move3);
+        transform: translate(10px, 0px);
+    }
+    30% {
+        clip-path: var(--move4);
+        transform: translate(-10px, 10px);
+    }
+    40% {
+        clip-path: var(--move5);
+        transform: translate(10px, -10px);
+    }
+    50% {
+        clip-path: var(--move6);
+        transform: translate(-10px, 10px);
+    }
+    60% {
+        clip-path: var(--move1);
+        transform: translate(10px, -10px);
+    }
+    70% {
+        clip-path: var(--move3);
+        transform: translate(-10px, 10px);
+    }
+    80% {
+        clip-path: var(--move2);
+        transform: translate(10px, -10px);
+    }
+    90% {
+        clip-path: var(--move4);
+        transform: translate(-10px, 10px);
+    }
+    100% {
+        clip-path: var(--move1);
+        transform: translate(0);
+    }
 }
 
 .Topline {
@@ -237,63 +323,65 @@ p {
         transparent 100%
     );
 }
+
 /* Container for the buttons */
 .button-container {
-  display: flex;
-  gap: 15px; /* Spacing between the buttons */
-  margin-top: 20px;
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
 }
 
 /* Base style for all buttons */
 .button {
-  padding: 12px 24px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  border-radius: 8px;
-  border: 1px solid transparent;
-  transition: all 0.2s ease-in-out;
-  text-transform: uppercase;
-  font-family: 'Segoe UI', 'Roboto', sans-serif;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    transition: all 0.2s ease-in-out;
+    text-transform: uppercase;
+    font-family: "Segoe UI", "Roboto", sans-serif;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 /* Primary "Result" button style */
 .button-primary {
-  background-color: #007bff;
-  color: #fff;
+    background-color: #007bff;
+    color: #fff;
 }
 
 .button-primary:hover {
-  background-color: #0056b3;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+    background-color: #0056b3;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
 }
 
 .button-primary:active {
-  transform: translateY(0);
-  background-color: #004085;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transform: translateY(0);
+    background-color: #004085;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Secondary "Copy" button style */
 .button-secondary {
-  background-color: #f8f9fa;
-  color: #343a40;
-  border-color: #ced4da;
+    background-color: #f8f9fa;
+    color: #343a40;
+    border-color: #ced4da;
 }
 
 .button-secondary:hover {
-  background-color: #e2e6ea;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+    background-color: #e2e6ea;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
 }
 
 .button-secondary:active {
-  transform: translateY(0);
-  background-color: #dae0e5;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transform: translateY(0);
+    background-color: #dae0e5;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
 /* ========== RESPONSIVE ========== */
 @media (max-width: 768px) {
     .digital-timer-container {
@@ -360,6 +448,13 @@ p {
     .history-table td {
         padding: 8px;
     }
+
+    /* New responsive styles for the AI glitch button */
+    .ai-logic-tracker-button,
+    .ai-logic-tracker-button::after {
+        padding: 8px 30px;
+        font-size: 16px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -401,5 +496,13 @@ p {
     .history-table td {
         font-size: 12px;
         padding: 6px;
+    }
+
+    /* Further adjustments for the AI glitch button on very small screens */
+    .ai-logic-tracker-button,
+    .ai-logic-tracker-button::after {
+        width: 100px;
+        padding: 6px 3px;
+        font-size: 12px;
     }
 }

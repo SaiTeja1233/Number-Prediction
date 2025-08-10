@@ -1,141 +1,247 @@
 /* global BigInt */
 
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import "./OneMinWingo.css";
 import { useNavigate } from "react-router-dom";
-import LogicsMenu from "../LogicsMenu";
 
-// Helper: Get IST time
-const getISTTime = () => {
-    const now = new Date();
-    const istOffset = 5.5 * 60 * 60 * 1000;
-    return new Date(
-        now.getTime() + istOffset - now.getTimezoneOffset() * 60000
-    );
-};
+// Import the prediction logic functions
+import {
+    getISTTime,
+    getColorFromNumber,
+    getSizeFromNumber,
+    guaranteedWinServerMethod,
+    fetchOptimizedData,
+} from "../../predictionLogic";
 
-// Get color for number
-const getColorFromNumber = (num) => {
-    if (num === 0) return "🔴🟣";
-    if (num === 5) return "🟢🟣";
-    if (num % 2 === 0) return "🔴";
-    return "🟢";
-};
+// The simple prediction function
+const simplePrediction = (numbers) => {
+    if (numbers.length < 2) {
+        return "Not enough numbers to predict";
+    }
 
-// Get size for number
-const getSizeFromNumber = (num) => {
-    return num >= 5 ? "Big" : "Small";
+    const lastNumber = numbers[0];
+    const secondLastNumber = numbers[1];
+
+    if (lastNumber > secondLastNumber) {
+        if (lastNumber > 5) {
+            return "Small";
+        } else {
+            return "Big or Small";
+        }
+    } else if (lastNumber < secondLastNumber) {
+        if (lastNumber < 5) {
+            return "Big";
+        } else {
+            return "Big or Small";
+        }
+    } else {
+        if (lastNumber > 5) {
+            return "Big";
+        } else if (lastNumber < 5) {
+            return "Small";
+        } else {
+            return "Big or Small";
+        }
+    }
 };
 
 const OneMinWingo = () => {
     const [latestPeriod, setLatestPeriod] = useState("");
     const [history, setHistory] = useState([]);
     const [error, setError] = useState(null);
-    const [secondsLeft, setSecondsLeft] = useState(59);
-
-    const [predictedSize, setPredictedSize] = useState("");
-    const [predictedColor, setPredictedColor] = useState("");
-    const [predictedNumbers, setPredictedNumbers] = useState([]);
-    const [selectedLogic, setSelectedLogic] = useState(
-        "Size & Color Tie-Breaker"
-    );
+    const [secondsLeft, setSecondsLeft] = useState(56);
     const [copyMessage, setCopyMessage] = useState(null);
+    const [betType, setBetType] = useState("bigsmall");
+
+    const [guaranteedPrediction, setGuaranteedPrediction] = useState(null);
+    const [simplePredictionResult, setSimplePredictionResult] = useState(null);
+    const [activePredictionType, setActivePredictionType] = useState(null);
 
     const navigate = useNavigate();
-    const logicsMenuRef = useRef(null); // Create a ref to access child functions
 
     const backToDashboard = () => {
         navigate("/dashboard");
     };
 
-    const handlePredictionUpdate = useCallback((prediction) => {
-        setPredictedSize(prediction.size);
-        setPredictedColor(prediction.color);
-        setPredictedNumbers(prediction.numbers);
-        setSelectedLogic(prediction.logic);
-    }, []);
-
-    const handleLogicSelect = useCallback((logic) => {
-        setSelectedLogic(logic);
-    }, []);
-
-    // Fetch API history
     const fetchHistory = useCallback(
         async (isRetry = false) => {
             try {
-                const response = await fetch(
-                    `https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json?ts=${Date.now()}`
-                );
-                const data = await response.json();
-                const list = data?.data?.list;
-
-                if (Array.isArray(list)) {
+                const list = await fetchOptimizedData();
+                if (Array.isArray(list) && list.length > 0) {
                     const currentPeriod = list[0]?.issueNumber;
                     if (currentPeriod && currentPeriod !== latestPeriod) {
                         setLatestPeriod(currentPeriod);
+
+                        // Corrected logic:
+                        if (history.length > 0) {
+                            const lastResultNumber = parseInt(
+                                history[0].number
+                            );
+                            const actualSize =
+                                getSizeFromNumber(lastResultNumber);
+                            const actualColor =
+                                getColorFromNumber(lastResultNumber);
+                            let lastPredictionLost = false;
+
+                            const predictedResult =
+                                betType === "bigsmall"
+                                    ? guaranteedPrediction?.result
+                                    : guaranteedPrediction?.result === "RED"
+                                    ? "🔴"
+                                    : "🟢";
+
+                            if (
+                                betType === "bigsmall" &&
+                                predictedResult &&
+                                predictedResult.toLowerCase() !==
+                                    actualSize.toLowerCase()
+                            ) {
+                                lastPredictionLost = true;
+                            } else if (
+                                betType === "color" &&
+                                predictedResult &&
+                                predictedResult !== actualColor
+                            ) {
+                                lastPredictionLost = true;
+                            }
+
+                            if (lastPredictionLost) {
+                                setBetType(
+                                    betType === "bigsmall"
+                                        ? "color"
+                                        : "bigsmall"
+                                );
+                            } else {
+                                setBetType("bigsmall");
+                            }
+                        }
+
+                        setHistory(list);
+                        setError(null);
                     } else if (!isRetry) {
                         setTimeout(() => fetchHistory(true), 2000);
                     }
-
-                    setHistory(list);
-                    setError(null);
                 } else {
-                    throw new Error("Unexpected data format");
+                    throw new Error("Unexpected data format or empty list");
                 }
             } catch (err) {
                 console.error("Fetch error:", err);
                 setError("Failed to load data");
             }
         },
-        [latestPeriod]
+        [latestPeriod, history, betType, guaranteedPrediction]
     );
 
-    // Timer and polling
+    const handleGuaranteedPredict = useCallback(async () => {
+        if (history.length === 0) {
+            setGuaranteedPrediction({
+                result: "Not enough history to predict.",
+            });
+            setSimplePredictionResult(null);
+            setActivePredictionType("guaranteed");
+            return;
+        }
+
+        const nextPeriod = latestPeriod
+            ? String(BigInt(latestPeriod) + 1n)
+            : null;
+        const prediction = await guaranteedWinServerMethod(
+            betType,
+            nextPeriod,
+            history
+        );
+        setGuaranteedPrediction(prediction);
+        setSimplePredictionResult(null);
+        setActivePredictionType("guaranteed");
+    }, [history, betType, latestPeriod]);
+
+    const handleSimplePredict = useCallback(() => {
+        if (history.length > 1) {
+            const numbers = history.map((item) => parseInt(item.number));
+            const prediction = simplePrediction(numbers);
+            setSimplePredictionResult(prediction);
+        } else {
+            setSimplePredictionResult(
+                "Not enough history for this prediction."
+            );
+        }
+        setGuaranteedPrediction(null);
+        setActivePredictionType("simple");
+    }, [history]);
+
     useEffect(() => {
-        fetchHistory();
         const interval = setInterval(() => {
             const now = getISTTime();
             const seconds = now.getSeconds();
-            const count = 59 - seconds;
-            setSecondsLeft(count);
-            if (count === 0) {
+            const remainingSeconds = (59 - seconds + 56) % 60;
+            setSecondsLeft(remainingSeconds);
+
+            if (remainingSeconds === 1) {
                 fetchHistory();
-                // Clear the prediction when the timer resets
-                handlePredictionUpdate({
-                    size: "",
-                    color: "",
-                    numbers: [],
-                    logic: selectedLogic,
-                });
             }
         }, 1000);
 
         return () => clearInterval(interval);
-    }, [fetchHistory, handlePredictionUpdate, selectedLogic]);
+    }, [fetchHistory]);
 
-    // Handle copy to clipboard
+    useEffect(() => {
+        fetchHistory();
+    }, [fetchHistory]);
+
     const handleCopyClick = async () => {
-        const predictionText = predictedSize
-            ? predictedSize
-            : predictedColor === "🟢"
-            ? "GREEN"
-            : predictedColor === "🔴"
-            ? "RED"
-            : "N/A";
+        const getPredictionText = () => {
+            if (activePredictionType === "guaranteed" && guaranteedPrediction) {
+                return guaranteedPrediction.result;
+            }
+            if (activePredictionType === "simple" && simplePredictionResult) {
+                return simplePredictionResult;
+            }
+            return "N/A";
+        };
 
-        // Get formatted date and time
-        const currentDate = new Date();
-        const formattedDateTime = currentDate.toLocaleString();
+        const getPredictionNumbers = () => {
+            if (activePredictionType === "guaranteed" && guaranteedPrediction) {
+                const result = guaranteedPrediction.result;
+                const betTypeFromPrediction = ["BIG", "SMALL"].includes(result)
+                    ? "bigsmall"
+                    : "color";
 
-        // Calculate the next period number
+                if (betTypeFromPrediction === "bigsmall") {
+                    return result === "BIG" ? [5, 6, 7, 8, 9] : [0, 1, 2, 3, 4];
+                } else {
+                    return result === "RED" ? [0, 2, 4, 6, 8] : [1, 3, 5, 7, 9];
+                }
+            }
+            return [];
+        };
+
+        const predictionText = getPredictionText();
+        const predictedNumbers = getPredictionNumbers();
+
+        const currentDate = getISTTime();
+        const month = currentDate.getMonth() + 1;
+        const day = currentDate.getDate();
+        const year = currentDate.getFullYear();
+        const hours = currentDate.getHours();
+        const minutes = currentDate.getMinutes().toString().padStart(2, "0");
+        const ampm = hours >= 12 ? "PM" : "AM";
+        const formattedHours = hours % 12 || 12;
+        const formattedDateTime = `${month}/${day}/${year}, ${formattedHours}:${minutes} ${ampm}`;
         const nextPeriod = latestPeriod
             ? String(BigInt(latestPeriod) + 1n)
             : "-----";
 
-        // Construct the multi-line text to copy
-        const textToCopy = `WINGO : 1 MinWinGo\nDATE : ${formattedDateTime}\nPERIOD : ${nextPeriod}\nPREDICTION : ${predictionText}\nNUMBER : ${predictedNumbers.join(
-            " , "
-        )}`;
+        const textToCopy = `
+╭⭑───────────────⭑╮
+ 📅 DATE : ${formattedDateTime}
+╰⭑───────────────⭑╯
+╭⚬──────────────────⚬╮
+│ 🎯 WINGO      : 1 MinWinGo
+│ ⏳ PERIOD     : ${nextPeriod}
+│ 🔮 PREDICTION : ${predictionText}
+│ 🎲 NUMBER     : ${predictedNumbers.join(", ")}
+╰⚬──────────────────⚬╯
+`;
 
         try {
             await navigator.clipboard.writeText(textToCopy);
@@ -149,9 +255,53 @@ const OneMinWingo = () => {
         }
     };
 
+    const getPredictionBoxContent = () => {
+        if (activePredictionType === "guaranteed" && guaranteedPrediction) {
+            const result = guaranteedPrediction.result;
+            const numbers =
+                guaranteedPrediction.result === "BIG" ||
+                guaranteedPrediction.result === "SMALL"
+                    ? result === "BIG"
+                        ? [5, 6, 7, 8, 9]
+                        : [0, 1, 2, 3, 4]
+                    : result === "RED"
+                    ? [0, 2, 4, 6, 8]
+                    : [1, 3, 5, 7, 9];
+
+            const displayColor =
+                result === "GREEN" ? "green" : result === "RED" ? "red" : "";
+
+            return (
+                <div className="prediction-box-right">
+                    <div className={`prediction ${displayColor}`}>{result}</div>
+                    <div className="prediction-Num">{numbers.join(" , ")}</div>
+                </div>
+            );
+        } else if (
+            activePredictionType === "simple" &&
+            simplePredictionResult
+        ) {
+            return (
+                <div className="prediction-box-right">
+                    <div className="prediction">{simplePredictionResult}</div>
+                    <div className="prediction-Num">
+                        {/* No specific numbers for simple prediction */}
+                    </div>
+                </div>
+            );
+        }
+        return (
+            <div className="prediction-box-right">
+                <div className="prediction">No Prediction</div>
+                <div className="prediction-Num">
+                    {/* No specific numbers initially */}
+                </div>
+            </div>
+        );
+    };
+
     return (
         <div className="one-min-wrapper">
-            {/* Header */}
             <div className="Wingo-header">
                 <img
                     src="back (1).png"
@@ -162,26 +312,8 @@ const OneMinWingo = () => {
                 <h2>1 Minute WinGo Prediction</h2>
             </div>
 
-            {/* Logics Menu */}
-            <div className="logics-menu">
-                <div className="logics-menu-left">
-                    <LogicsMenu
-                        ref={logicsMenuRef}
-                        history={history}
-                        onPredictionUpdate={handlePredictionUpdate}
-                        selectedLogic={selectedLogic}
-                        onSelectLogic={handleLogicSelect}
-                    />
-                </div>
-                <p className="selected-logic-display">
-                    Active Logic: {selectedLogic}
-                </p>
-            </div>
-
-            {/* Top Border */}
             <div className="Topline"></div>
 
-            {/* Prediction Box */}
             <div className="prediction-box">
                 <div className="prediction-box-left">
                     <p>Time remaining</p>
@@ -200,51 +332,33 @@ const OneMinWingo = () => {
                             : "-----"}
                     </p>
                 </div>
-                <div className="prediction-box-right">
-                    <div
-                        className={`prediction ${
-                            predictedColor === "🟢"
-                                ? "green"
-                                : predictedColor === "🔴"
-                                ? "red"
-                                : ""
-                        }`}
-                    >
-                        {predictedSize
-                            ? predictedSize
-                            : predictedColor === "🟢"
-                            ? "GREEN"
-                            : predictedColor === "🔴"
-                            ? "RED"
-                            : ""}
-                    </div>
-                    <div className="prediction-Num">
-                        {predictedNumbers.length > 0
-                            ? predictedNumbers.join(" , ")
-                            : ""}
-                    </div>
-                </div>
+                {getPredictionBoxContent()}
             </div>
 
-            {/* Buttons and Copy Message */}
             <div className="button-container">
                 <button
                     className="button button-primary"
-                    onClick={() => logicsMenuRef.current?.generatePrediction()}
+                    onClick={handleGuaranteedPredict}
                 >
-                    Result
+                    Guaranteed Win Prediction
                 </button>
                 <button
                     className="button button-secondary"
+                    onClick={handleSimplePredict}
+                >
+                    Simple Prediction
+                </button>
+                <button
+                    className="button button-tertiary"
                     onClick={handleCopyClick}
                 >
                     Copy
                 </button>
             </div>
-            {copyMessage && <p className="copy-message">{copyMessage}</p>}
 
-            {/* Error or Loading */}
+            {copyMessage && <p className="copy-message">{copyMessage}</p>}
             {error && <p style={{ color: "red" }}>{error}</p>}
+
             {history.length === 0 ? (
                 <p>Loading...</p>
             ) : (
