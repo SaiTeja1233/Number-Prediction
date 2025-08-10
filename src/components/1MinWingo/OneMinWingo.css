@@ -1,6 +1,6 @@
 /* ========== BASE ========== */
 .one-min-wrapper {
-    padding: 20px;
+    padding: 10px; /* Adjusted padding for mobile-first approach */
     font-family: "Segoe UI", sans-serif;
     background: linear-gradient(160deg, #e9f1ff, #f7faff);
     min-height: 100vh;
@@ -8,28 +8,29 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 20px;
+    gap: 15px; /* Reduced gap for smaller screens */
 }
 
 h2 {
     text-align: center;
     color: #030838;
     margin: 10px 0;
-    font-size: 24px;
+    font-size: 20px; /* Mobile-first font size */
 }
 
 p {
-    font-size: 16px;
+    font-size: 14px; /* Mobile-first font size */
     margin: 6px 0;
 }
 
 /* ========== PREDICTION BOX ========== */
 .prediction-box {
-    width: 95%;
+    width: 100%; /* Full width on small screens */
     max-width: 950px;
     height: auto;
     min-height: 120px;
     display: flex;
+    flex-direction: column; /* Stacking content vertically on mobile */
     align-items: stretch;
     justify-content: center;
     background-color: #007bff;
@@ -42,14 +43,15 @@ p {
 .prediction-box-left,
 .prediction-box-right {
     flex: 1;
-    padding: 16px;
+    padding: 12px; /* Adjusted padding for mobile */
     display: flex;
     flex-direction: column;
     justify-content: center;
 }
 
 .prediction-box-left {
-    border-right: 1px dashed #ffffff;
+    border-right: none;
+    border-bottom: 1px dashed #ffffff; /* Separator for stacked layout */
     color: white;
     align-items: center;
     gap: 6px;
@@ -75,18 +77,17 @@ p {
 
 .prediction {
     background-color: #e9f1ff;
-    /* Removed default color to allow specific color classes to take effect */
     border-top: 1px solid #030838;
     border-bottom: 1px solid #030838;
     border-left: 4px solid #030838;
     border-right: 4px solid #030838;
     border-radius: 8px;
     height: 40px;
-    width: 100%;
+    width: 90%; /* Adjusted width for mobile */
     box-sizing: border-box;
     text-align: center;
     line-height: 40px;
-    font-size: 1.2rem;
+    font-size: 1.1rem; /* Adjusted font size */
     font-weight: bold;
 }
 
@@ -101,14 +102,14 @@ p {
 
 .prediction-Num {
     color: white;
-    font-size: 1.8rem;
+    font-size: 1.5rem; /* Adjusted font size */
     font-weight: bold;
     text-align: center;
 }
 
 /* ========== TABLE ========== */
 .history-table {
-    width: 95%;
+    width: 100%; /* Full width on small screens */
     max-width: 950px;
     border-collapse: collapse;
     background-color: white;
@@ -125,10 +126,11 @@ p {
 
 .history-table th,
 .history-table td {
-    padding: 12px;
+    padding: 8px; /* Adjusted padding for mobile */
     text-align: center;
     font-weight: bold;
     white-space: nowrap;
+    font-size: 12px; /* Adjusted font size for mobile */
 }
 
 .history-table td {
@@ -138,23 +140,23 @@ p {
 .digital-timer-container {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 5px; /* Adjusted gap for mobile */
     font-family: "Courier New", monospace;
     font-weight: bold;
-    font-size: 28px;
+    font-size: 20px; /* Adjusted font size for mobile */
     color: white;
 }
 
 .timer-box {
     background-color: rgba(0, 0, 0, 0.4);
-    padding: 8px 12px;
+    padding: 5px; /* Adjusted padding */
     border-radius: 6px;
     min-width: 20px;
     text-align: center;
 }
 
 .colon {
-    font-size: 28px;
+    font-size: 20px;
     font-weight: bold;
     color: white;
 }
@@ -191,13 +193,20 @@ p {
     align-items: center;
     width: 100%;
     background-color: #007bff;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     border: 1px solid #4cc6ff;
+    padding: 10px;
+    box-sizing: border-box;
 }
 
 .Wingo-header img {
     position: absolute;
-    left: 5%;
+    left: 10px;
+    width: 20px;
+}
+
+.Wingo-header h2 {
+    margin: 0;
 }
 
 .logics-menu {
@@ -214,10 +223,11 @@ p {
     display: flex;
     text-align: center;
 }
+
 /* AI Glitch Button */
 .ai-logic-tracker-button {
-    padding: 8px 15px;
-    font-size: 20px;
+    padding: 8px 10px; /* Adjusted for mobile */
+    font-size: 16px; /* Adjusted for mobile */
     border: none;
     border-radius: 5px;
     color: rgb(8, 0, 166);
@@ -226,6 +236,7 @@ p {
     font-family: "Segoe UI", sans-serif;
     cursor: pointer;
     transition: all 0.3s ease-in-out;
+    white-space: nowrap;
 }
 
 .ai-logic-tracker-button::after {
@@ -248,12 +259,12 @@ p {
 .ai-logic-tracker-button:hover::after {
     animation: glitch_4011 1s;
     animation-timing-function: steps(2, end);
-    text-shadow: -1px -1px 0px #1df2f0, 1px 1px 0px #e94be8; /* Subtler glitch effect */
+    text-shadow: -1px -1px 0px #1df2f0, 1px 1px 0px #e94be8;
     border: 3px solid rgb(0, 255, 213);
 }
 
 .ai-logic-tracker-button:hover {
-    background-color: #007bff; /* Vibrant blue on hover */
+    background-color: #007bff;
     border: 1px solid rgb(0, 255, 213);
     box-shadow: 0px 10px 10px -10px rgb(0, 255, 213);
 }
@@ -327,14 +338,16 @@ p {
 /* Container for the buttons */
 .button-container {
     display: flex;
-    gap: 15px;
-    margin-top: 20px;
+    flex-wrap: wrap; /* Allows buttons to wrap on smaller screens */
+    justify-content: center;
+    gap: 10px; /* Reduced gap for smaller screens */
+    margin-top: 15px;
 }
 
 /* Base style for all buttons */
 .button {
-    padding: 12px 24px;
-    font-size: 16px;
+    padding: 10px 18px; /* Adjusted padding */
+    font-size: 14px; /* Adjusted font size */
     font-weight: bold;
     cursor: pointer;
     border-radius: 8px;
@@ -363,35 +376,75 @@ p {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Secondary "Copy" button style */
+/* Secondary "Simple Prediction" button style */
 .button-secondary {
-    background-color: #f8f9fa;
-    color: #343a40;
-    border-color: #ced4da;
+    background-color: #6c757d; /* Dark gray for a new look */
+    color: #fff;
 }
 
 .button-secondary:hover {
-    background-color: #e2e6ea;
+    background-color: #5a6268;
     transform: translateY(-2px);
     box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
 }
 
 .button-secondary:active {
     transform: translateY(0);
-    background-color: #dae0e5;
+    background-color: #495057;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Tertiary "Copy" button style */
+.button-tertiary {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.button-tertiary:hover {
+    background-color: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.button-tertiary:active {
+    transform: translateY(0);
+    background-color: #1e7e34;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* ========== RESPONSIVE ========== */
+/* General Mobile (up to 768px) */
 @media (max-width: 768px) {
+    .one-min-wrapper {
+        padding: 5px;
+        gap: 10px;
+    }
+
+    h2 {
+        font-size: 18px;
+    }
+
+    .prediction-box {
+        flex-direction: column;
+        width: 95%;
+    }
+
+    .prediction-box-left {
+        border-right: none;
+        border-bottom: 1px dashed #ffffff;
+    }
+
+    .prediction-box-right {
+        border-bottom: none;
+    }
+
     .digital-timer-container {
         gap: 5px;
         font-size: 20px;
     }
 
     .timer-box {
-        padding: 5px 5px;
-        border-radius: 6px;
+        padding: 5px 8px;
         min-width: 20px;
     }
 
@@ -399,110 +452,89 @@ p {
         font-size: 20px;
     }
 
-    .one-min-wrapper {
-        padding: 0px;
-        gap: 12px;
-    }
-
-    h2 {
-        font-size: 20px;
-    }
-
-    .prediction-box {
-        height: auto;
-    }
-
-    .prediction-box-left,
-    .prediction-box-right {
-        width: 100%;
-        border: none;
-    }
-
-    .prediction-box-right {
-        border-left: 1px dashed white;
-    }
-
-    .prediction-box-right {
-        border-bottom: none;
-    }
-
     .prediction-box-left p {
         font-size: 14px;
     }
 
-    .prediction-Num {
-        font-size: 1.5rem;
-    }
-
     .prediction {
-        height: 50px;
-        width: 95%;
-        font-size: 0.9rem;
+        width: 90%;
+        font-size: 1rem;
+        height: 45px;
+        line-height: 45px;
     }
 
-    .history-table {
-        font-size: 14px;
+    .prediction-Num {
+        font-size: 1.4rem;
     }
 
     .history-table th,
     .history-table td {
-        padding: 8px;
+        font-size: 12px;
+        padding: 8px 4px;
     }
 
-    /* New responsive styles for the AI glitch button */
-    .ai-logic-tracker-button,
-    .ai-logic-tracker-button::after {
-        padding: 8px 30px;
-        font-size: 16px;
+    .Wingo-header {
+        padding: 8px 10px;
+    }
+
+    .Wingo-header img {
+        left: 5px;
     }
 }
 
+/* Small Phones (up to 480px) */
 @media (max-width: 480px) {
+    .one-min-wrapper {
+        padding: 5px;
+        gap: 8px;
+    }
+
+    h2 {
+        font-size: 16px;
+    }
+
     .digital-timer-container {
-        gap: 2px;
-        font-size: 13px;
+        font-size: 16px;
+        gap: 3px;
     }
 
     .timer-box {
-        padding: 4px 4px;
-        border-radius: 6px;
+        padding: 4px;
         min-width: 15px;
     }
 
     .colon {
-        font-size: 8px;
-    }
-
-    h2 {
-        font-size: 18px;
-    }
-
-    .prediction-box-left p,
-    .next-period-num {
-        font-size: 13px;
-    }
-
-    .prediction-Num {
-        font-size: 1.3rem;
+        font-size: 16px;
     }
 
     .prediction {
-        height: 45px;
-        width: 95%;
         font-size: 0.9rem;
+        height: 40px;
+        line-height: 40px;
+    }
+
+    .prediction-Num {
+        font-size: 1.2rem;
     }
 
     .history-table th,
     .history-table td {
-        font-size: 12px;
-        padding: 6px;
+        font-size: 10px;
+        padding: 6px 3px;
     }
 
-    /* Further adjustments for the AI glitch button on very small screens */
-    .ai-logic-tracker-button,
-    .ai-logic-tracker-button::after {
-        width: 100px;
-        padding: 6px 3px;
-        font-size: 12px;
+    .button-container {
+        flex-direction: column; /* Stack buttons vertically on very small screens */
+        gap: 8px;
+        width: 90%;
+    }
+
+    .button {
+        width: 100%;
+        padding: 10px;
+    }
+
+    .Wingo-header img {
+        left: 2px;
     }
 }
