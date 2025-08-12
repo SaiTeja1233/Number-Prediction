@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { account } from "../appwriteConfig";
 import { Link, useNavigate } from "react-router-dom";
 import "./Dashboard.css";
+// Assuming you have a tournament icon named 'tournament.png' in your assets folder
 
 const Dashboard = () => {
     const [user, setUser] = useState(null);
@@ -27,6 +28,11 @@ const Dashboard = () => {
 
     const oneminwingo = () => {
         navigate("/oneminwingo");
+    };
+
+    // New function to handle navigation to the tournaments page
+    const navigateToTournaments = () => {
+        navigate("/tournament"); // Assumes a route for tournaments exists
     };
 
     const handleLogout = async () => {
@@ -141,6 +147,18 @@ const Dashboard = () => {
                         <h3 className="card-title">3Min WinGo</h3>
                         <p className="card-description">
                             Predict colors and numbers to win!
+                        </p>
+                    </button>
+                    {/* New Tournaments button with image */}
+                </div>
+                <div className="tournament-comp">
+                    <button
+                        className="dashboard-tournament-card"
+                        onClick={navigateToTournaments}
+                    >
+                        <h3 className="card-title">Tournaments</h3>
+                        <p className="card-description">
+                            Compete and win big prizes!
                         </p>
                     </button>
                 </div>

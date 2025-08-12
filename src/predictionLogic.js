@@ -3,7 +3,7 @@ export const getISTTime = () => {
     const now = new Date();
     const istOffset = 5.5 * 60 * 60 * 1000;
     return new Date(
-        now.getTime() + istOffset - now.getTimezoneOffset() * 60000
+        now.getTime() + istOffset + now.getTimezoneOffset() * 60000
     );
 };
 

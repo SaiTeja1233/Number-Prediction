@@ -13,36 +13,87 @@ import {
     fetchOptimizedData,
 } from "../../predictionLogic";
 
-// The simple prediction function
+// The simple prediction function with upgraded logic
+// This function now incorporates the color chart patterns you provided
 const simplePrediction = (numbers) => {
-    if (numbers.length < 2) {
-        return "Not enough numbers to predict";
+    // Convert numbers to colors based on your logic
+    const colors = numbers.map(getColorFromNumber);
+
+    // Get the last few colors to check for patterns
+    const lastColor = colors[0];
+    const secondLastColor = colors.length > 1 ? colors[1] : null;
+    const thirdLastColor = colors.length > 2 ? colors[2] : null;
+
+    // Reverse the colors to easily check for patterns (e.g., [🟢, 🔴, 🟢, 🔴] becomes [🔴, 🟢, 🔴, 🟢])
+    const reversedColors = colors.slice(0, 7).reverse();
+    const patternString = reversedColors.join("");
+
+    // --- Start of Color Chart Pattern Logic ---
+
+    // 1. ABAB / BABA - Alternating Pattern
+    if (
+        patternString.startsWith("🔴🟢🔴🟢") ||
+        patternString.startsWith("🟢🔴🟢🔴")
+    ) {
+        return lastColor === "🟢" ? "🔴" : "🟢"; // Predict the opposite
     }
 
+    // 2. AABB / BBAA - Double Block Pattern
+    if (
+        patternString.startsWith("🔴🔴🟢🟢") ||
+        patternString.startsWith("🟢🟢🔴🔴")
+    ) {
+        return lastColor === "🟢" ? "🔴" : "🟢"; // Predict the next in the sequence
+    }
+
+    // 3. ABBB / BAAA - One-and-Block Pattern
+    if (
+        patternString.startsWith("🔴🟢🟢🟢") ||
+        patternString.startsWith("🟢🔴🔴🔴")
+    ) {
+        return lastColor === "🟢" ? "🟢" : "🔴"; // Predict the repeating color
+    }
+
+    // 4. AAABBB / BBBAAA - Triple Block Pattern
+    if (
+        patternString.startsWith("🔴🔴🔴🟢🟢🟢") ||
+        patternString.startsWith("🟢🟢🟢🔴🔴🔴")
+    ) {
+        return lastColor === "🟢" ? "🟢" : "🔴"; // Predict the next in the sequence
+    }
+
+    // 5. AAAAA / BBBBB - Dragon Trend
+    if (patternString.startsWith("🔴🔴🔴🔴🔴")) {
+        return "🔴";
+    }
+    if (patternString.startsWith("🟢🟢🟢🟢🟢")) {
+        return "🟢";
+    }
+
+    // --- End of Color Chart Pattern Logic ---
+
+    // Original Prediction Logic (as a fallback)
+    // A. Size Prediction
     const lastNumber = numbers[0];
-    const secondLastNumber = numbers[1];
+    const secondLastNumber = numbers.length > 1 ? numbers[1] : null;
+    if (secondLastNumber !== null) {
+        if (lastNumber > secondLastNumber) return "Small";
+        if (lastNumber < secondLastNumber) return "Big";
+        if (lastNumber === secondLastNumber) return "Small";
+    }
 
-    if (lastNumber > secondLastNumber) {
-        if (lastNumber > 5) {
-            return "Small";
-        } else {
-            return "Big or Small";
-        }
-    } else if (lastNumber < secondLastNumber) {
-        if (lastNumber < 5) {
-            return "Big";
-        } else {
-            return "Big or Small";
-        }
-    } else {
-        if (lastNumber > 5) {
-            return "Big";
-        } else if (lastNumber < 5) {
-            return "Small";
-        } else {
-            return "Big or Small";
+    // B. Color Parity Prediction (Fallback if no other pattern is found)
+    if (thirdLastColor !== null) {
+        if (
+            lastColor === secondLastColor &&
+            secondLastColor === thirdLastColor
+        ) {
+            return lastColor === "🟢" ? "🔴" : "🟢";
         }
     }
+
+    // C. Tertiary Fallback to size
+    return lastNumber >= 5 ? "Small" : "Big";
 };
 
 const OneMinWingo = () => {
@@ -56,6 +107,7 @@ const OneMinWingo = () => {
     const [guaranteedPrediction, setGuaranteedPrediction] = useState(null);
     const [simplePredictionResult, setSimplePredictionResult] = useState(null);
     const [activePredictionType, setActivePredictionType] = useState(null);
+    const [isReversed, setIsReversed] = useState(false); // **-- NEW STATE --**
 
     const navigate = useNavigate();
 
@@ -72,37 +124,62 @@ const OneMinWingo = () => {
                     if (currentPeriod && currentPeriod !== latestPeriod) {
                         setLatestPeriod(currentPeriod);
 
-                        // Corrected logic:
                         if (history.length > 0) {
-                            const lastResultNumber = parseInt(
-                                history[0].number
-                            );
+                            const lastResultNumber = parseInt(list[0].number);
                             const actualSize =
                                 getSizeFromNumber(lastResultNumber);
                             const actualColor =
                                 getColorFromNumber(lastResultNumber);
+
                             let lastPredictionLost = false;
 
-                            const predictedResult =
-                                betType === "bigsmall"
-                                    ? guaranteedPrediction?.result
-                                    : guaranteedPrediction?.result === "RED"
-                                    ? "🔴"
-                                    : "🟢";
+                            if (activePredictionType === "guaranteed") {
+                                const predictedResult =
+                                    betType === "bigsmall"
+                                        ? guaranteedPrediction?.result
+                                        : guaranteedPrediction?.result === "RED"
+                                        ? "🔴"
+                                        : "🟢";
 
-                            if (
-                                betType === "bigsmall" &&
-                                predictedResult &&
-                                predictedResult.toLowerCase() !==
-                                    actualSize.toLowerCase()
-                            ) {
-                                lastPredictionLost = true;
-                            } else if (
-                                betType === "color" &&
-                                predictedResult &&
-                                predictedResult !== actualColor
-                            ) {
-                                lastPredictionLost = true;
+                                if (
+                                    betType === "bigsmall" &&
+                                    predictedResult &&
+                                    predictedResult.toLowerCase() !==
+                                        actualSize.toLowerCase()
+                                ) {
+                                    lastPredictionLost = true;
+                                } else if (
+                                    betType === "color" &&
+                                    predictedResult &&
+                                    predictedResult !== actualColor
+                                ) {
+                                    lastPredictionLost = true;
+                                }
+                            } else if (activePredictionType === "simple") {
+                                const simplePredictedResult = simplePrediction(
+                                    history.map((item) => parseInt(item.number))
+                                );
+                                if (
+                                    simplePredictedResult.includes("Big") &&
+                                    actualSize !== "Big"
+                                ) {
+                                    lastPredictionLost = true;
+                                } else if (
+                                    simplePredictedResult.includes("Small") &&
+                                    actualSize !== "Small"
+                                ) {
+                                    lastPredictionLost = true;
+                                } else if (
+                                    simplePredictedResult.includes("🔴") &&
+                                    actualColor !== "🔴"
+                                ) {
+                                    lastPredictionLost = true;
+                                } else if (
+                                    simplePredictedResult.includes("🟢") &&
+                                    actualColor !== "🟢"
+                                ) {
+                                    lastPredictionLost = true;
+                                }
                             }
 
                             if (lastPredictionLost) {
@@ -111,8 +188,6 @@ const OneMinWingo = () => {
                                         ? "color"
                                         : "bigsmall"
                                 );
-                            } else {
-                                setBetType("bigsmall");
                             }
                         }
 
@@ -129,7 +204,13 @@ const OneMinWingo = () => {
                 setError("Failed to load data");
             }
         },
-        [latestPeriod, history, betType, guaranteedPrediction]
+        [
+            latestPeriod,
+            history,
+            betType,
+            guaranteedPrediction,
+            activePredictionType,
+        ]
     );
 
     const handleGuaranteedPredict = useCallback(async () => {
@@ -169,6 +250,11 @@ const OneMinWingo = () => {
         setActivePredictionType("simple");
     }, [history]);
 
+    // **-- NEW FUNCTION: Handle Update button click --**
+    const handleUpdateClick = () => {
+        setIsReversed((prev) => !prev);
+    };
+
     useEffect(() => {
         const interval = setInterval(() => {
             const now = getISTTime();
@@ -189,34 +275,47 @@ const OneMinWingo = () => {
     }, [fetchHistory]);
 
     const handleCopyClick = async () => {
-        const getPredictionText = () => {
-            if (activePredictionType === "guaranteed" && guaranteedPrediction) {
-                return guaranteedPrediction.result;
+        const getPredictionText = (originalResult) => {
+            if (isReversed) {
+                if (originalResult === "Big") return "Small";
+                if (originalResult === "Small") return "Big";
+                if (originalResult === "RED" || originalResult === "🔴")
+                    return "GREEN";
+                if (originalResult === "GREEN" || originalResult === "🟢")
+                    return "RED";
             }
-            if (activePredictionType === "simple" && simplePredictionResult) {
-                return simplePredictionResult;
-            }
-            return "N/A";
+            return originalResult;
         };
 
-        const getPredictionNumbers = () => {
-            if (activePredictionType === "guaranteed" && guaranteedPrediction) {
-                const result = guaranteedPrediction.result;
-                const betTypeFromPrediction = ["BIG", "SMALL"].includes(result)
-                    ? "bigsmall"
-                    : "color";
+        const getPredictionNumbers = (originalResult) => {
+            const result = isReversed
+                ? getPredictionText(originalResult)
+                : originalResult;
 
-                if (betTypeFromPrediction === "bigsmall") {
-                    return result === "BIG" ? [5, 6, 7, 8, 9] : [0, 1, 2, 3, 4];
-                } else {
-                    return result === "RED" ? [0, 2, 4, 6, 8] : [1, 3, 5, 7, 9];
-                }
+            if (result === "Big" || result === "BIG") {
+                return [5, 9];
+            } else if (result === "Small" || result === "SMALL") {
+                return [0, 4];
+            } else if (result === "RED" || result === "🔴") {
+                return [2, 6];
+            } else if (result === "GREEN" || result === "🟢") {
+                return [1, 7];
             }
             return [];
         };
 
-        const predictionText = getPredictionText();
-        const predictedNumbers = getPredictionNumbers();
+        let originalResult = null;
+        if (activePredictionType === "guaranteed" && guaranteedPrediction) {
+            originalResult = guaranteedPrediction.result;
+        } else if (
+            activePredictionType === "simple" &&
+            simplePredictionResult
+        ) {
+            originalResult = simplePredictionResult;
+        }
+
+        const predictionText = getPredictionText(originalResult);
+        const predictedNumbers = getPredictionNumbers(originalResult);
 
         const currentDate = getISTTime();
         const month = currentDate.getMonth() + 1;
@@ -256,20 +355,45 @@ const OneMinWingo = () => {
     };
 
     const getPredictionBoxContent = () => {
-        if (activePredictionType === "guaranteed" && guaranteedPrediction) {
-            const result = guaranteedPrediction.result;
-            const numbers =
-                guaranteedPrediction.result === "BIG" ||
-                guaranteedPrediction.result === "SMALL"
-                    ? result === "BIG"
-                        ? [5, 6, 7, 8, 9]
-                        : [0, 1, 2, 3, 4]
-                    : result === "RED"
-                    ? [0, 2, 4, 6, 8]
-                    : [1, 3, 5, 7, 9];
+        const getNumbersToDisplay = (prediction) => {
+            if (prediction === "Big") return [5, 9];
+            if (prediction === "Small") return [0, 4];
+            if (prediction === "RED" || prediction === "🔴") return [2, 6];
+            if (prediction === "GREEN" || prediction === "🟢") return [1, 7];
+            return [];
+        };
 
+        const getReversedPrediction = (original) => {
+            if (original === "Big") return "Small";
+            if (original === "Small") return "Big";
+            if (original === "RED" || original === "🔴") return "Green";
+            if (original === "GREEN" || original === "🟢") return "Red";
+            return original;
+        };
+
+        let result = null;
+        let originalResult = null;
+
+        if (activePredictionType === "guaranteed" && guaranteedPrediction) {
+            originalResult = guaranteedPrediction.result;
+        } else if (
+            activePredictionType === "simple" &&
+            simplePredictionResult
+        ) {
+            originalResult = simplePredictionResult;
+        }
+
+        if (originalResult) {
+            result = isReversed
+                ? getReversedPrediction(originalResult)
+                : originalResult;
+            const numbers = getNumbersToDisplay(result);
             const displayColor =
-                result === "GREEN" ? "green" : result === "RED" ? "red" : "";
+                result.includes("Green") || result.includes("🟢")
+                    ? "green"
+                    : result.includes("Red") || result.includes("🔴")
+                    ? "red"
+                    : "";
 
             return (
                 <div className="prediction-box-right">
@@ -277,19 +401,8 @@ const OneMinWingo = () => {
                     <div className="prediction-Num">{numbers.join(" , ")}</div>
                 </div>
             );
-        } else if (
-            activePredictionType === "simple" &&
-            simplePredictionResult
-        ) {
-            return (
-                <div className="prediction-box-right">
-                    <div className="prediction">{simplePredictionResult}</div>
-                    <div className="prediction-Num">
-                        {/* No specific numbers for simple prediction */}
-                    </div>
-                </div>
-            );
         }
+
         return (
             <div className="prediction-box-right">
                 <div className="prediction">No Prediction</div>
@@ -353,6 +466,12 @@ const OneMinWingo = () => {
                     onClick={handleCopyClick}
                 >
                     Copy
+                </button>
+                <button
+                    className="button button-update"
+                    onClick={handleUpdateClick}
+                >
+                    Update
                 </button>
             </div>
 
