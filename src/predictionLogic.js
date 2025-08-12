@@ -67,17 +67,28 @@ export async function guaranteedWinServerMethod(betType, period, history) {
     // 1. Prioritize Confirmed API Result
     const actualResult = await fetchGameResult(period);
     if (actualResult) {
+        // Log the actual result to the console
+        console.log("Actual Result:", actualResult);
+
+        // Determine the opposite result
+        let oppositeResult;
+        if (betType === "bigsmall") {
+            oppositeResult =
+                actualResult.actualResult === "BIG" ? "SMALL" : "BIG";
+        } else {
+            // betType === "color"
+            oppositeResult =
+                actualResult.colorResult === "RED" ? "GREEN" : "RED";
+        }
+
         return {
-            result:
-                betType === "bigsmall"
-                    ? actualResult.actualResult
-                    : actualResult.colorResult,
-            probability: 100,
-            message: `Guaranteed Win (API)`,
+            result: oppositeResult,
+            probability: 100, // Probability remains 100 as we have the confirmed result
+            message: `Guaranteed Win (API - Opposite Result)`,
         };
     }
 
-    // 2. Fallback to Prediction Logic
+    // 2. Fallback to Prediction Logic (This part remains unchanged and will only run if the API result isn't available)
     const data = await fetchOptimizedData();
     const numbers =
         data.length > 0
