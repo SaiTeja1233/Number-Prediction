@@ -358,10 +358,11 @@ p {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Primary "Result" button style */
+/* Primary "Guaranteed Win" button style */
 .button-primary {
     background-color: #007bff;
     color: #fff;
+    width: 100%;
 }
 
 .button-primary:hover {
@@ -376,10 +377,20 @@ p {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+/* Container for simple prediction buttons */
+.simple-prediction-buttons {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    gap: 10px;
+}
+
 /* Secondary "Simple Prediction" button style */
 .button-secondary {
+    flex: 1; /* Make them fill the available space */
     background-color: #6c757d; /* Dark gray for a new look */
     color: #fff;
+    font-size: 12px; /* Smaller font size for the two buttons */
 }
 
 .button-secondary:hover {
@@ -398,6 +409,7 @@ p {
 .button-tertiary {
     background-color: #28a745;
     color: #fff;
+    width: 100%;
 }
 
 .button-tertiary:hover {
@@ -410,6 +422,50 @@ p {
     transform: translateY(0);
     background-color: #1e7e34;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* New "Update" button style */
+.button-update {
+    background-color: #ffc107;
+    color: black;
+    border: 2px solid #ffc107;
+    position: relative;
+    z-index: 1;
+    width: 100%;
+}
+
+.button-update::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #ffc107;
+    border-radius: 8px;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.button-update:hover {
+    color: #fff;
+    background-color: transparent;
+    border-color: #ffda6a;
+    box-shadow: 0 0 10px #ffda6a, 0 0 20px #ffda6a, 0 0 40px #ffda6a;
+    transform: translateY(-2px);
+}
+
+.button-update:active {
+    transform: translateY(0);
+    box-shadow: 0 0 5px #ffda6a;
+}
+
+.copy-message {
+    text-align: center;
+    color: #28a745;
+    font-weight: bold;
+    margin-top: 10px;
 }
 
 /* ========== RESPONSIVE ========== */

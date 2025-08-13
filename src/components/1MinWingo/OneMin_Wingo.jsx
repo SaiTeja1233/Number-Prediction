@@ -11,90 +11,8 @@ import {
     getSizeFromNumber,
     guaranteedWinServerMethod,
     fetchOptimizedData,
+    simplePrediction,
 } from "../../predictionLogic";
-
-// The simple prediction function with upgraded logic
-// This function now incorporates the color chart patterns you provided
-const simplePrediction = (numbers) => {
-    // Convert numbers to colors based on your logic
-    const colors = numbers.map(getColorFromNumber);
-
-    // Get the last few colors to check for patterns
-    const lastColor = colors[0];
-    const secondLastColor = colors.length > 1 ? colors[1] : null;
-    const thirdLastColor = colors.length > 2 ? colors[2] : null;
-
-    // Reverse the colors to easily check for patterns (e.g., [🟢, 🔴, 🟢, 🔴] becomes [🔴, 🟢, 🔴, 🟢])
-    const reversedColors = colors.slice(0, 7).reverse();
-    const patternString = reversedColors.join("");
-
-    // --- Start of Color Chart Pattern Logic ---
-
-    // 1. ABAB / BABA - Alternating Pattern
-    if (
-        patternString.startsWith("🔴🟢🔴🟢") ||
-        patternString.startsWith("🟢🔴🟢🔴")
-    ) {
-        return lastColor === "🟢" ? "🔴" : "🟢"; // Predict the opposite
-    }
-
-    // 2. AABB / BBAA - Double Block Pattern
-    if (
-        patternString.startsWith("🔴🔴🟢🟢") ||
-        patternString.startsWith("🟢🟢🔴🔴")
-    ) {
-        return lastColor === "🟢" ? "🔴" : "🟢"; // Predict the next in the sequence
-    }
-
-    // 3. ABBB / BAAA - One-and-Block Pattern
-    if (
-        patternString.startsWith("🔴🟢🟢🟢") ||
-        patternString.startsWith("🟢🔴🔴🔴")
-    ) {
-        return lastColor === "🟢" ? "🟢" : "🔴"; // Predict the repeating color
-    }
-
-    // 4. AAABBB / BBBAAA - Triple Block Pattern
-    if (
-        patternString.startsWith("🔴🔴🔴🟢🟢🟢") ||
-        patternString.startsWith("🟢🟢🟢🔴🔴🔴")
-    ) {
-        return lastColor === "🟢" ? "🟢" : "🔴"; // Predict the next in the sequence
-    }
-
-    // 5. AAAAA / BBBBB - Dragon Trend
-    if (patternString.startsWith("🔴🔴🔴🔴🔴")) {
-        return "🔴";
-    }
-    if (patternString.startsWith("🟢🟢🟢🟢🟢")) {
-        return "🟢";
-    }
-
-    // --- End of Color Chart Pattern Logic ---
-
-    // Original Prediction Logic (as a fallback)
-    // A. Size Prediction
-    const lastNumber = numbers[0];
-    const secondLastNumber = numbers.length > 1 ? numbers[1] : null;
-    if (secondLastNumber !== null) {
-        if (lastNumber > secondLastNumber) return "Small";
-        if (lastNumber < secondLastNumber) return "Big";
-        if (lastNumber === secondLastNumber) return "Small";
-    }
-
-    // B. Color Parity Prediction (Fallback if no other pattern is found)
-    if (thirdLastColor !== null) {
-        if (
-            lastColor === secondLastColor &&
-            secondLastColor === thirdLastColor
-        ) {
-            return lastColor === "🟢" ? "🔴" : "🟢";
-        }
-    }
-
-    // C. Tertiary Fallback to size
-    return lastNumber >= 5 ? "Small" : "Big";
-};
 
 const OneMinWingo = () => {
     const [latestPeriod, setLatestPeriod] = useState("");
@@ -107,7 +25,7 @@ const OneMinWingo = () => {
     const [guaranteedPrediction, setGuaranteedPrediction] = useState(null);
     const [simplePredictionResult, setSimplePredictionResult] = useState(null);
     const [activePredictionType, setActivePredictionType] = useState(null);
-    const [isReversed, setIsReversed] = useState(false); // **-- NEW STATE --**
+    const [isReversed, setIsReversed] = useState(false);
 
     const navigate = useNavigate();
 
@@ -155,28 +73,34 @@ const OneMinWingo = () => {
                                 ) {
                                     lastPredictionLost = true;
                                 }
-                            } else if (activePredictionType === "simple") {
+                            } else if (activePredictionType === "simple_size") {
+                                const numbers = history.map((item) =>
+                                    parseInt(item.number)
+                                );
                                 const simplePredictedResult = simplePrediction(
-                                    history.map((item) => parseInt(item.number))
+                                    numbers,
+                                    "size"
                                 );
                                 if (
-                                    simplePredictedResult.includes("Big") &&
-                                    actualSize !== "Big"
+                                    simplePredictedResult &&
+                                    simplePredictedResult.size.toLowerCase() !==
+                                        actualSize.toLowerCase()
                                 ) {
                                     lastPredictionLost = true;
-                                } else if (
-                                    simplePredictedResult.includes("Small") &&
-                                    actualSize !== "Small"
-                                ) {
-                                    lastPredictionLost = true;
-                                } else if (
-                                    simplePredictedResult.includes("🔴") &&
-                                    actualColor !== "🔴"
-                                ) {
-                                    lastPredictionLost = true;
-                                } else if (
-                                    simplePredictedResult.includes("🟢") &&
-                                    actualColor !== "🟢"
+                                }
+                            } else if (
+                                activePredictionType === "simple_color"
+                            ) {
+                                const numbers = history.map((item) =>
+                                    parseInt(item.number)
+                                );
+                                const simplePredictedResult = simplePrediction(
+                                    numbers,
+                                    "color"
+                                );
+                                if (
+                                    simplePredictedResult &&
+                                    simplePredictedResult.color !== actualColor
                                 ) {
                                     lastPredictionLost = true;
                                 }
@@ -236,21 +160,38 @@ const OneMinWingo = () => {
         setActivePredictionType("guaranteed");
     }, [history, betType, latestPeriod]);
 
-    const handleSimplePredict = useCallback(() => {
+    const handleSimpleColorPredict = useCallback(() => {
         if (history.length > 1) {
             const numbers = history.map((item) => parseInt(item.number));
-            const prediction = simplePrediction(numbers);
+            const prediction = simplePrediction(numbers, "color");
             setSimplePredictionResult(prediction);
         } else {
-            setSimplePredictionResult(
-                "Not enough history for this prediction."
-            );
+            setSimplePredictionResult({
+                color: null,
+                numbers: [],
+                message: "Not enough history for this prediction.",
+            });
         }
         setGuaranteedPrediction(null);
-        setActivePredictionType("simple");
+        setActivePredictionType("simple_color");
     }, [history]);
 
-    // **-- NEW FUNCTION: Handle Update button click --**
+    const handleSimpleSizePredict = useCallback(() => {
+        if (history.length > 1) {
+            const numbers = history.map((item) => parseInt(item.number));
+            const prediction = simplePrediction(numbers, "size");
+            setSimplePredictionResult(prediction);
+        } else {
+            setSimplePredictionResult({
+                size: null,
+                numbers: [],
+                message: "Not enough history for this prediction.",
+            });
+        }
+        setGuaranteedPrediction(null);
+        setActivePredictionType("simple_size");
+    }, [history]);
+
     const handleUpdateClick = () => {
         setIsReversed((prev) => !prev);
     };
@@ -274,48 +215,54 @@ const OneMinWingo = () => {
         fetchHistory();
     }, [fetchHistory]);
 
+    const getNumbersToDisplay = (prediction) => {
+        if (prediction === "Big" || prediction === "BIG") return [5, 9];
+        if (prediction === "Small" || prediction === "SMALL") return [0, 4];
+        if (prediction === "RED" || prediction === "🔴") return [2, 6];
+        if (prediction === "GREEN" || prediction === "🟢") return [1, 7];
+        return [];
+    };
+
     const handleCopyClick = async () => {
         const getPredictionText = (originalResult) => {
             if (isReversed) {
-                if (originalResult === "Big") return "Small";
-                if (originalResult === "Small") return "Big";
+                if (originalResult === "Big" || originalResult === "BIG")
+                    return "Small";
+                if (originalResult === "Small" || originalResult === "SMALL")
+                    return "Big";
                 if (originalResult === "RED" || originalResult === "🔴")
                     return "GREEN";
                 if (originalResult === "GREEN" || originalResult === "🟢")
                     return "RED";
+                if (originalResult === "Green") return "Red";
+                if (originalResult === "Red") return "Green";
             }
             return originalResult;
         };
 
-        const getPredictionNumbers = (originalResult) => {
-            const result = isReversed
-                ? getPredictionText(originalResult)
-                : originalResult;
-
-            if (result === "Big" || result === "BIG") {
-                return [5, 9];
-            } else if (result === "Small" || result === "SMALL") {
-                return [0, 4];
-            } else if (result === "RED" || result === "🔴") {
-                return [2, 6];
-            } else if (result === "GREEN" || result === "🟢") {
-                return [1, 7];
-            }
-            return [];
-        };
-
         let originalResult = null;
+        let predictedNumbers = [];
+
         if (activePredictionType === "guaranteed" && guaranteedPrediction) {
             originalResult = guaranteedPrediction.result;
+            predictedNumbers = getNumbersToDisplay(originalResult);
         } else if (
-            activePredictionType === "simple" &&
-            simplePredictionResult
+            activePredictionType === "simple_size" &&
+            simplePredictionResult &&
+            simplePredictionResult.size
         ) {
-            originalResult = simplePredictionResult;
+            originalResult = simplePredictionResult.size;
+            predictedNumbers = simplePredictionResult.numbers;
+        } else if (
+            activePredictionType === "simple_color" &&
+            simplePredictionResult &&
+            simplePredictionResult.color
+        ) {
+            originalResult = simplePredictionResult.color;
+            predictedNumbers = simplePredictionResult.numbers;
         }
 
         const predictionText = getPredictionText(originalResult);
-        const predictedNumbers = getPredictionNumbers(originalResult);
 
         const currentDate = getISTTime();
         const month = currentDate.getMonth() + 1;
@@ -355,39 +302,41 @@ const OneMinWingo = () => {
     };
 
     const getPredictionBoxContent = () => {
-        const getNumbersToDisplay = (prediction) => {
-            if (prediction === "Big") return [5, 9];
-            if (prediction === "Small") return [0, 4];
-            if (prediction === "RED" || prediction === "🔴") return [2, 6];
-            if (prediction === "GREEN" || prediction === "🟢") return [1, 7];
-            return [];
-        };
-
         const getReversedPrediction = (original) => {
-            if (original === "Big") return "Small";
-            if (original === "Small") return "Big";
-            if (original === "RED" || original === "🔴") return "Green";
-            if (original === "GREEN" || original === "🟢") return "Red";
+            if (original === "Big" || original === "BIG") return "Small";
+            if (original === "Small" || original === "SMALL") return "Big";
+            if (original === "RED" || original === "🔴") return "GREEN";
+            if (original === "GREEN" || original === "🟢") return "RED";
             return original;
         };
 
         let result = null;
         let originalResult = null;
+        let numbersToDisplay = [];
 
         if (activePredictionType === "guaranteed" && guaranteedPrediction) {
             originalResult = guaranteedPrediction.result;
+            numbersToDisplay = getNumbersToDisplay(originalResult);
         } else if (
-            activePredictionType === "simple" &&
-            simplePredictionResult
+            activePredictionType === "simple_size" &&
+            simplePredictionResult &&
+            simplePredictionResult.size
         ) {
-            originalResult = simplePredictionResult;
+            originalResult = simplePredictionResult.size;
+            numbersToDisplay = simplePredictionResult.numbers;
+        } else if (
+            activePredictionType === "simple_color" &&
+            simplePredictionResult &&
+            simplePredictionResult.color
+        ) {
+            originalResult = simplePredictionResult.color;
+            numbersToDisplay = simplePredictionResult.numbers;
         }
 
         if (originalResult) {
             result = isReversed
                 ? getReversedPrediction(originalResult)
                 : originalResult;
-            const numbers = getNumbersToDisplay(result);
             const displayColor =
                 result.includes("Green") || result.includes("🟢")
                     ? "green"
@@ -398,7 +347,9 @@ const OneMinWingo = () => {
             return (
                 <div className="prediction-box-right">
                     <div className={`prediction ${displayColor}`}>{result}</div>
-                    <div className="prediction-Num">{numbers.join(" , ")}</div>
+                    <div className="prediction-Num">
+                        {numbersToDisplay.join(" , ")}
+                    </div>
                 </div>
             );
         }
@@ -455,12 +406,22 @@ const OneMinWingo = () => {
                 >
                     Guaranteed Win Prediction
                 </button>
-                <button
-                    className="button button-secondary"
-                    onClick={handleSimplePredict}
-                >
-                    Simple Prediction
-                </button>
+                <div className="simple-prediction-buttons">
+                    <button
+                        className="button button-secondary"
+                        onClick={handleSimpleColorPredict}
+                    >
+                        Color Prediction
+                    </button>
+                    <button
+                        className="button button-secondary"
+                        onClick={handleSimpleSizePredict}
+                    >
+                        Size Prediction
+                    </button>
+                </div>
+               
+
                 <button
                     className="button button-tertiary"
                     onClick={handleCopyClick}
