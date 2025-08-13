@@ -1,7 +1,7 @@
 /* Update your CSS file to include these new styles */
 
 /* Main prediction box container */
-.prediction-box {
+.thirtySecprediction-box {
     background-color: #007bff;
     color: #fff;
     padding: 10px;
@@ -13,7 +13,7 @@
     text-align: center;
     margin: 8px auto;
     width: 80%;
-    
+
     max-width: 400px;
 }
 /* Upper section with timer and period */
@@ -56,8 +56,6 @@
 /* Lower section with prediction */
 .prediction-box-lower {
     width: 100%;
-
-    
 }
 .prediction-content {
     display: flex;
@@ -92,7 +90,7 @@
 /* New style for the number prediction box */
 .prediction-result.number-box {
     width: 8%;
-    font-size: 1.2em; 
+    font-size: 1.2em;
     background-color: #fff;
     color: #007bff;
     margin-top: 10px;
@@ -150,7 +148,7 @@
 .copy-message {
     /* Use absolute positioning to float the message */
     position: absolute;
-    top: 50%; 
+    top: 50%;
     left: 50%;
     transform: translate(-50%, -50%); /* Center the message */
     background-color: rgba(0, 0, 0, 0.7);

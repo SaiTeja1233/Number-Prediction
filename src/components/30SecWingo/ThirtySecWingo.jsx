@@ -234,7 +234,7 @@ const ThirtySecWingo = () => {
 
             <div className="Topline"></div>
 
-            <div className="prediction-box">
+            <div className="thirtySecprediction-box">
                 <div className="prediction-box-upper">
                     <p>Time remaining</p>
                     <div className="digital-timer-container">
