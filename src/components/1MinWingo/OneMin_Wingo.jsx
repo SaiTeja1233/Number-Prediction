@@ -30,7 +30,7 @@ const OneMinWingo = () => {
     const navigate = useNavigate();
 
     const backToDashboard = () => {
-        navigate("/dashboard");
+        navigate(-1);
     };
 
     const fetchHistory = useCallback(

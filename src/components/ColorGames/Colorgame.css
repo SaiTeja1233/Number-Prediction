@@ -1,0 +1,142 @@
+/* Container for the entire page, including the new nav bar */
+.colorgame-page-container {
+    background: #1a1a2e; /* Same dark background as the card container */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Styles for the new top navigation bar */
+.colorgame-navbar {
+    display: flex;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: #2c2c54; /* A slightly lighter, contrasting dark color */
+    color: white;
+    font-family: "Segoe UI", sans-serif;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+/* New CSS for the image-based back button */
+.back-button-image {
+    width: 24px;
+    height: auto;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.back-button-image:hover {
+    transform: scale(1.1); /* Adds a subtle hover effect */
+}
+
+/* Remove old back button styling */
+.back-button {
+    display: none;
+}
+
+.navbar-title {
+    flex-grow: 1; /* Pushes the title to the center */
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+    letter-spacing: 1px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* --- Keep the rest of your original Colorgame.css below --- */
+
+/* Base container for the game cards */
+.colorgame-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 24px;
+    padding: 2rem;
+    flex-grow: 1;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+/* Common styles for all game cards */
+.dashboard-game-card {
+    position: relative;
+    width: 280px;
+    height: 180px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    overflow: hidden;
+    color: #ffffff;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Card hover effect */
+.dashboard-game-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.6);
+}
+
+/* Backgrounds for each card using professional gaming-themed gradients */
+.colorgame-container button:nth-child(1) {
+    background: linear-gradient(135deg, #ff416c, #ff4b2b);
+}
+
+.colorgame-container button:nth-child(2) {
+    background: linear-gradient(135deg, #00c6ff, #0072ff);
+}
+
+.colorgame-container button:nth-child(3) {
+    background: linear-gradient(135deg, #6a11cb, #2575fc);
+}
+
+/* Text styles inside the cards */
+.card-title {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin: 0;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+.card-description {
+    font-size: 1rem;
+    font-weight: 400;
+    margin-top: 8px;
+    opacity: 0.8;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+    .colorgame-navbar {
+        padding: 1rem;
+    }
+    .navbar-title {
+        font-size: 1.2rem;
+    }
+    .colorgame-container {
+        padding: 1.5rem;
+    }
+
+    .dashboard-game-card {
+        width: 90%;
+        height: 150px;
+    }
+    
+    .card-title {
+        font-size: 1.5rem;
+    }
+    
+    .card-description {
+        font-size: 0.9rem;
+    }
+}

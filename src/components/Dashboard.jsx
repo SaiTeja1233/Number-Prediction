@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { account } from "../appwriteConfig";
 import { Link, useNavigate } from "react-router-dom";
 import "./Dashboard.css";
-// Assuming you have a tournament icon named 'tournament.png' in your assets folder
 
 const Dashboard = () => {
     const [user, setUser] = useState(null);
@@ -26,13 +25,11 @@ const Dashboard = () => {
         fetchUser();
     }, [navigate]);
 
-    const oneminwingo = () => {
-        navigate("/oneminwingo");
-    };
-
-    // New function to handle navigation to the tournaments page
     const navigateToTournaments = () => {
-        navigate("/tournament"); // Assumes a route for tournaments exists
+        navigate("/tournament");
+    };
+    const navigateToColorGames = () => {
+        navigate("/colorgames");
     };
 
     const handleLogout = async () => {
@@ -127,33 +124,21 @@ const Dashboard = () => {
                     Welcome to your Prediction App
                 </h3>
 
-                <div className="dashboard-game-cards">
-                    <button className="dashboard-game-card">
-                        <h3 className="card-title">30Sec WinGo</h3>
-                        <p className="card-description">
-                            Predict colors and numbers to win!
-                        </p>
-                    </button>
+                {/* New container for all cards with flexbox */}
+                <div className="game-card-container">
+                    {/* Color Games Card */}
                     <button
-                        className="dashboard-game-card"
-                        onClick={oneminwingo}
+                        className="game-card colorgames"
+                        onClick={navigateToColorGames}
                     >
-                        <h3 className="card-title">1Min WinGo</h3>
+                        <h3 className="card-title">Color Games</h3>
                         <p className="card-description">
                             Predict colors and numbers to win!
                         </p>
                     </button>
-                    <button className="dashboard-game-card">
-                        <h3 className="card-title">3Min WinGo</h3>
-                        <p className="card-description">
-                            Predict colors and numbers to win!
-                        </p>
-                    </button>
-                    {/* New Tournaments button with image */}
-                </div>
-                <div className="tournament-comp">
+                    {/* Tournaments Card */}
                     <button
-                        className="dashboard-tournament-card"
+                        className="game-card tournament"
                         onClick={navigateToTournaments}
                     >
                         <h3 className="card-title">Tournaments</h3>

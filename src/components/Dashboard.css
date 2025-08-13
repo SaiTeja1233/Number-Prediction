@@ -1,7 +1,12 @@
 /* BASE */
 .dashboard-main-container {
     font-family: "Segoe UI", sans-serif;
-    background: linear-gradient(160deg, #e9f1ff 0%, #f7faff 100%);
+    /* Updated background with an image and a semi-transparent overlay */
+    background: linear-gradient(160deg, rgba(55, 107, 196, 0.9), rgba(247, 250, 255, 0.9));
+               /* Use your image path here */
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed; /* Ensures the background stays in place while scrolling */
     min-height: 100vh;
     padding: 0;
     margin: 0;
@@ -45,12 +50,6 @@
     margin-left: 0.05em;
 }
 
-.navbar-center {
-    font-size: 1rem;
-    font-style: italic;
-    color: #e0e0ff;
-}
-
 .navbar-right {
     display: flex;
     align-items: center;
@@ -85,23 +84,10 @@
     flex-grow: 1;
 }
 
-/* Welcome heading */
 .dashboard-welcome-heading {
     font-size: 1.8rem;
     color: #003366;
     margin-bottom: 0.5rem;
-}
-
-/* Welcome message */
-.dashboard-welcome-message {
-    font-size: 1.1rem;
-    color: #555;
-    margin-bottom: 2rem;
-}
-
-.dashboard-username {
-    font-weight: bold;
-    color: #007bff;
 }
 
 /* Game Card Container */
@@ -109,108 +95,83 @@
     display: flex;
     justify-content: center;
     margin-top: 2rem;
-    gap: 10px;
+    gap: 20px;
     flex-wrap: wrap;
 }
 
-/* A new container for the large tournament card */
-.tournament-comp {
+.game-card-container {
     display: flex;
-    justify-content: center; /* This centers the card horizontally */
-    width: 100%; /* Takes up the full width of the parent content area */
-    margin-top: 2rem; /* Adds space between the other cards and the tournament card */
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
 }
 
-/* All Card Styles (Base) */
-.dashboard-game-card,
-.dashboard-tournament-card {
+/* Card Styles */
+.game-card {
+    position: relative;
     padding: 1.5rem 2rem;
     border-radius: 16px;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
     border: none;
     cursor: pointer;
-    transition: transform 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
     text-align: center;
     display: flex;
     flex-direction: column;
     align-items: center;
-}
-
-/* Regular Game Card Styles */
-.dashboard-game-card {
-    background: rgb(141, 168, 255);
-    width: 250px;
-}
-
-.dashboard-game-card:hover {
-    transform: translateY(-5px);
-    background: #f0f8ff;
-}
-
-/* Tournament Card Styles with Background Image */
-.dashboard-tournament-card {
-    /* Large screen specific dimensions */
-    width: 80%;
-    height: 40vh;
-    padding: 1.5rem 2rem;
-    
-    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
-        url("../../public/tournament.png");
-    background-size: cover;
-    background-position: center; /* This ensures the image is centered within the button */
-    color: white; 
-    
     justify-content: center;
+    width: 280px;
+    min-height: 200px;
+    color: white;
     overflow: hidden;
 }
 
-/* This targets the title and description inside the tournament card */
-.dashboard-tournament-card .card-title,
-.dashboard-tournament-card .card-description {
-    color: white;
-    opacity: 0;
-    transition: opacity 0.3s ease-in-out;
-    position: relative;
-    z-index: 2;
-}
-
-/* On hover, make the text visible */
-.dashboard-tournament-card:hover .card-title,
-.dashboard-tournament-card:hover .card-description {
-    opacity: 1;
-}
-
-/* Hover state for the card itself */
-.dashboard-tournament-card:hover {
-    transform: translateY(-5px);
-    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
-        url("../../public/tournament.png");
+.game-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     background-size: cover;
     background-position: center;
+    filter: brightness(0.6);
+    transition: filter 0.3s ease;
+    z-index: 0;
 }
 
-/* Card content styles */
+.colorgames::before {
+    background-image: url('../../public/colorgame.png');
+}
+
+.tournament::before {
+    background-image: url('../../public/tournament.png');
+}
+
+.game-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+}
+
+.game-card:hover::before {
+    filter: brightness(0.8);
+}
+
+.game-card .card-title,
+.game-card .card-description {
+    position: relative;
+    z-index: 1;
+    color: white;
+}
+
 .card-title {
     font-size: 1.4rem;
-    color: #0047ab;
     margin-bottom: 0.5rem;
-}
-
-.dashboard-tournament-card .card-title,
-.dashboard-tournament-card .card-description {
-    color: white;
 }
 
 .card-description {
     font-size: 1rem;
-    color: #333;
-}
-
-/* The image is now the background, so the card-icon class is not needed for the tournament card. */
-.card-icon {
-    width: 60px;
-    height: auto;
-    margin-bottom: 1rem;
+    opacity: 0.9;
 }
 
 /* LOADING & ERROR STATES */
@@ -290,71 +251,18 @@
 
 /* ========== MOBILE RESPONSIVENESS ========== */
 @media (max-width: 768px) {
-    .dashboard-main-container {
-        max-width: 100%;
-        border-radius: 0;
-    }
-
     .dashboard-navbar {
         padding: 0.8rem 1rem;
-        flex-direction: row;
-        justify-content: space-between;
     }
 
-    .navbar-left {
-        order: 0;
-        justify-content: flex-start;
-        margin-left: 0;
-    }
-
-    .navbar-right {
-        order: 1;
-        flex-grow: 0;
-    }
-
-    .navbar-user {
-        font-size: 0.85rem;
-    }
-
-    .navbar-logout-btn {
-        padding: 0.3rem 0.6rem;
-        font-size: 0.8rem;
-    }
-
-    .navbar-center {
-        display: none;
-    }
-
-    .dashboard-content {
-        padding: 1.5rem 1rem;
-        padding-top: 1.5rem;
-    }
-
-    .dashboard-welcome-heading {
-        font-size: 1.6rem;
-    }
-
-    .dashboard-welcome-message {
-        font-size: 0.95rem;
-    }
-
-    .dashboard-game-cards {
+    .game-card-container {
         flex-direction: column;
         align-items: center;
-        gap: 1.5rem;
-        margin-top: 1.5rem;
     }
-
-    /* Sets tournament card to behave like a normal card on small screens */
-    .tournament-comp {
-        margin-top: 1.5rem;
-    }
-
-    .dashboard-tournament-card {
+    
+    .game-card {
         width: 90%;
-        max-width: 300px;
-        height: auto;
-        padding: 1.2rem 1.5rem;
+        min-height: 180px;
     }
 
     .card-title {
@@ -367,64 +275,16 @@
 }
 
 @media (max-width: 480px) {
-    .dashboard-navbar {
-        padding: 0.6rem 0.8rem;
-    }
-
-    .navbar-left {
-        font-size: 1rem;
-    }
-
-    .navbar-user {
-        font-size: 0.8rem;
-    }
-
-    .navbar-logout-btn {
-        padding: 0.25rem 0.5rem;
-        font-size: 0.75rem;
-    }
-
-    .dashboard-content {
-        padding: 1rem 0.8rem;
-    }
-
-    .dashboard-welcome-heading {
-        font-size: 1.2rem;
-    }
-
-    .dashboard-welcome-message {
-        font-size: 0.8rem;
-    }
-
-    .dashboard-game-card {
-        padding: 1rem;
+    .game-card {
         width: 95%;
-    }
-}
-
-@media (max-width: 400px) {
-    .dashboard-navbar {
-        padding: 0.5rem 0.6rem;
+        min-height: 150px;
     }
 
-    .navbar-left {
-        font-size: 0.9rem;
+    .card-title {
+        font-size: 1.1rem;
     }
 
-    .navbar-user {
-        font-size: 0.7rem;
-    }
-
-    .navbar-logout-btn {
-        padding: 0.2rem 0.4rem;
-        font-size: 0.65rem;
-    }
-
-    .dashboard-content {
-        padding: 0.8rem 0.6rem;
-    }
-
-    .dashboard-welcome-heading {
-        font-size: 0.9rem;
+    .card-description {
+        font-size: 0.8rem;
     }
 }

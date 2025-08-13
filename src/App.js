@@ -10,6 +10,8 @@ import Register from "./components/RegisterForm";
 import Login from "./components/LoginForm";
 import OneMinWingo from "./components/1MinWingo/OneMin_Wingo";
 import Tournament from "./components/Tournament/Tournament";
+import Colorgame from "./components/ColorGames/Colorgame";
+import ThirtySecWingo from "./components/30SecWingo/ThirtySecWingo";
 
 function App() {
     return (
@@ -21,6 +23,11 @@ function App() {
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/oneminwingo" element={<OneMinWingo />} />
                     <Route path="/tournament" element={<Tournament />} />
+                    <Route path="/colorgames" element={<Colorgame />} />
+                    <Route
+                        path="/thirtysecwingo"
+                        element={<ThirtySecWingo />}
+                    />
                     <Route
                         path="*"
                         element={<Navigate to="/login" replace />}

@@ -22,7 +22,7 @@ export const getSizeFromNumber = (num) => {
     return num >= 5 ? "Big" : "Small";
 };
 
-// Helper function to fetch the result of a specific period
+// Helper function to fetch the result of a specific period (1-minute)
 export const fetchGameResult = async (period) => {
     try {
         const response = await fetch(
@@ -44,7 +44,7 @@ export const fetchGameResult = async (period) => {
     return null;
 };
 
-// Helper function to fetch optimized data (in this context, it's the history)
+// Helper function to fetch optimized data (1-minute history)
 export const fetchOptimizedData = async () => {
     try {
         const response = await fetch(
@@ -56,6 +56,19 @@ export const fetchOptimizedData = async () => {
         console.error("Error fetching optimized data:", err);
     }
     return [];
+};
+
+// **NEW FETCH FUNCTION FOR 30-SECOND WINGO**
+export const fetchThirtySecData = async () => {
+     try {
+         const response = await fetch(
+             `https://draw.ar-lottery01.com/WinGo/WinGo_30S/GetHistoryIssuePage.json?ts=${Date.now()}`
+         );
+         const data = await response.json();
+         return data?.data?.list || [];
+     } catch (err) {
+         console.error("Error fetching optimized data:", err);
+     }
 };
 
 /**

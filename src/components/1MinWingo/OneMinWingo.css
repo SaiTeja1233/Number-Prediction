@@ -541,7 +541,7 @@ p {
 /* Small Phones (up to 480px) */
 @media (max-width: 480px) {
     .one-min-wrapper {
-        padding: 5px;
+        padding: 0;
         gap: 8px;
     }
 
