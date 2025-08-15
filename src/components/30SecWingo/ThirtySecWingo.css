@@ -13,9 +13,9 @@
     text-align: center;
     margin: 8px auto;
     width: 80%;
-
     max-width: 400px;
 }
+
 /* Upper section with timer and period */
 .prediction-box-upper {
     display: flex;
@@ -23,9 +23,11 @@
     align-items: center;
     padding: 1px 0;
 }
+
 .prediction-box-upper p {
     margin: 0 0 5px 0;
 }
+
 .digital-timer-container {
     display: flex;
     justify-content: center;
@@ -34,6 +36,7 @@
     font-weight: bold;
     margin: 10px 0;
 }
+
 .timer-box {
     background-color: #fff;
     color: #007bff;
@@ -42,10 +45,12 @@
     min-width: 40px;
     text-align: center;
 }
+
 .next-period-num {
     font-size: 1.2em;
     margin-top: 10px;
 }
+
 /* Horizontal line divider */
 .horizontal-divider {
     width: 100%;
@@ -53,56 +58,89 @@
     background-color: rgba(255, 255, 255, 0.5);
     margin: 15px 0;
 }
+
 /* Lower section with prediction */
 .prediction-box-lower {
     width: 100%;
+    /* New: Use position: relative to contain absolute children */
+    position: relative;
+    height: 100px; /* Give it a fixed height to prevent content shifting */
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
+
 .prediction-content {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 100%; /* Ensure the content fills the container */
+    width: 100%;
 }
-/* --- The key changes are here --- */
-.no-prediction,
-.prediction-result {
-    background-color: #fff;
-    color: #007bff;
-    padding: 15px 25px;
-    border-radius: 8px;
+
+.no-prediction {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #00f7ff;
     font-size: 1.2em;
     font-weight: bold;
-    width: 60%; /* Adjusted width */
-    text-align: center; /* Center the text */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-top: 10px; /* Added margin to separate the boxes */
-}
-/* You can add specific styles for BIG/SMALL here if needed */
-.prediction-result.big {
-    /* Example: specific style for BIG */
-    color: rgb(255, 183, 0);
-}
-.prediction-result.small {
-    color: rgb(0, 128, 255);
-    /* Example: specific style for SMALL */
 }
 
-/* New style for the number prediction box */
-.prediction-result.number-box {
-    width: 8%;
-    font-size: 1.2em;
-    background-color: #fff;
-    color: #007bff;
-    margin-top: 10px;
+/* New: Styles for the glowing prediction */
+.glowing-prediction-container {
+    animation: fadeIn 0.5s forwards; /* New: Fade-in animation for the prediction text */
+    text-align: center;
 }
 
-.prediction-label-number {
-    margin-top: 10px;
-    font-size: 1em;
-    font-weight: 400;
+.glowing-prediction {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: white;
+    text-shadow: 0 0 5px #fff, 0 0 10px #00f7ff, 0 0 20px #00f7ff,
+        0 0 40px #00f7ff;
+    animation: glowing-text 1.5s ease-in-out infinite alternate;
+    margin: 0;
 }
 
-/* Buttons and other elements from previous code */
+.glowing-number {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 0 0 5px #fff, 0 0 10px #ff4d4f, 0 0 20px #ff4d4f;
+    animation: glowing-text-number 1.5s ease-in-out infinite alternate;
+    margin-top: 5px;
+}
+
+/* Keyframes for the glowing text */
+@keyframes glowing-text {
+    0% {
+        text-shadow: 0 0 5px #fff, 0 0 10px #00f7ff, 0 0 20px #00f7ff;
+    }
+    100% {
+        text-shadow: 0 0 10px #fff, 0 0 20px #00f7ff, 0 0 40px #00f7ff,
+            0 0 80px #00f7ff;
+    }
+}
+
+@keyframes glowing-text-number {
+    0% {
+        text-shadow: 0 0 5px #fff, 0 0 10px #ff4d4f;
+    }
+    100% {
+        text-shadow: 0 0 10px #fff, 0 0 20px #ff4d4f, 0 0 40px #ff4d4f;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
 .predict-btn {
     padding: 12px 24px;
     border: none;
@@ -113,30 +151,26 @@
     font-weight: bold;
     text-transform: uppercase;
 }
-.predict-btn.start {
-    background-color: #4caf50;
-    color: white;
-}
-.predict-btn.stop {
-    background-color: #f44336;
-    color: white;
-}
 
-/* New styles for the button container and copy message */
 .button-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
-    position: relative; /* Set relative positioning for absolute child */
+    position: relative;
     margin-top: 20px;
 }
 
 .prediction-control-box {
     display: flex;
-    gap: 10px; /* Space between the buttons */
+    gap: 10px;
     justify-content: center;
     align-items: center;
-    width: 250px; /* Ensure the button box takes full width */
+    width: 250px;
+}
+
+.predict-btn.get-result-btn {
+    background-color: #007bff;
+    color: white;
 }
 
 .predict-btn.copy-btn {
@@ -144,19 +178,604 @@
     color: white;
 }
 
-/* New styles for the copy message */
 .copy-message {
-    /* Use absolute positioning to float the message */
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%); /* Center the message */
+    transform: translate(-50%, -50%);
     background-color: rgba(0, 0, 0, 0.7);
     color: white;
     padding: 10px 20px;
     border-radius: 8px;
     font-weight: bold;
-    z-index: 1000; /* High z-index to bring it to the front */
-    white-space: nowrap; /* Prevents the text from wrapping */
+    z-index: 1000;
+    white-space: nowrap;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
+
+/* Loader and animation styles (no changes needed) */
+.eva {
+    --EVA-ROTATION-DURATION: 4s;
+    transform-style: preserve-3d;
+    animation: rotateRight var(--EVA-ROTATION-DURATION) linear infinite
+        alternate;
+    margin-right: 180px;
+    margin-top: 350px;
+}
+
+.head {
+    position: relative;
+    width: 6rem;
+    height: 4rem;
+    border-radius: 48% 53% 45% 55% / 79% 79% 20% 22%;
+    background: linear-gradient(to right, white 45%, gray);
+}
+
+.eyeChamber {
+    width: 4.5rem;
+    height: 2.75rem;
+    position: relative;
+    left: 50%;
+    top: 55%;
+    border-radius: 45% 53% 45% 48% / 62% 59% 35% 34%;
+    background-color: #0c203c;
+    box-shadow: 0px 0px 2px 2px white, inset 0px 0px 0px 2px black;
+    transform: translate(-50%, -50%);
+    animation: moveRight var(--EVA-ROTATION-DURATION) linear infinite alternate;
+}
+
+.eye {
+    width: 1.2rem;
+    height: 1.5rem;
+    position: absolute;
+    border-radius: 50%;
+}
+
+.eye:first-child {
+    left: 12px;
+    top: 50%;
+    background: repeating-linear-gradient(
+        65deg,
+        #9bdaeb 0px,
+        #9bdaeb 1px,
+        white 2px
+    );
+    box-shadow: inset 0px 0px 5px #04b8d5, 0px 0px 15px 1px #0bdaeb;
+    transform: translate(0, -50%) rotate(-65deg);
+}
+
+.eye:nth-child(2) {
+    right: 12px;
+    top: 50%;
+    background: repeating-linear-gradient(
+        -65deg,
+        #9bdaeb 0px,
+        #9bdaeb 1px,
+        white 2px
+    );
+    box-shadow: inset 0px 0px 5px #04b8d5, 0px 0px 15px 1px #0bdaeb;
+    transform: translate(0, -50%) rotate(65deg);
+}
+
+.body {
+    width: 6rem;
+    height: 8rem;
+    position: relative;
+    margin-block-start: 0.25rem;
+    border-radius: 47% 53% 45% 55% / 12% 9% 90% 88%;
+    background: linear-gradient(to right, white 35%, gray);
+}
+
+.hand {
+    position: absolute;
+    left: -1.5rem;
+    top: 0.75rem;
+    width: 2rem;
+    height: 5.5rem;
+    border-radius: 40%;
+    background: linear-gradient(to left, white 15%, gray);
+    box-shadow: 5px 0px 5px rgba(0, 0, 0, 0.25);
+    transform: rotateY(55deg) rotateZ(10deg);
+}
+
+.hand:first-child {
+    animation: compensateRotation var(--EVA-ROTATION-DURATION) linear infinite
+        alternate;
+}
+
+.hand:nth-child(2) {
+    left: 92%;
+    background: linear-gradient(to right, white 15%, gray);
+    transform: rotateY(55deg) rotateZ(-10deg);
+    animation: compensateRotationRight var(--EVA-ROTATION-DURATION) linear
+        infinite alternate;
+}
+
+.scannerOrigin {
+    position: absolute;
+    width: 8px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    left: 60%;
+    top: 10%;
+    background: #9bdaeb;
+    box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.5);
+    animation: moveRight var(--EVA-ROTATION-DURATION) linear infinite;
+}
+
+@keyframes rotateRight {
+    from {
+        transform: rotateY(0deg);
+    }
+}
+
+@keyframes moveRight {
+    from {
+        transform: translate(-50%, -50%);
+    }
+}
+
+@keyframes compensateRotation {
+    from {
+        transform: rotateY(55deg) rotateZ(10deg);
+    }
+}
+
+@keyframes compensateRotationRight {
+    from {
+        transform: rotateY(55deg) rotateZ(-10deg);
+    }
+}
+
+.scannerThing {
+    width: 0;
+    height: 0;
+    position: absolute;
+    left: 60%;
+    top: 10%;
+    border-top: 312px solid #9bdaeb;
+    border-left: 250px solid transparent;
+    border-right: 250px solid transparent;
+    transform-origin: top left;
+    mask: linear-gradient(to right, white, transparent 40%);
+    animation: glow var(--glow-duration, 2s) cubic-bezier(0.86, 0, 0.07, 1)
+        forwards;
+}
+
+/* Keyframes for the dynamic glow animation */
+@keyframes glow {
+    0% {
+        opacity: 0;
+        transform: rotate(0deg);
+    }
+    10% {
+        opacity: 1;
+    }
+    20% {
+        transform: rotate(-96deg);
+    }
+    80% {
+        /* This is the hold period - from 20% to 80% the value is the same */
+        transform: rotate(-96deg);
+        opacity: 1;
+    }
+    90% {
+        transform: rotate(5deg);
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+/* Styles for the rest of the component */
+.one-min-wrapper {
+    background-color: #f0f2f5;
+    min-height: 100vh;
+    padding: 0px;
+    box-sizing: border-box;
+}
+
+.Wingo-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 0;
+    color: #333;
+}
+
+.Wingo-header h2 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.Topline {
+    height: 2px;
+    background: linear-gradient(
+        90deg,
+        rgba(255, 165, 0, 1) 0%,
+        rgba(255, 0, 0, 1) 50%,
+        rgba(128, 0, 128, 1) 100%
+    );
+    margin-bottom: 20px;
+}
+
+.loader {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.966);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.loader.active {
+    display: flex;
+}
+
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.history-table th,
+.history-table td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.history-table th {
+    background-color: #fafafa;
+    font-weight: 600;
+    color: #555;
+}
+
+.history-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.number-even {
+    color: #ff4d4f;
+    font-weight: bold;
+}
+
+.number-odd {
+    color: #00a321;
+    font-weight: bold;
+}
+
+/* From Uiverse.io by Spacious74 */
+/* From Uiverse.io by Spacious74 */
+
+/* Main Container: Transparent and Positioned */
+.wingo-outer {
+    width: 300px;
+    height: 250px;
+    border-radius: 10px;
+    padding: 1px;
+    background: transparent;
+    z-index: 1000;
+    position: fixed;
+    top: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+}
+
+/* Base class for the fade-in animation */
+.wingo-outer.fade-in {
+    animation: wingo-fade-up 1s ease-out forwards;
+}
+
+/* Class to trigger the fade-out animation */
+.wingo-outer.fade-out {
+    animation: wingo-fade-down 1s ease-in forwards;
+}
+
+/* Keyframe for fading in from the bottom up */
+@keyframes wingo-fade-up {
+    from {
+        opacity: 0;
+        transform: translate(-50%, 50px); /* Starts 50px below its final position */
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0); /* Ends at its fixed top position */
+    }
+}
+
+/* Keyframe for fading out and moving downwards */
+@keyframes wingo-fade-down {
+    from {
+        opacity: 1;
+        transform: translate(-50%, 0); /* Starts at its current position */
+    }
+    to {
+        opacity: 0;
+        transform: translate(-50%, 50px); /* Moves down 50px and fades out */
+    }
+}
+.wingo-outer.visible {
+    opacity: 1; /* This class is added by React to trigger the fade-in */
+}
+
+/* Glowing Dot */
+.wingo-dot {
+    width: 8px;
+    aspect-ratio: 1;
+    position: absolute;
+    background-color: #00bfff; /* Blue color for glow */
+    box-shadow: 0 0 10px #00bfff, 0 0 20px #00bfff, 0 0 30px #00bfff,
+        0 0 40px #00bfff;
+    border-radius: 100px;
+    z-index: 2;
+    right: 10%;
+    top: 10%;
+    animation: wingo-moveDot 6s linear infinite,
+        wingo-glowPulse 1.5s linear infinite;
+}
+
+/* Dot Animation */
+@keyframes wingo-moveDot {
+    0%,
+    100% {
+        top: 10%;
+        right: 10%;
+    }
+    25% {
+        top: 10%;
+        right: calc(100% - 35px);
+    }
+    50% {
+        top: calc(100% - 30px);
+        right: calc(100% - 35px);
+    }
+    75% {
+        top: calc(100% - 30px);
+        right: 10%;
+    }
+}
+
+/* Glow Pulse Animation for Dot and Lines */
+@keyframes wingo-glowPulse {
+    0% {
+        box-shadow: 0 0 10px #00bfff, 0 0 20px #00bfff;
+    }
+    50% {
+        box-shadow: 0 0 20px #00bfff, 0 0 40px #00bfff;
+    }
+    100% {
+        box-shadow: 0 0 10px #00bfff, 0 0 20px #00bfff;
+    }
+}
+
+/* Card Container: Transparent */
+.wingo-card {
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    border-radius: 9px;
+    border: none; /* Removed border */
+    background: transparent; /* Changed to transparent */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    flex-direction: column;
+    color: #fff;
+}
+
+/* Glowing Text */
+.wingo-card .wingo-text {
+    font-weight: bolder;
+    font-size: 4rem;
+    color: #00bfff; /* Set text color to glowing blue */
+    text-shadow: 0 0 5px #00bfff, 0 0 10px #00bfff, 0 0 20px #00bfff,
+        0 0 40px #00bfff;
+    animation: text-glow-pulse 1.5s infinite alternate;
+}
+
+@keyframes text-glow-pulse {
+    0% {
+        text-shadow: 0 0 5px #00bfff, 0 0 10px #00bfff, 0 0 20px #00bfff;
+    }
+    100% {
+        text-shadow: 0 0 10px #00bfff, 0 0 20px #00bfff, 0 0 40px #00bfff;
+    }
+}
+
+/* Glowing Lines */
+.wingo-line {
+    width: 100%;
+    height: 1px;
+    position: absolute;
+    /* Use the same linear gradient as the base for all horizontal lines */
+    background: linear-gradient(90deg, #00bfff 30%, #1d1f1f 70%);
+    /* Apply horizontal glitch animation to the top and bottom lines */
+    animation: wingo-glitch-horizontal 0.3s steps(2, end) infinite;
+}
+
+.wingo-topl {
+    top: 10%;
+}
+
+.wingo-bottoml {
+    bottom: 10%;
+    /* You can give a slightly different timing to make the animation less uniform */
+    animation: wingo-glitch-horizontal 0.25s steps(2, end) infinite;
+}
+
+.wingo-leftl {
+    left: 10%;
+    width: 1px;
+    height: 100%;
+    /* Use the same linear gradient as the base for all vertical lines */
+    background: linear-gradient(180deg, #00bfff 30%, #222424 70%);
+    /* Apply vertical glitch animation to the left and right lines */
+    animation: wingo-glitch-vertical 0.3s steps(2, end) infinite;
+}
+
+.wingo-rightl {
+    right: 10%;
+    width: 1px;
+    height: 100%;
+    /* You can give a slightly different timing to make the animation less uniform */
+    animation: wingo-glitch-vertical 0.35s steps(2, end) infinite;
+}
+
+/* Keyframe for horizontal glitch effect */
+@keyframes wingo-glitch-horizontal {
+    0% {
+        transform: translateX(0) rotate(2deg);
+    }
+    20% {
+        transform: translateX(2px) rotate(-2deg);
+    }
+    40% {
+        transform: translateX(-2px) rotate(2deg);
+    }
+    60% {
+        transform: translateX(1px) rotate(-2deg);
+    }
+    80% {
+        transform: translateX(-1px) rotate(2deg);
+    }
+    100% {
+        transform: translateX(0) rotate(-2deg);
+    }
+}
+
+/* Keyframe for vertical glitch effect */
+@keyframes wingo-glitch-vertical {
+    0% {
+        transform: translateY(0) rotate(-2deg);
+    }
+    20% {
+        transform: translateY(2px) rotate(2deg);
+    }
+    40% {
+        transform: translateY(-2px) rotate(-2deg);
+    }
+    60% {
+        transform: translateY(1px) rotate(2deg);
+    }
+    80% {
+        transform: translateY(-1px) rotate(-2deg);
+    }
+    100% {
+        transform: translateY(0) rotate(2deg);
+    }
+}
+/* Styles for the glowing number and color/size text */
+.wingo-text-number,
+.wingo-text-color-size {
+    font-weight: bolder;
+    
+    /* Match font size from the provided codes */
+    color: #fff; /* Set text color to white */
+    text-shadow: 0 0 5px #fff, /* White core glow */
+                 0 0 10px #00bfff, /* Blue outer glow */
+                 0 0 20px #00bfff,
+                 0 0 40px #00bfff;
+    animation: text-glow-blue 1.5s ease-in-out infinite alternate;
+}
+.wingo-text-number {
+    font-size: 1.2rem;
+    margin-bottom: 10px; /* Add some space below the number */
+}
+.wingo-text-color-size{
+ font-size: 2rem;
+}
+
+/* Specific glow for the 'red' class (if you still want it) */
+.wingo-text-color-size.red {
+    text-shadow: 0 0 5px #fff, 0 0 10px #ff3b3f, 0 0 20px #ff3b3f, 0 0 40px #ff3b3f;
+    animation: text-glow-red 1.5s ease-in-out infinite alternate;
+}
+
+/* Specific glow for the 'green' class (if you still want it) */
+.wingo-text-color-size.green {
+    text-shadow: 0 0 5px #fff, 0 0 10px #33cc66, 0 0 20px #33cc66, 0 0 40px #33cc66;
+    animation: text-glow-green 1.5s ease-in-out infinite alternate;
+}
+
+/* Keyframes for the white and blue glow */
+@keyframes text-glow-blue {
+    0% {
+        text-shadow: 0 0 5px #fff, 0 0 10px #00bfff, 0 0 20px #00bfff;
+    }
+    100% {
+        text-shadow: 0 0 10px #fff, 0 0 20px #00bfff, 0 0 40px #00bfff;
+    }
+}
+
+/* Keyframes for the red-specific glow */
+@keyframes text-glow-red {
+    0% {
+        text-shadow: 0 0 5px #fff, 0 0 10px #ff3b3f, 0 0 20px #ff3b3f;
+    }
+    100% {
+        text-shadow: 0 0 10px #fff, 0 0 20px #ff3b3f, 0 0 40px #ff3b3f;
+    }
+}
+
+/* Keyframes for the green-specific glow */
+@keyframes text-glow-green {
+    0% {
+        text-shadow: 0 0 5px #fff, 0 0 10px #33cc66, 0 0 20px #33cc66;
+    }
+    100% {
+        text-shadow: 0 0 10px #fff, 0 0 20px #33cc66, 0 0 40px #33cc66;
+    }
+}
+
+.copy-prediction-btn {
+position: absolute;
+top: 85%; 
+left: 70%;
+transform: translateX(-50%);
+z-index: 1001;
+padding: 8px 12px;
+border-radius: 8px;
+border: 2px solid transparent; 
+background-color: transparent; 
+color: #00bfff;
+font-weight: bold;
+font-size: 12px;
+cursor: pointer;
+text-shadow: 0 0 5px #00bfff; 
+box-shadow: 0 0 8px #00bfff; 
+transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out, box-shadow 0.3s ease-in-out, color 0.3s ease-in-out, border-color 0.3s ease-in-out, text-shadow 0.3s ease-in-out;
+}
+
+.copy-prediction-btn:hover {
+color: #add8e6;
+text-shadow: 0 0 10px #add8e6; 
+box-shadow: 0 0 15px #add8e6; 
+border-color: #add8e6;
+}
+
+.fade-in {
+opacity: 1;
+visibility: visible;
+transform: translate(-50%, 0) scale(1);
+}
+
+.fade-out {
+opacity: 0;
+visibility: hidden;
+transform: translate(-50%, -10px) scale(0.95);
+transition: opacity 1s ease-in-out, transform 1s ease-in-out, visibility 1s;
+}
+
+

@@ -1,6 +1,6 @@
 /* ========== BASE ========== */
 .one-min-wrapper {
-    padding: 10px; /* Adjusted padding for mobile-first approach */
+    padding: 0px; /* Adjusted padding for mobile-first approach */
     font-family: "Segoe UI", sans-serif;
     background: linear-gradient(160deg, #e9f1ff, #f7faff);
     min-height: 100vh;
@@ -472,7 +472,7 @@ p {
 /* General Mobile (up to 768px) */
 @media (max-width: 768px) {
     .one-min-wrapper {
-        padding: 5px;
+        padding: 0px;
         gap: 10px;
     }
 
@@ -541,7 +541,7 @@ p {
 /* Small Phones (up to 480px) */
 @media (max-width: 480px) {
     .one-min-wrapper {
-        padding: 0;
+        padding: 0px;
         gap: 8px;
     }
 

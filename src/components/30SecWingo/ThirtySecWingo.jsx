@@ -1,126 +1,166 @@
 /* global BigInt */
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import "./ThirtySecWingo.css";
 import { useNavigate } from "react-router-dom";
-
-// Import the new fetch function and helper functions
-import {
-    getISTTime,
-    getColorFromNumber,
-    getSizeFromNumber,
-    fetchThirtySecData,
-} from "../../predictionLogic";
+import { getISTTime, fetchThirtySecData } from "../../predictionLogic";
 
 const ThirtySecWingo = () => {
     const [latestPeriod, setLatestPeriod] = useState("");
     const [history, setHistory] = useState([]);
     const [error, setError] = useState(null);
     const [secondsLeft, setSecondsLeft] = useState(29);
+    const [isResultClicked, setIsResultClicked] = useState(false);
+    const [glowAnimationActive, setGlowAnimationActive] = useState(false);
+    const [showCard, setShowCard] = useState(false);
+    const [isFadingOut, setIsFadingOut] = useState(false);
+    const [predictedResult, setPredictedResult] = useState(null);
+    const [showCopyButton, setShowCopyButton] = useState(false);
 
-    const [isPredicting, setIsPredicting] = useState(false);
-    const [predictionResult, setPredictionResult] = useState(null);
-    const [lastPredictedPeriod, setLastPredictedPeriod] = useState(null);
-    const [copyMessage, setCopyMessage] = useState(null);
-
+    const scannerThingRef = useRef(null);
     const navigate = useNavigate();
 
     const backToDashboard = () => {
         navigate(-1);
     };
 
-    const startPrediction = () => {
-        setIsPredicting((prev) => !prev);
-        if (isPredicting) {
-            setPredictionResult(null);
+    const getSizeFromNumber = (number) => {
+        if (number >= 5) {
+            return "BIG";
+        } else {
+            return "SMALL";
         }
     };
 
-    const predictNumbers = useCallback(() => {
-        if (history.length < 5) return [];
+    const getColorFromNumber = (number) => {
+        if (number % 2 === 0) {
+            return "Red";
+        } else {
+            return "Green";
+        }
+    };
 
-        // Analysis: Check for sequences (e.g., 5, 5, 5 or 1, 2, 3)
-        const latestNumbers = history
-            .slice(0, 5)
-            .map((item) => parseInt(item.number));
-        let nextInSequence = null;
-        if (latestNumbers.length === 5) {
-            // Check for a repeating sequence
-            if (
-                latestNumbers[0] === latestNumbers[1] &&
-                latestNumbers[1] === latestNumbers[2]
-            ) {
-                nextInSequence = latestNumbers[0];
+    const getHumanPrediction = (historyData) => {
+        const colors = historyData.map((item) =>
+            getColorFromNumber(parseInt(item.number))
+        );
+        const sizes = historyData.map((item) =>
+            getSizeFromNumber(parseInt(item.number))
+        );
+
+        let predictedColor = null;
+        if (colors.length >= 2) {
+            const lastTwoColors = colors.slice(-2);
+            if (lastTwoColors[0] !== lastTwoColors[1]) {
+                predictedColor = lastTwoColors[0];
+            } else {
+                predictedColor = lastTwoColors[0] === "Red" ? "Green" : "Red";
             }
-            // Check for a simple ascending sequence
-            else if (
-                latestNumbers[0] + 1 === latestNumbers[1] &&
-                latestNumbers[1] + 1 === latestNumbers[2]
-            ) {
-                nextInSequence = latestNumbers[2] + 1;
-            }
-            // Check for a simple descending sequence
-            else if (
-                latestNumbers[0] - 1 === latestNumbers[1] &&
-                latestNumbers[1] - 1 === latestNumbers[2]
-            ) {
-                nextInSequence = latestNumbers[2] - 1;
-            }
+        } else {
+            predictedColor = "Green";
         }
 
-        // Final prediction logic
-        if (
-            nextInSequence !== null &&
-            nextInSequence >= 0 &&
-            nextInSequence <= 9
-        ) {
-            return [nextInSequence];
+        let predictedSize = null;
+        const sizeCounts = sizes.reduce((acc, size) => {
+            acc[size] = (acc[size] || 0) + 1;
+            return acc;
+        }, {});
+
+        if (sizeCounts["BIG"] > sizeCounts["SMALL"]) {
+            predictedSize = "SMALL";
+        } else if (sizeCounts["SMALL"] > sizeCounts["BIG"]) {
+            predictedSize = "BIG";
+        } else {
+            predictedSize = sizes[sizes.length - 1] === "BIG" ? "SMALL" : "BIG";
         }
 
-        // Otherwise, fall back to predicting the least frequent number.
-        const numberCounts = Array(10).fill(0);
-        history.slice(0, 100).forEach((item) => {
-            const num = parseInt(item.number);
-            if (!isNaN(num)) {
-                numberCounts[num]++;
+        return { color: predictedColor, size: predictedSize };
+    };
+
+    const handleAIButtonClick = () => {
+        if (!isResultClicked) {
+            setGlowAnimationActive(true);
+            setIsResultClicked(true);
+            setShowCard(false);
+            setIsFadingOut(false);
+            setShowCopyButton(false);
+
+            // Get both predictions from your existing logic
+            const predictions = getHumanPrediction(history);
+
+            // Randomly select one prediction (color or size)
+            const predictionArray = [predictions.color, predictions.size];
+            const randomIndex = Math.floor(
+                Math.random() * predictionArray.length
+            );
+            const selectedPrediction = predictionArray[randomIndex];
+
+            setPredictedResult(selectedPrediction);
+
+            const holdDuration = secondsLeft > 3 ? secondsLeft - 3 : 0;
+            const animationDuration = holdDuration + 2;
+
+            if (scannerThingRef.current) {
+                scannerThingRef.current.style.setProperty(
+                    "--glow-duration",
+                    `${animationDuration}s`
+                );
             }
-        });
 
-        const minCount = Math.min(...numberCounts);
-        const leastFrequentNumbers = numberCounts
-            .map((count, index) => (count === minCount ? index : null))
-            .filter((num) => num !== null);
+            setTimeout(() => {
+                setShowCard(true);
+                setShowCopyButton(true);
+            }, 3000);
 
-        if (leastFrequentNumbers.length > 0) {
-            const chosenNumber =
-                leastFrequentNumbers[
-                    Math.floor(Math.random() * leastFrequentNumbers.length)
-                ];
-            return [chosenNumber];
+            setTimeout(() => {
+                setGlowAnimationActive(false);
+                setIsResultClicked(false);
+                setPredictedResult(null);
+                setShowCard(false);
+                setShowCopyButton(false);
+            }, animationDuration * 1000);
         }
+    };
 
-        return [];
-    }, [history]);
+    const handleCopyPrediction = async () => {
+        if (predictedResult && latestPeriod) {
+            const formattedDateTime = new Date().toLocaleString("en-US", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                hour12: true,
+            });
 
-    const makePrediction = useCallback(
-        (currentPeriod) => {
-            if (currentPeriod !== lastPredictedPeriod) {
-                const numberPrediction = predictNumbers();
-                const prediction =
-                    numberPrediction.length > 0
-                        ? numberPrediction[0] >= 5
-                            ? "BIG"
-                            : "SMALL"
-                        : Math.random() < 0.5
-                        ? "BIG"
-                        : "SMALL";
+            const nextPeriod = String(BigInt(latestPeriod) + 1n);
+            const predictionText = predictedResult; // Use the single predicted string directly
 
-                setPredictionResult({ prediction, numbers: numberPrediction });
-                setLastPredictedPeriod(currentPeriod);
+            const textToCopy = `╭⭑───────────────⭑╮
+📅 DATE : ${formattedDateTime}
+╰⭑───────────────⭑╯
+╭⚬──────────────────⚬╮
+│ 🎯 WINGO      : 30 Sec WinGo
+│ ⏳ PERIOD     : ${nextPeriod}
+│ 🔮 PREDICTION : ${predictionText}
+╰⚬──────────────────⚬╯
+`;
+
+            try {
+                await navigator.clipboard.writeText(textToCopy);
+                alert("Prediction copied to clipboard!");
+                setGlowAnimationActive(false);
+                setIsResultClicked(false);
+                setPredictedResult(null);
+                setShowCard(false);
+                setShowCopyButton(false);
+            } catch (err) {
+                console.error("Failed to copy: ", err);
+                alert("Failed to copy prediction. Please try again.");
             }
-        },
-        [lastPredictedPeriod, predictNumbers]
-    );
+        }
+    };
 
     const fetchHistory = useCallback(
         async (isRetry = false) => {
@@ -132,13 +172,6 @@ const ThirtySecWingo = () => {
                         setLatestPeriod(currentPeriod);
                         setHistory(list);
                         setError(null);
-
-                        if (isPredicting) {
-                            const nextPeriod = String(
-                                BigInt(currentPeriod) + 1n
-                            );
-                            makePrediction(nextPeriod);
-                        }
                     } else if (!isRetry) {
                         setTimeout(() => fetchHistory(true), 1000);
                     }
@@ -150,7 +183,7 @@ const ThirtySecWingo = () => {
                 setError("Failed to load data");
             }
         },
-        [latestPeriod, isPredicting, makePrediction]
+        [latestPeriod]
     );
 
     useEffect(() => {
@@ -159,7 +192,6 @@ const ThirtySecWingo = () => {
             const seconds = now.getSeconds();
             const remainingSeconds = 29 - (seconds % 30);
             setSecondsLeft(remainingSeconds);
-
             if (remainingSeconds === 29) {
                 fetchHistory();
             }
@@ -169,56 +201,22 @@ const ThirtySecWingo = () => {
     }, [fetchHistory]);
 
     useEffect(() => {
+        if (secondsLeft <= 2 && showCard) {
+            setIsFadingOut(true);
+            setTimeout(() => {
+                setShowCard(false);
+                setIsFadingOut(false);
+                setShowCopyButton(false);
+                setGlowAnimationActive(false);
+                setIsResultClicked(false);
+                setPredictedResult(null);
+            }, 1000);
+        }
+    }, [secondsLeft, showCard]);
+
+    useEffect(() => {
         fetchHistory();
     }, [fetchHistory]);
-
-    const handleCopyClick = async () => {
-        if (!predictionResult) {
-            setCopyMessage("No prediction to copy!");
-            setTimeout(() => setCopyMessage(null), 2000);
-            return;
-        }
-
-        const now = getISTTime();
-        const formattedDateTime = now.toLocaleString("en-US", {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
-            hour12: true,
-        });
-
-        const nextPeriod =
-            lastPredictedPeriod || String(BigInt(latestPeriod) + 1n);
-        const predictionText = predictionResult.prediction;
-        const predictedNumbers = predictionResult.numbers;
-
-        const textToCopy = `
-╭⭑───────────────⭑╮
- 📅 DATE : ${formattedDateTime}
-╰⭑───────────────⭑╯
-╭⚬──────────────────⚬╮
-│ 🎯 WINGO      : 30 Second WinGo
-│ ⏳ PERIOD     : ${nextPeriod}
-│ 🔮 PREDICTION : ${predictionText}
-│ 🎲 NUMBER     : ${
-            predictedNumbers.length > 0 ? predictedNumbers.join(", ") : "N/A"
-        }
-╰⚬──────────────────⚬╯
-`;
-
-        try {
-            await navigator.clipboard.writeText(textToCopy);
-            setCopyMessage("Copied!");
-        } catch (err) {
-            console.error("Failed to copy text: ", err);
-            setCopyMessage("Failed to copy!");
-        }
-
-        setTimeout(() => setCopyMessage(null), 2000);
-    };
 
     return (
         <div className="one-min-wrapper">
@@ -231,9 +229,7 @@ const ThirtySecWingo = () => {
                 />
                 <h2>30 Second WinGo Prediction</h2>
             </div>
-
             <div className="Topline"></div>
-
             <div className="thirtySecprediction-box">
                 <div className="prediction-box-upper">
                     <p>Time remaining</p>
@@ -249,65 +245,106 @@ const ThirtySecWingo = () => {
                             : "-----"}
                     </p>
                 </div>
-                <div className="horizontal-divider"></div>
-                <div className="prediction-box-lower">
-                    <div className="prediction-content">
-                        {predictionResult ? (
-                            <>
-                                <p className="prediction-label">Prediction</p>
-                                <div
-                                    className={`prediction-result ${predictionResult.prediction.toLowerCase()}`}
-                                >
-                                    {predictionResult.prediction}
-                                </div>
-                                <p className="prediction-label-number">
-                                    Number Prediction
-                                </p>
-                                <div className="prediction-result number-box">
-                                    {" "}
-                                    {/* Applied the class here */}
-                                    {predictionResult.numbers.length > 0
-                                        ? predictionResult.numbers.join(" , ")
-                                        : "N/A"}
-                                </div>
-                            </>
-                        ) : (
-                            <div className="no-prediction">
-                                {isPredicting
-                                    ? "Waiting for new period..."
-                                    : "No Prediction"}
-                            </div>
-                        )}
-                    </div>
-                </div>
             </div>
 
             <div className="button-wrapper">
                 <div className="prediction-control-box">
                     <button
-                        onClick={startPrediction}
-                        className={`predict-btn ${
-                            isPredicting ? "stop" : "start"
-                        }`}
+                        onClick={handleAIButtonClick}
+                        className="predict-btn get-result-btn"
+                        disabled={isResultClicked}
                     >
-                        {isPredicting ? "Stop Prediction" : "Start Prediction"}
-                    </button>
-                    <button
-                        onClick={handleCopyClick}
-                        className="predict-btn copy-btn"
-                    >
-                        Copy Prediction
+                        {isResultClicked ? "Scanning..." : "AI Predict.X"}
                     </button>
                 </div>
-                {copyMessage && <p className="copy-message">{copyMessage}</p>}
             </div>
+
+            <div className={`loader ${isResultClicked ? "active" : ""}`}>
+                <div className="eva">
+                    <div className="head">
+                        <div className="eyeChamber">
+                            <div className="eye"></div>
+                            <div className="eye"></div>
+                        </div>
+                    </div>
+                    <div className="body">
+                        <div className="hand"></div>
+                        <div className="hand"></div>
+                        <div
+                            ref={scannerThingRef}
+                            className={`scannerThing ${
+                                glowAnimationActive ? "animate-glow" : ""
+                            }`}
+                        ></div>
+                        <div className="scannerOrigin"></div>
+                    </div>
+                </div>
+            </div>
+
+            {showCard && predictedResult && (
+                <div
+                    className={`wingo-outer ${
+                        isFadingOut ? "fade-out" : "fade-in"
+                    }`}
+                >
+                    <div
+                        className={`wingo-dot ${
+                            predictedResult === "Red" ||
+                            predictedResult === "Green"
+                                ? predictedResult.toLowerCase()
+                                : ""
+                        }`}
+                    ></div>
+                    <div className="wingo-card">
+                        <div className="wingo-ray"></div>
+                        <div className="wingo-text-number">
+                            {latestPeriod
+                                ? String(BigInt(latestPeriod) + 1n)
+                                : ""}
+                        </div>
+                        <div
+                            className={`wingo-text-color-size ${
+                                predictedResult === "Red" ||
+                                predictedResult === "Green"
+                                    ? predictedResult.toLowerCase()
+                                    : ""
+                            }`}
+                        >
+                            {predictedResult}
+                        </div>
+                        <div className="wingo-line wingo-topl"></div>
+                        <div className="wingo-line wingo-leftl"></div>
+                        <div className="wingo-line wingo-bottoml"></div>
+                        <div className="wingo-line wingo-rightl"></div>
+                    </div>
+                </div>
+            )}
+
+            {showCopyButton && (
+                <button
+                    className={`copy-prediction-btn ${
+                        isFadingOut ? "fade-out" : "fade-in"
+                    }`}
+                    onClick={handleCopyPrediction}
+                >
+                    Copy Prediction
+                </button>
+            )}
 
             {error && (
                 <p style={{ color: "red", textAlign: "center" }}>{error}</p>
             )}
 
             {history.length === 0 ? (
-                <p style={{ textAlign: "center" }}>Loading...</p>
+                <table className="history-table">
+                    <tbody>
+                        <tr>
+                            <td colSpan="4" style={{ textAlign: "center" }}>
+                                Loading...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             ) : (
                 <table className="history-table">
                     <thead>
