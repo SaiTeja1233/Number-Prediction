@@ -16,6 +16,8 @@ const ThirtySecWingo = () => {
     const [isFadingOut, setIsFadingOut] = useState(false);
     const [predictedResult, setPredictedResult] = useState(null);
     const [showCopyButton, setShowCopyButton] = useState(false);
+    const [predictionMode, setPredictionMode] = useState("human");
+    const [consecutiveLosses, setConsecutiveLosses] = useState(0);
 
     const scannerThingRef = useRef(null);
     const navigate = useNavigate();
@@ -40,42 +42,60 @@ const ThirtySecWingo = () => {
         }
     };
 
-    const getHumanPrediction = (historyData) => {
-        const colors = historyData.map((item) =>
-            getColorFromNumber(parseInt(item.number))
-        );
-        const sizes = historyData.map((item) =>
-            getSizeFromNumber(parseInt(item.number))
-        );
-
-        let predictedColor = null;
-        if (colors.length >= 2) {
-            const lastTwoColors = colors.slice(-2);
-            if (lastTwoColors[0] !== lastTwoColors[1]) {
-                predictedColor = lastTwoColors[0];
-            } else {
-                predictedColor = lastTwoColors[0] === "Red" ? "Green" : "Red";
-            }
-        } else {
-            predictedColor = "Green";
+    const getHumanPrediction = useCallback((historyData) => {
+        if (historyData.length < 2) {
+            return { color: "Green", size: "BIG" };
         }
 
-        let predictedSize = null;
-        const sizeCounts = sizes.reduce((acc, size) => {
+        const lastTwoColors = historyData
+            .slice(0, 2)
+            .map((item) => getColorFromNumber(parseInt(item.number)));
+        const lastTwoSizes = historyData
+            .slice(0, 2)
+            .map((item) => getSizeFromNumber(parseInt(item.number)));
+
+        let predictedColor;
+        if (lastTwoColors[0] === lastTwoColors[1]) {
+            predictedColor = lastTwoColors[0] === "Red" ? "Green" : "Red";
+        } else {
+            predictedColor = lastTwoColors[1] === "Red" ? "Green" : "Red";
+        }
+
+        let predictedSize;
+        if (lastTwoSizes[0] === lastTwoSizes[1]) {
+            predictedSize = lastTwoSizes[0] === "BIG" ? "SMALL" : "BIG";
+        } else {
+            predictedSize = lastTwoSizes[1] === "BIG" ? "SMALL" : "BIG";
+        }
+
+        return { color: predictedColor, size: predictedSize };
+    }, []);
+
+    const getRobotPrediction = useCallback((historyData) => {
+        if (historyData.length < 10) {
+            return { color: "Green", size: "BIG" };
+        }
+
+        const recentHistory = historyData.slice(0, 10);
+        const colorCounts = recentHistory.reduce((acc, item) => {
+            const color = getColorFromNumber(parseInt(item.number));
+            acc[color] = (acc[color] || 0) + 1;
+            return acc;
+        }, {});
+
+        const sizeCounts = recentHistory.reduce((acc, item) => {
+            const size = getSizeFromNumber(parseInt(item.number));
             acc[size] = (acc[size] || 0) + 1;
             return acc;
         }, {});
 
-        if (sizeCounts["BIG"] > sizeCounts["SMALL"]) {
-            predictedSize = "SMALL";
-        } else if (sizeCounts["SMALL"] > sizeCounts["BIG"]) {
-            predictedSize = "BIG";
-        } else {
-            predictedSize = sizes[sizes.length - 1] === "BIG" ? "SMALL" : "BIG";
-        }
+        const predictedColor =
+            colorCounts["Red"] <= colorCounts["Green"] ? "Red" : "Green";
+        const predictedSize =
+            sizeCounts["BIG"] <= sizeCounts["SMALL"] ? "BIG" : "SMALL";
 
         return { color: predictedColor, size: predictedSize };
-    };
+    }, []);
 
     const handleAIButtonClick = () => {
         if (!isResultClicked) {
@@ -85,10 +105,13 @@ const ThirtySecWingo = () => {
             setIsFadingOut(false);
             setShowCopyButton(false);
 
-            // Get both predictions from your existing logic
-            const predictions = getHumanPrediction(history);
+            let predictions;
+            if (predictionMode === "human") {
+                predictions = getHumanPrediction(history);
+            } else {
+                predictions = getRobotPrediction(history);
+            }
 
-            // Randomly select one prediction (color or size)
             const predictionArray = [predictions.color, predictions.size];
             const randomIndex = Math.floor(
                 Math.random() * predictionArray.length
@@ -135,14 +158,14 @@ const ThirtySecWingo = () => {
             });
 
             const nextPeriod = String(BigInt(latestPeriod) + 1n);
-            const predictionText = predictedResult; // Use the single predicted string directly
+            const predictionText = predictedResult;
 
             const textToCopy = `╭⭑───────────────⭑╮
 📅 DATE : ${formattedDateTime}
 ╰⭑───────────────⭑╯
 ╭⚬──────────────────⚬╮
-│ 🎯 WINGO      : 30 Sec WinGo
-│ ⏳ PERIOD     : ${nextPeriod}
+│ 🎯 WINGO      : 30 Sec WinGo
+│ ⏳ PERIOD     : ${nextPeriod}
 │ 🔮 PREDICTION : ${predictionText}
 ╰⚬──────────────────⚬╯
 `;
@@ -192,12 +215,47 @@ const ThirtySecWingo = () => {
             const seconds = now.getSeconds();
             const remainingSeconds = 29 - (seconds % 30);
             setSecondsLeft(remainingSeconds);
+
             if (remainingSeconds === 29) {
                 fetchHistory();
+            }
+
+            if (remainingSeconds === 28) {
+                const latestItem = history[0];
+                if (latestItem && predictedResult) {
+                    const actualColor = getColorFromNumber(
+                        parseInt(latestItem.number)
+                    );
+                    const actualSize = getSizeFromNumber(
+                        parseInt(latestItem.number)
+                    );
+
+                    const isLoss =
+                        predictedResult !== actualColor &&
+                        predictedResult !== actualSize;
+
+                    if (isLoss) {
+                        setConsecutiveLosses((prev) => prev + 1);
+                    } else {
+                        setConsecutiveLosses(0);
+                    }
+                }
             }
         }, 1000);
 
         return () => clearInterval(interval);
+    }, [fetchHistory, history, predictedResult]);
+
+    useEffect(() => {
+        if (consecutiveLosses >= 1) {
+            setPredictionMode("robot");
+        } else {
+            setPredictionMode("human");
+        }
+    }, [consecutiveLosses]);
+
+    useEffect(() => {
+        fetchHistory();
     }, [fetchHistory]);
 
     useEffect(() => {
@@ -213,10 +271,6 @@ const ThirtySecWingo = () => {
             }, 1000);
         }
     }, [secondsLeft, showCard]);
-
-    useEffect(() => {
-        fetchHistory();
-    }, [fetchHistory]);
 
     return (
         <div className="one-min-wrapper">
@@ -371,7 +425,18 @@ const ThirtySecWingo = () => {
                                         {number}
                                     </td>
                                     <td>{getSizeFromNumber(number)}</td>
-                                    <td>{getColorFromNumber(number)}</td>
+                                    <td>
+                                        {number === 0 ? (
+                                            <>🔴🟣</>
+                                        ) : number === 5 ? (
+                                            <>🟢🟣</>
+                                        ) : getColorFromNumber(number) ===
+                                          "Green" ? (
+                                            <>🟢</>
+                                        ) : (
+                                            <>🔴</>
+                                        )}
+                                    </td>
                                 </tr>
                             );
                         })}
