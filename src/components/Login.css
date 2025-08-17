@@ -6,10 +6,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    /* A professional and cool gradient background */
     background: linear-gradient(135deg, #1f4068 0%, #162447 50%, #1b1b2f 100%);
-    padding: 20px; /* Crucial: Ensures space around the card on all screens */
-    box-sizing: border-box; /* Ensures padding is included in the element's total width and height */
+    padding: 20px;
+    box-sizing: border-box;
     font-family: 'Segoe UI', 'Roboto', sans-serif;
     color: #333;
 }
@@ -17,17 +16,19 @@
 /* Login Card Styling */
 .login-card {
     background-color: #ffffff;
-    padding: 40px; /* Generous padding for a spacious feel on larger screens */
+    padding: 23px;
     border-radius: 15px;
-    /* Elevated shadow for a modern feel */
     box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3),
                 0 5px 15px rgba(0, 0, 0, 0.2);
-    width: 100%; /* Allows the card to take full width of its parent */
-    max-width: 400px; /* Limits the card's width on larger screens */
+    width: 100%;
+    max-width: 400px;
     text-align: center;
     transform: translateY(0);
     transition: all 0.3s ease-in-out;
-    box-sizing: border-box; /* **IMPORTANT**: Ensures card padding is included in its 100% width calculation */
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .login-card:hover {
@@ -41,15 +42,21 @@
     font-size: 2.5rem;
     font-weight: 800;
     color: #2c3e50;
-    margin-bottom: 30px;
+    margin-bottom: 5px;
     letter-spacing: -0.05em;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 /* Form Group (Label + Input) */
+.login-form {
+    width: 100%;
+    max-width: 320px;
+}
+
 .login-form .form-group {
     margin-bottom: 20px;
     text-align: left;
+    width: 100%;
 }
 
 .login-form label {
@@ -62,7 +69,7 @@
 
 /* Input Field Styling */
 .form-input {
-    width: 100%; /* Take up 100% of the parent's available width */
+    width: 100%;
     padding: 12px 15px;
     border: 1px solid #ddd;
     border-radius: 8px;
@@ -71,7 +78,7 @@
     background-color: #f9f9f9;
     transition: all 0.2s ease-in-out;
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
-    box-sizing: border-box; /* **IMPORTANT**: Ensures input padding and border are included in its 100% width */
+    box-sizing: border-box;
 }
 
 .form-input::placeholder {
@@ -81,8 +88,8 @@
 
 .form-input:focus {
     outline: none;
-    border-color: #3498db; /* A cool blue border on focus */
-    box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.3); /* Blue glow on focus */
+    border-color: #3498db;
+    box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.3);
     background-color: #fff;
 }
 
@@ -92,7 +99,11 @@
     opacity: 0.7;
 }
 
-/* Error Message Styling */
+.enterKey {
+    margin-bottom: 20px;
+}
+
+/* Message Styling */
 .message {
     font-size: 0.875rem;
     margin-bottom: 15px;
@@ -101,7 +112,8 @@
     font-weight: 500;
     text-align: center;
     line-height: 1.4;
-    box-sizing: border-box; /* Ensure messages also respect padding */
+    box-sizing: border-box;
+    width: 100%;
 }
 
 .error-message {
@@ -119,18 +131,17 @@
     font-size: 1.1rem;
     font-weight: 700;
     color: #ffffff;
-    /* Blue-to-darker-blue gradient */
     background: linear-gradient(45deg, #3498db, #2980b9);
     cursor: pointer;
     transition: all 0.3s ease-in-out;
     letter-spacing: 0.02em;
     text-transform: uppercase;
     box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
-    box-sizing: border-box; /* Ensure button padding is included in its 100% width */
+    box-sizing: border-box;
 }
 
 .login-button:hover {
-    background: linear-gradient(45deg, #2980b9, #236c9b); /* Darker blue gradient on hover */
+    background: linear-gradient(45deg, #2980b9, #236c9b);
     transform: translateY(-3px);
     box-shadow: 0 8px 20px rgba(52, 152, 219, 0.4);
 }
@@ -155,101 +166,134 @@
     color: #777;
 }
 
+.login-footer p {
+    margin: 5px 0;
+}
+
 .login-footer .register-link {
-    color: #3498db; /* Matching the blue theme */
+    color: #3498db;
     text-decoration: none;
     font-weight: 700;
     transition: color 0.2s ease-in-out, text-decoration 0.2s ease-in-out;
 }
 
 .login-footer .register-link:hover {
-    color: #2980b9; /* Darker blue on hover */
+    color: #2980b9;
     text-decoration: underline;
 }
 
-/* ==================================================================== */
-/* RESPONSIVE STYLES (Refined)                     */
-/* ==================================================================== */
-
-/* Extra Small Screens (e.g., older phones, widths up to 320px) */
-@media (max-width: 320px) {
-    .login-card {
-        padding: 20px 10px; /* Reduce padding significantly to prevent overflow */
-        margin: 5px; /* Keep a minimal margin */
-    }
-
-    .login-title {
-        font-size: 1.7rem; /* Slightly smaller title */
-        margin-bottom: 15px; /* Less margin */
-    }
-
-    .form-input,
-    .login-button {
-        font-size: 0.85rem; /* Smaller font for inputs/buttons */
-        padding: 9px 9px; /* Reduce input padding */
-    }
-
-    .login-button {
-        padding: 10px 10px; /* Adjust button padding */
-    }
-
-    .login-form label,
-    .message,
-    .login-footer {
-        font-size: 0.75rem; /* Adjust text sizes for tiny screens */
-    }
+/* Style the button to look like a link */
+.terms-link-button {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 0.9rem;
+    font-family: inherit;
+    font-weight: 700;
+    color: #8e44ad;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s ease-in-out, text-decoration 0.2s ease-in-out;
 }
 
-/* Small Screens (e.g., most modern phones, 321px to 480px) */
-@media (min-width: 321px) and (max-width: 480px) {
-    .login-card {
-        padding: 25px 15px; /* Slightly more padding than XS, but less than desktop */
-        margin: 10px;
-    }
-
-    .login-title {
-        font-size: 1.9rem;
-        margin-bottom: 20px;
-    }
-
-    .form-input,
-    .login-button {
-        font-size: 0.9rem;
-        padding: 10px 12px;
-    }
-
-    .login-button {
-        padding: 12px 15px;
-    }
+.terms-link-button:hover {
+    color: #9b59b6;
+    text-decoration: underline;
 }
 
-/* Medium Screens (e.g., larger phones in landscape, small tablets, 481px to 768px) */
-@media (min-width: 481px) and (max-width: 768px) {
-    .login-card {
-        padding: 35px;
-        max-width: 450px;
-    }
-
-    .login-title {
-        font-size: 2.2rem;
-    }
-
-    .form-input,
-    .login-button {
-        font-size: 1rem;
-        padding: 12px 15px;
-    }
+/* Pop-up Overlay */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
 }
 
-/* Ensure hover effects are disabled on touch devices to prevent "sticky" hover states */
-@media (hover: none) {
-    .login-card:hover {
-        transform: none;
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3),
-                    0 5px 15px rgba(0, 0, 0, 0.2);
+/* Pop-up Card */
+.popup-card {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+    width: 70%;
+    height: 70vh;
+    text-align: left;
+    transform: scale(1);
+    animation: fadeIn 0.3s ease-in-out;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.popup-header {
+    text-align: center;
+}
+
+.popup-header h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+.popup-content {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #444;
+    overflow-y: auto;
+    flex-grow: 1;
+    padding-right: 15px;
+}
+
+.popup-content p {
+    margin-bottom: 10px;
+}
+
+.popup-content ul {
+    list-style-type: disc;
+    padding-left: 20px;
+    margin-top: 10px;
+}
+
+/* Pop-up Footer */
+.popup-footer {
+    text-align: center;
+    padding-top: 15px;
+}
+
+.ok-button {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+    background-color: #3498db;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    width: 100%;
+}
+
+.ok-button:hover {
+    background-color: #2980b9;
+}
+
+/* Optional: Animation for the pop-up */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
     }
-    .login-button:hover {
-        transform: none;
-        box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+    to {
+        opacity: 1;
+        transform: scale(1);
     }
 }

@@ -6,10 +6,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    /* Purple to Blue gradient background (using your current gradient) */
     background: linear-gradient(135deg, #1f4068 0%, #162447 50%, #1b1b2f 100%);
-    padding: 20px; /* Crucial: Ensures space around the card on all screens */
-    box-sizing: border-box; /* Ensures padding is included in the element's total width and height */
+    padding: 20px;
+    box-sizing: border-box;
     font-family: 'Segoe UI', 'Roboto', sans-serif;
     color: #333;
 }
@@ -17,16 +16,19 @@
 /* Register Card Styling */
 .register-card {
     background-color: #ffffff;
-    padding: 40px; /* Generous padding for a spacious feel on larger screens */
+    padding: 23px;
     border-radius: 15px;
     box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3),
                 0 5px 15px rgba(0, 0, 0, 0.2);
-    width: 100%; /* Allows the card to take full width of its parent */
-    max-width: 400px; /* Limits the card's width on larger screens */
+    width: 100%;
+    max-width: 400px;
     text-align: center;
     transform: translateY(0);
     transition: all 0.3s ease-in-out;
-    box-sizing: border-box; /* **IMPORTANT**: Ensures card padding is included in its 100% width calculation */
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .register-card:hover {
@@ -37,18 +39,24 @@
 
 /* Title Styling */
 .register-title {
-    font-size: 2.5rem;
+    font-size: 2.2rem;
     font-weight: 800;
     color: #2c3e50;
-    margin-bottom: 30px;
+    margin-bottom: 5px;
     letter-spacing: -0.05em;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 /* Form Group (Label + Input) */
+.register-form {
+    width: 100%;
+    max-width: 350px;
+}
+
 .register-form .form-group {
     margin-bottom: 20px;
     text-align: left;
+    width: 100%;
 }
 
 .register-form label {
@@ -61,7 +69,7 @@
 
 /* Input Field Styling */
 .form-input {
-    width: 100%; /* Take up 100% of the parent's available width */
+    width: 100%;
     padding: 12px 15px;
     border: 1px solid #ddd;
     border-radius: 8px;
@@ -70,7 +78,7 @@
     background-color: #f9f9f9;
     transition: all 0.2s ease-in-out;
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
-    box-sizing: border-box; /* **IMPORTANT**: Ensures input padding and border are included in its 100% width */
+    box-sizing: border-box;
 }
 
 .form-input::placeholder {
@@ -80,8 +88,8 @@
 
 .form-input:focus {
     outline: none;
-    border-color: #9b59b6; /* Purple border on focus */
-    box-shadow: 0 0 0 4px rgba(155, 89, 182, 0.3); /* Purple glow on focus */
+    border-color: #9b59b6;
+    box-shadow: 0 0 0 4px rgba(155, 89, 182, 0.3);
     background-color: #fff;
 }
 
@@ -100,7 +108,8 @@
     font-weight: 500;
     text-align: center;
     line-height: 1.4;
-    box-sizing: border-box; /* Ensure messages also respect padding */
+    box-sizing: border-box;
+    width: 100%;
 }
 
 .error-message {
@@ -130,7 +139,7 @@
     letter-spacing: 0.02em;
     text-transform: uppercase;
     box-shadow: 0 5px 15px rgba(142, 68, 173, 0.3);
-    box-sizing: border-box; /* Ensure button padding is included in its 100% width */
+    box-sizing: border-box;
 }
 
 .register-button:hover {
@@ -171,89 +180,184 @@
     text-decoration: underline;
 }
 
-/* ==================================================================== */
-/* RESPONSIVE STYLES (Refined)                     */
-/* ==================================================================== */
+/* Checkbox and Pop-up Styles */
+.terms-checkbox-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+    color: #555;
+    width: 100%;
+}
 
-/* Extra Small Screens (e.g., older phones, widths up to 320px) */
-@media (max-width: 320px) {
-    .register-card {
-        padding: 20px 10px; /* Reduce padding significantly to prevent overflow */
-        margin: 5px; /* Keep a minimal margin */
+/* Style the button to look like a link */
+.terms-link-button {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 0.9rem;
+    font-family: inherit;
+    font-weight: 700;
+    color: #8e44ad;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s ease-in-out, text-decoration 0.2s ease-in-out;
+}
+
+.terms-link-button:hover {
+    color: #9b59b6;
+    text-decoration: underline;
+}
+
+/* Pop-up Overlay */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* Pop-up Card */
+.popup-card {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+    width: 70%;
+    height: 50vh;
+    text-align: left;
+    transform: scale(1);
+    animation: fadeIn 0.3s ease-in-out;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.popup-header {
+    text-align: center;
+}
+
+.popup-header h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-top: 0;
+}
+
+.popup-content {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #444;
+    overflow-y: auto;
+    flex-grow: 1;
+    padding-right: 15px;
+}
+
+.popup-content p {
+    margin-bottom: 10px;
+}
+
+.popup-content ul {
+    list-style-type: disc;
+    padding-left: 20px;
+    margin-top: 10px;
+}
+
+/* Pop-up Footer */
+.popup-footer {
+    text-align: center;
+    padding-top: 15px;
+}
+
+.ok-button {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+    background-color: #8e44ad;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    width: 100%;
+}
+
+.ok-button:hover {
+    background-color: #9b59b6;
+}
+
+/* Optional: Animation for the pop-up */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
     }
-
-    .register-title {
-        font-size: 1.7rem; /* Slightly smaller title */
-        margin-bottom: 15px; /* Less margin */
-    }
-
-    .form-input,
-    .register-button {
-        font-size: 0.85rem; /* Smaller font for inputs/buttons */
-        padding: 9px 9px; /* Reduce input padding */
-    }
-
-    .register-button {
-        padding: 10px 10px; /* Adjust button padding */
-    }
-
-    .register-form label,
-    .message,
-    .register-footer {
-        font-size: 0.75rem; /* Adjust text sizes for tiny screens */
+    to {
+        opacity: 1;
+        transform: scale(1);
     }
 }
 
-/* Small Screens (e.g., most modern phones, 321px to 480px) */
-@media (min-width: 321px) and (max-width: 480px) {
-    .register-card {
-        padding: 25px 15px; /* Slightly more padding than XS, but less than desktop */
-        margin: 10px;
-    }
-
-    .register-title {
-        font-size: 1.9rem;
-        margin-bottom: 20px;
-    }
-
-    .form-input,
-    .register-button {
-        font-size: 0.9rem;
-        padding: 10px 12px;
-    }
-
-    .register-button {
-        padding: 12px 15px;
-    }
+/* Uiverse Checkbox Styles */
+.checkbox-wrapper input[type="checkbox"] {
+    visibility: hidden;
+    display: none;
 }
 
-/* Medium Screens (e.g., larger phones in landscape, small tablets, 481px to 768px) */
-@media (min-width: 481px) and (max-width: 768px) {
-    .register-card {
-        padding: 35px;
-        max-width: 450px;
-    }
-
-    .register-title {
-        font-size: 2.2rem;
-    }
-
-    .form-input,
-    .register-button {
-        font-size: 1rem;
-        padding: 12px 15px;
-    }
+.checkbox-wrapper *,
+.checkbox-wrapper ::after,
+.checkbox-wrapper ::before {
+    box-sizing: border-box;
+    user-select: none;
 }
 
-/* Ensure hover effects are disabled on touch devices to prevent "sticky" hover states */
-@media (hover: none) {
-    .register-card:hover {
-        transform: none;
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3),
-                    0 5px 15px rgba(0, 0, 0, 0.2);
-    }
-    .register-button:hover {
-        transform: none;
-        box-shadow: 0 5px 15px rgba(142, 68, 173, 0.3);
-    }
+.checkbox-wrapper {
+    position: relative;
+    display: flex; /* Changed from block for centering */
+    align-items: center;
+    overflow: hidden;
+    gap: 8px; /* Added gap for spacing between checkbox and text */
+}
+
+.checkbox-wrapper .label {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.checkbox-wrapper .check {
+    width: 50px;
+    height: 50px;
+    position: absolute;
+    opacity: 0;
+}
+
+.checkbox-wrapper .label svg {
+    vertical-align: middle;
+}
+
+.checkbox-wrapper .path1 {
+    stroke-dasharray: 400;
+    stroke-dashoffset: 400;
+    transition: .5s stroke-dashoffset;
+    opacity: 0;
+}
+
+.checkbox-wrapper .check:checked + label svg g path {
+    stroke-dashoffset: 0;
+    opacity: 1;
+}
+
+.checkbox-wrapper .label span {
+    display: flex;
+    align-items: center;
 }

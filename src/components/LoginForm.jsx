@@ -1,46 +1,46 @@
-// src/components/Login.jsx
-import React, { useState, useEffect } from "react"; // Import useEffect
-import { account } from "../appwriteConfig"; // Import your Appwrite account service
+import React, { useState, useEffect } from "react";
+import { account } from "../appwriteConfig";
 import { Link, useNavigate } from "react-router-dom";
 import "./Login.css";
 
 const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [enterKey, setEnterKey] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
+    const [showPopup, setShowPopup] = useState(false);
     const navigate = useNavigate();
 
-    // --- NEW useEffect hook to check for active session ---
     useEffect(() => {
         const checkUserSession = async () => {
             try {
-                const currentUser = await account.get(); // Attempt to get the current user
-                console.log(
-                    "Active session found for user:",
-                    currentUser.email
-                );
-                // If successful, a session exists, redirect them to dashboard
+                await account.get();
+                console.log("Active session found. Redirecting to dashboard.");
                 navigate("/dashboard");
             } catch (err) {
-                // No active session or session is invalid, proceed to show login form
                 console.log("No active session detected. User can log in.");
-                // You might also want to explicitly clear any stale session data here if needed,
-                // but `account.get()` failing usually means no active session on the client side.
             }
         };
 
         checkUserSession();
-        // The empty dependency array [] ensures this effect runs only once when the component mounts.
-    }, [navigate]); // Add navigate to dependency array as it's used inside the effect
+    }, [navigate]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
         setLoading(true);
 
-        if (!email || !password) {
+        const requiredKey = "152535";
+
+        if (!email || !password || !enterKey) {
             setError("Please fill in all fields.");
+            setLoading(false);
+            return;
+        }
+
+        if (enterKey !== requiredKey) {
+            setError("Invalid key. Please enter the correct key to proceed.");
             setLoading(false);
             return;
         }
@@ -56,17 +56,11 @@ const Login = () => {
             let errorMessage =
                 err.message || "An unexpected error occurred during login.";
 
-            // Specific Appwrite error for "session already active"
             if (err.code === 400 && err.message.includes("is already active")) {
                 errorMessage =
                     "You are already logged in. Redirecting to dashboard...";
-                // In this case, if the error is due to an active session,
-                // it implies the initial useEffect check might have been too slow,
-                // or user tried to login on another tab where session was active.
-                // It's safe to immediately redirect here.
                 navigate("/dashboard");
             } else if (err.code === 401) {
-                // 401 Unauthorized - invalid credentials
                 errorMessage = "Invalid email or password.";
             }
 
@@ -74,6 +68,14 @@ const Login = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleTermsClick = () => {
+        setShowPopup(true);
+    };
+
+    const handleClosePopup = () => {
+        setShowPopup(false);
     };
 
     return (
@@ -107,6 +109,16 @@ const Login = () => {
                             disabled={loading}
                         />
                     </div>
+                    <div className="form-group enterKey">
+                        <input
+                            type="text"
+                            placeholder="Enter Key..."
+                            className="form-input"
+                            value={enterKey}
+                            onChange={(e) => setEnterKey(e.target.value)}
+                            disabled={loading}
+                        />
+                    </div>
                     {error && <p className="message error-message">{error}</p>}
                     <button
                         type="submit"
@@ -116,13 +128,67 @@ const Login = () => {
                         {loading ? "Logging In..." : "Sign In"}
                     </button>
                 </form>
-                <p className="login-footer">
-                    Don't have an account?{" "}
-                    <Link to="/register" className="register-link">
-                        Register here
-                    </Link>
-                </p>
+                <div className="login-footer">
+                    <p>
+                        Don't have an account?{" "}
+                        <Link to="/register" className="register-link">
+                            Register here
+                        </Link>
+                    </p>
+                    <p className="terms-link-container">
+                        <button
+                            type="button"
+                            onClick={handleTermsClick}
+                            className="terms-link-button"
+                        >
+                            View Terms & Conditions
+                        </button>
+                    </p>
+                </div>
             </div>
+            {showPopup && (
+                <div className="popup-overlay">
+                    <div className="popup-card">
+                        <div className="popup-header">
+                            <h3>Safety Instructions & Terms</h3>
+                        </div>
+                        <div className="popup-content">
+                            <p>
+                                ⚠️ **Attention:** Users under 18 years of age
+                                are not permitted to use this application.
+                            </p>
+                            <p>
+                                This app is intended for responsible use. Any
+                                discomfort or misuse of this app is at your own
+                                risk. Please follow all safety measures and
+                                guidelines.
+                            </p>
+                            <ul>
+                                <li>Always use strong, unique passwords.</li>
+                                <li>
+                                    Do not share your login credentials with
+                                    anyone.
+                                </li>
+                                <li>
+                                    Report any suspicious activity immediately.
+                                </li>
+                            </ul>
+                            <p>
+                                By clicking "OK," you acknowledge and agree to
+                                these terms.
+                            </p>
+                        </div>
+                        <div className="popup-footer">
+                            <button
+                                className="ok-button"
+                                onClick={handleClosePopup}
+                            >
+                                OK
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
