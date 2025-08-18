@@ -21,6 +21,7 @@ const ThirtySecWingo = () => {
 
     const scannerThingRef = useRef(null);
     const navigate = useNavigate();
+    const timeoutRef = useRef(null); // Ref to hold the timeout ID
 
     const backToDashboard = () => {
         navigate(-1);
@@ -40,6 +41,20 @@ const ThirtySecWingo = () => {
         } else {
             return "Green";
         }
+    };
+
+    // New function to stop the prediction and reset states
+    const handleStopPrediction = () => {
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+            timeoutRef.current = null;
+        }
+        setIsResultClicked(false);
+        setGlowAnimationActive(false);
+        setShowCard(false);
+        setIsFadingOut(false);
+        setPredictedResult(null);
+        setShowCopyButton(false);
     };
 
     const getHumanPrediction = useCallback((historyData) => {
@@ -130,17 +145,18 @@ const ThirtySecWingo = () => {
                 );
             }
 
-            setTimeout(() => {
+            // Clear any previous timeouts before setting new ones
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+            }
+
+            timeoutRef.current = setTimeout(() => {
                 setShowCard(true);
                 setShowCopyButton(true);
             }, 3000);
 
-            setTimeout(() => {
-                setGlowAnimationActive(false);
-                setIsResultClicked(false);
-                setPredictedResult(null);
-                setShowCard(false);
-                setShowCopyButton(false);
+            timeoutRef.current = setTimeout(() => {
+                handleStopPrediction(); // Use the new function to reset all states
             }, animationDuration * 1000);
         }
     };
@@ -173,11 +189,7 @@ const ThirtySecWingo = () => {
             try {
                 await navigator.clipboard.writeText(textToCopy);
                 alert("Prediction copied to clipboard!");
-                setGlowAnimationActive(false);
-                setIsResultClicked(false);
-                setPredictedResult(null);
-                setShowCard(false);
-                setShowCopyButton(false);
+                handleStopPrediction();
             } catch (err) {
                 console.error("Failed to copy: ", err);
                 alert("Failed to copy prediction. Please try again.");
@@ -262,12 +274,7 @@ const ThirtySecWingo = () => {
         if (secondsLeft <= 2 && showCard) {
             setIsFadingOut(true);
             setTimeout(() => {
-                setShowCard(false);
-                setIsFadingOut(false);
-                setShowCopyButton(false);
-                setGlowAnimationActive(false);
-                setIsResultClicked(false);
-                setPredictedResult(null);
+                handleStopPrediction(); // Use the new function to reset states
             }, 1000);
         }
     }, [secondsLeft, showCard]);
@@ -374,15 +381,26 @@ const ThirtySecWingo = () => {
                 </div>
             )}
 
+            {/* This is the new button group for Copy and Stop */}
             {showCopyButton && (
-                <button
-                    className={`copy-prediction-btn ${
-                        isFadingOut ? "fade-out" : "fade-in"
-                    }`}
-                    onClick={handleCopyPrediction}
-                >
-                    Copy Prediction
-                </button>
+                <div className="copy-stop-button-container">
+                    <button
+                        className={`copy-prediction-btn ${
+                            isFadingOut ? "fade-out" : "fade-in"
+                        }`}
+                        onClick={handleCopyPrediction}
+                    >
+                        Copy Prediction
+                    </button>
+                    <button
+                        className={`stop-prediction-btn ${
+                            isFadingOut ? "fade-out" : "fade-in"
+                        }`}
+                        onClick={handleStopPrediction}
+                    >
+                        Stop Prediction
+                    </button>
+                </div>
             )}
 
             {error && (

@@ -121,7 +121,7 @@ const Dashboard = () => {
 
             <div className="dashboard-content">
                 <h3 className="dashboard-welcome-heading">
-                    Welcome to your Prediction App
+                    Welcome to Predict <span style={{color:"#ffa500"}}>.X</span>
                 </h3>
 
                 {/* New container for all cards with flexbox */}

@@ -54,9 +54,9 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 24px;
     padding: 2rem;
     flex-grow: 1;
+    gap: 30px;
     align-items: center;
     box-sizing: border-box;
 }

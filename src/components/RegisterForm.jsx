@@ -8,11 +8,14 @@ const Register = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const [enterKey, setEnterKey] = useState("");
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
     const [loading, setLoading] = useState(false);
     const [isAccepted, setIsAccepted] = useState(false);
     const [showPopup, setShowPopup] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
@@ -21,7 +24,9 @@ const Register = () => {
         setSuccess("");
         setLoading(true);
 
-        if (!username || !email || !password || !confirmPassword) {
+        const requiredKey = "152535";
+
+        if (!username || !email || !password || !confirmPassword || !enterKey) {
             setError("Please fill in all fields.");
             setLoading(false);
             return;
@@ -41,6 +46,12 @@ const Register = () => {
 
         if (!isAccepted) {
             setError("Please accept the terms and conditions.");
+            setLoading(false);
+            return;
+        }
+
+        if (enterKey !== requiredKey) {
+            setError("Invalid key. Please enter the correct key to proceed.");
             setLoading(false);
             return;
         }
@@ -106,46 +117,79 @@ const Register = () => {
                             disabled={loading}
                         />
                     </div>
+                    {/* Password Field with Eye Icon */}
                     <div className="form-group">
                         <label htmlFor="password">Password</label>
-                        <input
-                            type="password"
-                            id="password"
-                            className="form-input"
-                            placeholder="Create a password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                            disabled={loading}
-                        />
+                        <div className="password-input-wrapper">
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                id="password"
+                                className="form-input"
+                                placeholder="Create a password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                                disabled={loading}
+                            />
+                            <span
+                                className="password-toggle-icon"
+                                onClick={() => setShowPassword(!showPassword)}
+                            >
+                                {showPassword ? "🙈" : "👁️"}
+                            </span>
+                        </div>
                     </div>
+                    {/* Confirm Password Field with Eye Icon */}
                     <div className="form-group">
                         <label htmlFor="confirmPassword">
                             Confirm Password
                         </label>
+                        <div className="password-input-wrapper">
+                            <input
+                                type={showConfirmPassword ? "text" : "password"}
+                                id="confirmPassword"
+                                className="form-input"
+                                placeholder="Confirm your password"
+                                value={confirmPassword}
+                                onChange={(e) =>
+                                    setConfirmPassword(e.target.value)
+                                }
+                                required
+                                disabled={loading}
+                            />
+                            <span
+                                className="password-toggle-icon"
+                                onClick={() =>
+                                    setShowConfirmPassword(!showConfirmPassword)
+                                }
+                            >
+                                {showConfirmPassword ? "🙈" : "👁️"}
+                            </span>
+                        </div>
+                    </div>
+                    {/* Enter Key Field */}
+                    <div className="form-group enterKey">
                         <input
-                            type="password"
-                            id="confirmPassword"
+                            type="text"
+                            placeholder="Enter Key..."
                             className="form-input"
-                            placeholder="Confirm your password"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            required
+                            value={enterKey}
+                            onChange={(e) => setEnterKey(e.target.value)}
                             disabled={loading}
                         />
                     </div>
-                    {/* Updated Checkbox with Uiverse.io SVG */}
+                    {/* Checkbox for Terms and Conditions */}
                     <div className="terms-checkbox-container">
-                        <div class="checkbox-wrapper">
+                        <div className="checkbox-wrapper">
                             <input
                                 checked={isAccepted}
                                 onChange={handleCheckboxChange}
                                 type="checkbox"
-                                class="check"
+                                className="check"
                                 id="check1-61"
                                 disabled={loading}
                             />
-                            <label for="check1-61" class="label">
+                            <label htmlFor="check1-61" className="label">
                                 <svg width="45" height="45" viewBox="0 0 95 95">
                                     <rect
                                         x="30"
@@ -159,9 +203,9 @@ const Register = () => {
                                         <path
                                             d="m 56,963 c -102,122 6,9 7,9 17,-5 -66,69 -38,52 122,-77 -7,14 18,4 29,-11 45,-43 23,-4"
                                             stroke="black"
-                                            stroke-width="3"
+                                            strokeWidth="3"
                                             fill="none"
-                                            class="path1"
+                                            className="path1"
                                         ></path>
                                     </g>
                                 </svg>
@@ -197,7 +241,6 @@ const Register = () => {
                     </Link>
                 </p>
             </div>
-            {/* Safety Instructions Pop-up */}
             {showPopup && (
                 <div className="popup-overlay">
                     <div className="popup-card">

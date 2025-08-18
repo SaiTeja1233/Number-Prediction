@@ -200,7 +200,7 @@
     animation: rotateRight var(--EVA-ROTATION-DURATION) linear infinite
         alternate;
     margin-right: 180px;
-    margin-top: 350px;
+    margin-top: 210px;
 }
 
 .head {
@@ -755,7 +755,24 @@
         text-shadow: 0 0 10px #fff, 0 0 20px #33cc66, 0 0 40px #33cc66;
     }
 }
-
+.stop-prediction-btn{
+    position: fixed;
+    bottom: 150px;
+    left: 70%;
+    transform: translateX(-50%);
+    z-index: 1001;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 2px solid transparent; 
+    background-color: transparent; 
+    color: #ff4d4f;
+    font-weight: bold;
+    font-size: 12px;
+    cursor: pointer;
+    text-shadow: 0 0 5px #ff4d4f; 
+    box-shadow: 0 0 8px #ff4d4f; 
+    transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out, box-shadow 0.3s ease-in-out, color 0.3s ease-in-out, border-color 0.3s ease-in-out, text-shadow 0.3s ease-in-out;
+}
 .copy-prediction-btn {
   /* Change this line */
   position: fixed; 

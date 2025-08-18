@@ -10,6 +10,7 @@ const Login = () => {
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const [showPopup, setShowPopup] = useState(false);
+    const [showPassword, setShowPassword] = useState(false); // New state
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -96,18 +97,27 @@ const Login = () => {
                             disabled={loading}
                         />
                     </div>
+                    {/* Password Field with Eye Icon */}
                     <div className="form-group">
                         <label htmlFor="password">Password</label>
-                        <input
-                            type="password"
-                            id="password"
-                            className="form-input"
-                            placeholder="Your password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                            disabled={loading}
-                        />
+                        <div className="password-input-wrapper">
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                id="password"
+                                className="form-input"
+                                placeholder="Your password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                                disabled={loading}
+                            />
+                            <span
+                                className="password-toggle-icon"
+                                onClick={() => setShowPassword(!showPassword)}
+                            >
+                                {showPassword ? "🙈" : "👁️"}
+                            </span>
+                        </div>
                     </div>
                     <div className="form-group enterKey">
                         <input

@@ -231,8 +231,8 @@
     padding: 30px;
     border-radius: 10px;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
-    width: 70%;
-    height: 50vh;
+    width: 90%;
+    height: 70vh;
     text-align: left;
     transform: scale(1);
     animation: fadeIn 0.3s ease-in-out;
@@ -277,7 +277,27 @@
     text-align: center;
     padding-top: 15px;
 }
+/* Add these styles to both Register.css and Login.css */
 
+.password-input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.password-input-wrapper .form-input {
+    width: 100%;
+    padding-right: 40px; /* Adjust padding to make space for the icon */
+}
+
+.password-toggle-icon {
+    position: absolute;
+    right: 15px; /* Adjust as needed */
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 1.2em;
+    user-select: none; /* Prevents text from being selected */
+}
 .ok-button {
     padding: 12px 25px;
     border: none;

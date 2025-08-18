@@ -214,14 +214,34 @@
     align-items: center;
     z-index: 1000;
 }
+/* Add these styles to both Register.css and Login.css */
 
+.password-input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.password-input-wrapper .form-input {
+    width: 100%;
+    padding-right: 40px; /* Adjust padding to make space for the icon */
+}
+
+.password-toggle-icon {
+    position: absolute;
+    right: 15px; /* Adjust as needed */
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 1.2em;
+    user-select: none; /* Prevents text from being selected */
+}
 /* Pop-up Card */
 .popup-card {
     background-color: #fff;
     padding: 30px;
     border-radius: 10px;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
-    width: 70%;
+    width: 90%;
     height: 70vh;
     text-align: left;
     transform: scale(1);

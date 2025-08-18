@@ -17,8 +17,8 @@ const OneMinWingo = () => {
     const [predictedResult, setPredictedResult] = useState(null);
     const [predictedNumbers, setPredictedNumbers] = useState([]);
     const [showCopyButton, setShowCopyButton] = useState(false);
-    const [predictionMode, setPredictionMode] = useState("human");
     const [consecutiveLosses, setConsecutiveLosses] = useState(0);
+    const [isReloading, setIsReloading] = useState(false); // State for manual reload button
 
     const scannerThingRef = useRef(null);
     const navigate = useNavigate();
@@ -43,69 +43,20 @@ const OneMinWingo = () => {
         }
     };
 
-    const getHumanPrediction = useCallback((historyData) => {
-        if (historyData.length < 2) {
-            return { color: "Green", size: "BIG" };
-        }
-
-        const lastTwoColors = historyData
-            .slice(0, 2)
-            .map((item) => getColorFromNumber(parseInt(item.number)));
-        const lastTwoSizes = historyData
-            .slice(0, 2)
-            .map((item) => getSizeFromNumber(parseInt(item.number)));
-
-        let predictedColor;
-        if (lastTwoColors[0] === lastTwoColors[1]) {
-            predictedColor = lastTwoColors[0] === "Red" ? "Green" : "Red";
-        } else {
-            predictedColor = lastTwoColors[1] === "Red" ? "Green" : "Red";
-        }
-
-        let predictedSize;
-        if (lastTwoSizes[0] === lastTwoSizes[1]) {
-            predictedSize = lastTwoSizes[0] === "BIG" ? "SMALL" : "BIG";
-        } else {
-            predictedSize = lastTwoSizes[1] === "BIG" ? "SMALL" : "BIG";
-        }
-
-        return { color: predictedColor, size: predictedSize };
-    }, []);
-
-    const getRobotPrediction = useCallback((historyData) => {
-        if (historyData.length < 10) {
-            return { color: "Green", size: "BIG" };
-        }
-
-        const recentHistory = historyData.slice(0, 10);
-        const colorCounts = recentHistory.reduce((acc, item) => {
-            const color = getColorFromNumber(parseInt(item.number));
-            acc[color] = (acc[color] || 0) + 1;
-            return acc;
-        }, {});
-
-        const sizeCounts = recentHistory.reduce((acc, item) => {
-            const size = getSizeFromNumber(parseInt(item.number));
-            acc[size] = (acc[size] || 0) + 1;
-            return acc;
-        }, {});
-
-        const predictedColor =
-            colorCounts["Red"] <= colorCounts["Green"] ? "Red" : "Green";
-        const predictedSize =
-            sizeCounts["BIG"] <= sizeCounts["SMALL"] ? "BIG" : "SMALL";
-
-        return { color: predictedColor, size: predictedSize };
-    }, []);
+    const getPrediction = useCallback(() => {
+        return consecutiveLosses > 0
+            ? { color: "Green", size: "BIG" }
+            : { color: "Red", size: "SMALL" };
+    }, [consecutiveLosses]);
 
     const getNumbersToDisplay = (prediction) => {
         const uniqueNumbers = new Set();
+        let num;
         while (uniqueNumbers.size < 2) {
-            let num;
             if (prediction === "BIG") {
-                num = Math.floor(Math.random() * 5) + 5; // 5-9
+                num = Math.floor(Math.random() * 5) + 5;
             } else if (prediction === "SMALL") {
-                num = Math.floor(Math.random() * 5); // 0-4
+                num = Math.floor(Math.random() * 5);
             } else if (prediction === "Red") {
                 const evenNumbers = [0, 2, 4, 6, 8];
                 num =
@@ -114,20 +65,21 @@ const OneMinWingo = () => {
                 const oddNumbers = [1, 3, 5, 7, 9];
                 num = oddNumbers[Math.floor(Math.random() * oddNumbers.length)];
             }
-            uniqueNumbers.add(num);
+            if (!uniqueNumbers.has(num)) {
+                uniqueNumbers.add(num);
+            }
         }
         return Array.from(uniqueNumbers);
     };
 
-    const fetchHistory = useCallback(
+    // This function is now only for fetching data
+    const updateHistory = useCallback(
         async (isRetry = false) => {
             try {
                 const list = await fetchOptimizedData();
                 if (Array.isArray(list) && list.length > 0) {
                     const currentPeriod = list[0]?.issueNumber;
                     if (currentPeriod && currentPeriod !== latestPeriod) {
-                        setLatestPeriod(currentPeriod);
-
                         if (predictedResult && history.length > 0) {
                             const lastActualNumber = parseInt(
                                 history[0].number
@@ -143,18 +95,18 @@ const OneMinWingo = () => {
                                 isLoss ? prev + 1 : 0
                             );
                         }
-
+                        setLatestPeriod(currentPeriod);
                         setHistory(list);
                         setError(null);
                     } else if (!isRetry) {
-                        setTimeout(() => fetchHistory(true), 1000);
+                        setTimeout(() => updateHistory(true), 1000);
                     }
                 } else {
                     throw new Error("Unexpected data format or empty list");
                 }
             } catch (err) {
                 console.error("Fetch error:", err);
-                setError("Failed to load data");
+                setError("Failed to load data. Please click Reload.");
             }
         },
         [latestPeriod, history, predictedResult]
@@ -168,13 +120,7 @@ const OneMinWingo = () => {
             setIsFadingOut(false);
             setShowCopyButton(false);
 
-            let predictions;
-            if (predictionMode === "human") {
-                predictions = getHumanPrediction(history);
-            } else {
-                predictions = getRobotPrediction(history);
-            }
-
+            const predictions = getPrediction();
             const predictionArray = [predictions.color, predictions.size];
             const randomIndex = Math.floor(
                 Math.random() * predictionArray.length
@@ -227,10 +173,10 @@ const OneMinWingo = () => {
 📅 DATE : ${formattedDateTime}
 ╰⭑───────────────⭑╯
 ╭⚬──────────────────⚬╮
-│ 🎯 WINGO      : 1 MinWinGo
-│ ⏳ PERIOD     : ${nextPeriod}
+│ 🎯 WINGO      : 1 MinWinGo
+│ ⏳ PERIOD     : ${nextPeriod}
 │ 🔮 PREDICTION : ${predictionText}
-│ 🎲 NUMBERS    : ${predictedNumbers.join(", ")}
+│ 🎲 NUMBERS    : ${predictedNumbers.join(", ")}
 ╰⚬──────────────────⚬╯
 `;
 
@@ -249,6 +195,35 @@ const OneMinWingo = () => {
             }
         }
     };
+    const handlestopbutton = () => {
+        setIsResultClicked(false);
+        setPredictedResult(null);
+        setPredictedNumbers([]);
+        setShowCard(false);
+        setShowCopyButton(false);
+        setGlowAnimationActive(false);
+    };
+    // New handler for the reload button
+    const handleReload = async () => {
+        setIsReloading(true);
+        setHistory([]); // Clear history to show loading state
+        setError(null); // Clear any previous errors
+        try {
+            const list = await fetchOptimizedData();
+            if (Array.isArray(list) && list.length > 0) {
+                setLatestPeriod(list[0]?.issueNumber);
+                setHistory(list);
+                setError(null);
+            } else {
+                throw new Error("Unexpected data format or empty list");
+            }
+        } catch (err) {
+            console.error("Manual reload error:", err);
+            setError("Failed to load data. Please check your connection.");
+        } finally {
+            setIsReloading(false);
+        }
+    };
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -258,14 +233,13 @@ const OneMinWingo = () => {
             setSecondsLeft(remainingSeconds);
 
             if (remainingSeconds === 59) {
-                fetchHistory();
+                updateHistory();
             }
         }, 1000);
 
         return () => clearInterval(interval);
-    }, [fetchHistory]);
+    }, [updateHistory]);
 
-    // Reset prediction states at the end of the countdown
     useEffect(() => {
         if (secondsLeft === 0) {
             setIsResultClicked(false);
@@ -277,16 +251,8 @@ const OneMinWingo = () => {
     }, [secondsLeft]);
 
     useEffect(() => {
-        if (consecutiveLosses >= 1) {
-            setPredictionMode("robot");
-        } else {
-            setPredictionMode("human");
-        }
-    }, [consecutiveLosses]);
-
-    useEffect(() => {
-        fetchHistory();
-    }, [fetchHistory]);
+        updateHistory();
+    }, [updateHistory]);
 
     useEffect(() => {
         if (secondsLeft <= 2 && showCard) {
@@ -337,6 +303,13 @@ const OneMinWingo = () => {
                         disabled={isResultClicked}
                     >
                         {isResultClicked ? "Scanning..." : "AI Predict.X"}
+                    </button>
+                    <button
+                        onClick={handleReload}
+                        className="predict-btn reload-btn"
+                        disabled={isReloading}
+                    >
+                        {isReloading ? "Reloading..." : "Reload Data"}
                     </button>
                 </div>
             </div>
@@ -406,14 +379,24 @@ const OneMinWingo = () => {
             )}
 
             {showCopyButton && (
-                <button
-                    className={`copy-prediction-btn ${
-                        isFadingOut ? "fade-out" : "fade-in"
-                    }`}
-                    onClick={handleCopyPrediction}
-                >
-                    Copy Prediction
-                </button>
+                <div>
+                    <button
+                        className={`copy-prediction-btn ${
+                            isFadingOut ? "fade-out" : "fade-in"
+                        }`}
+                        onClick={handleCopyPrediction}
+                    >
+                        Copy Prediction
+                    </button>
+                    <button
+                        className={`stop-prediction-btn ${
+                            isFadingOut ? "fade-out" : "fade-in"
+                        }`}
+                        onClick={handlestopbutton}
+                    >
+                        Stop Prediction
+                    </button>
+                </div>
             )}
 
             {error && (
@@ -425,7 +408,7 @@ const OneMinWingo = () => {
                     <tbody>
                         <tr>
                             <td colSpan="4" style={{ textAlign: "center" }}>
-                                Loading...
+                                {isReloading ? "Reloading..." : "Loading..."}
                             </td>
                         </tr>
                     </tbody>
