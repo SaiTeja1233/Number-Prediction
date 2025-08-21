@@ -18,7 +18,7 @@ const OneMinWingo = () => {
     const [predictedNumbers, setPredictedNumbers] = useState([]);
     const [showCopyButton, setShowCopyButton] = useState(false);
     const [consecutiveLosses, setConsecutiveLosses] = useState(0);
-    const [isReloading, setIsReloading] = useState(false); // State for manual reload button
+    const [isReloading, setIsReloading] = useState(false);
 
     const scannerThingRef = useRef(null);
     const navigate = useNavigate();
@@ -44,10 +44,44 @@ const OneMinWingo = () => {
     };
 
     const getPrediction = useCallback(() => {
-        return consecutiveLosses > 0
-            ? { color: "Green", size: "BIG" }
-            : { color: "Red", size: "SMALL" };
-    }, [consecutiveLosses]);
+        if (consecutiveLosses > 0) {
+            return { color: "Green", size: "BIG" };
+        }
+
+        const recentHistory = history.slice(0, 5);
+        if (recentHistory.length < 5) {
+            return { color: "Red", size: "SMALL" };
+        }
+
+        const colors = recentHistory.map((item) =>
+            getColorFromNumber(parseInt(item.number))
+        );
+        const sizes = recentHistory.map((item) =>
+            getSizeFromNumber(parseInt(item.number))
+        );
+
+        const colorCounts = {};
+        const sizeCounts = {};
+
+        colors.forEach((color) => {
+            colorCounts[color] = (colorCounts[color] || 0) + 1;
+        });
+        sizes.forEach((size) => {
+            sizeCounts[size] = (sizeCounts[size] || 0) + 1;
+        });
+
+        const mostFrequentColor = Object.keys(colorCounts).reduce((a, b) =>
+            colorCounts[a] > colorCounts[b] ? a : b
+        );
+        const mostFrequentSize = Object.keys(sizeCounts).reduce((a, b) =>
+            sizeCounts[a] > sizeCounts[b] ? a : b
+        );
+
+        const predictedColor = mostFrequentColor === "Red" ? "Green" : "Red";
+        const predictedSize = mostFrequentSize === "BIG" ? "SMALL" : "BIG";
+
+        return { color: predictedColor, size: predictedSize };
+    }, [consecutiveLosses, history]);
 
     const getNumbersToDisplay = (prediction) => {
         const uniqueNumbers = new Set();
@@ -72,7 +106,6 @@ const OneMinWingo = () => {
         return Array.from(uniqueNumbers);
     };
 
-    // This function is now only for fetching data
     const updateHistory = useCallback(
         async (isRetry = false) => {
             try {
@@ -89,8 +122,9 @@ const OneMinWingo = () => {
                             const lastActualSize =
                                 getSizeFromNumber(lastActualNumber);
                             const isLoss =
-                                predictedResult !== lastActualColor &&
-                                predictedResult !== lastActualSize;
+                                (predictedResult === lastActualColor ||
+                                    predictedResult === lastActualSize) ===
+                                false;
                             setConsecutiveLosses((prev) =>
                                 isLoss ? prev + 1 : 0
                             );
@@ -195,6 +229,7 @@ const OneMinWingo = () => {
             }
         }
     };
+
     const handlestopbutton = () => {
         setIsResultClicked(false);
         setPredictedResult(null);
@@ -203,11 +238,11 @@ const OneMinWingo = () => {
         setShowCopyButton(false);
         setGlowAnimationActive(false);
     };
-    // New handler for the reload button
+
     const handleReload = async () => {
         setIsReloading(true);
-        setHistory([]); // Clear history to show loading state
-        setError(null); // Clear any previous errors
+        setHistory([]);
+        setError(null);
         try {
             const list = await fetchOptimizedData();
             if (Array.isArray(list) && list.length > 0) {
@@ -294,7 +329,6 @@ const OneMinWingo = () => {
                     </p>
                 </div>
             </div>
-
             <div className="button-wrapper">
                 <div className="prediction-control-box">
                     <button
@@ -313,7 +347,6 @@ const OneMinWingo = () => {
                     </button>
                 </div>
             </div>
-
             <div className={`loader ${isResultClicked ? "active" : ""}`}>
                 <div className="eva">
                     <div className="head">
@@ -335,7 +368,6 @@ const OneMinWingo = () => {
                     </div>
                 </div>
             </div>
-
             {showCard && predictedResult && (
                 <div
                     className={`wingo-outer ${
@@ -377,7 +409,6 @@ const OneMinWingo = () => {
                     </div>
                 </div>
             )}
-
             {showCopyButton && (
                 <div>
                     <button
@@ -398,11 +429,9 @@ const OneMinWingo = () => {
                     </button>
                 </div>
             )}
-
             {error && (
                 <p style={{ color: "red", textAlign: "center" }}>{error}</p>
             )}
-
             {history.length === 0 ? (
                 <table className="history-table">
                     <tbody>

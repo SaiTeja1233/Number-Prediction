@@ -9,6 +9,8 @@ const Dashboard = () => {
     const [error, setError] = useState("");
     const navigate = useNavigate();
 
+    const ADMIN_EMAIL = "k.saiteja1233@gmail.com";
+
     useEffect(() => {
         const fetchUser = async () => {
             try {
@@ -30,6 +32,9 @@ const Dashboard = () => {
     };
     const navigateToColorGames = () => {
         navigate("/colorgames");
+    };
+    const navigateToAdminPanel = () => {
+        navigate("/userlist");
     };
 
     const handleLogout = async () => {
@@ -91,6 +96,8 @@ const Dashboard = () => {
         );
     }
 
+    const isAdmin = user && user.email === ADMIN_EMAIL;
+
     return (
         <div className="dashboard-main-container">
             <nav className="dashboard-navbar">
@@ -103,30 +110,45 @@ const Dashboard = () => {
                 </div>
                 <div className="navbar-right">
                     {user && (
-                        <span className="navbar-user">
-                            {user.name || user.email}
-                        </span>
+                        <div className="navbar-user-info">
+                            <span className="navbar-user">
+                                {user.name || user.email}
+                            </span>
+                            <div className="navbar-buttons">
+                                <button
+                                    onClick={handleLogout}
+                                    className="navbar-logout-btn"
+                                    disabled={loading}
+                                    aria-label={
+                                        loading ? "Logging out..." : "Logout"
+                                    }
+                                    title="Logout"
+                                >
+                                    Logout
+                                </button>
+                            </div>
+                        </div>
                     )}
-                    <button
-                        onClick={handleLogout}
-                        className="navbar-logout-btn"
-                        disabled={loading}
-                        aria-label={loading ? "Logging out..." : "Logout"}
-                        title="Logout"
-                    >
-                        Logout
-                    </button>
                 </div>
             </nav>
 
+            {isAdmin && (
+                <button
+                    className="admin-fixed-btn"
+                    onClick={navigateToAdminPanel}
+                    disabled={loading}
+                    title="Admin Panel"
+                >
+                    Admin
+                </button>
+            )}
+
             <div className="dashboard-content">
                 <h3 className="dashboard-welcome-heading">
-                    Welcome to Predict <span style={{color:"#ffa500"}}>.X</span>
+                    Welcome to Predict{" "}
+                    <span style={{ color: "#ffa500" }}>.X</span>
                 </h3>
-
-                {/* New container for all cards with flexbox */}
                 <div className="game-card-container">
-                    {/* Color Games Card */}
                     <button
                         className="game-card colorgames"
                         onClick={navigateToColorGames}
@@ -136,7 +158,6 @@ const Dashboard = () => {
                             Predict colors and numbers to win!
                         </p>
                     </button>
-                    {/* Tournaments Card */}
                     <button
                         className="game-card tournament"
                         onClick={navigateToTournaments}
