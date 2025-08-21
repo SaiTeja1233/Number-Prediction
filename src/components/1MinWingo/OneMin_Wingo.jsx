@@ -44,44 +44,84 @@ const OneMinWingo = () => {
     };
 
     const getPrediction = useCallback(() => {
-        if (consecutiveLosses > 0) {
+        const relevantHistory = history.slice(0, 15);
+        if (relevantHistory.length < 5) {
             return { color: "Green", size: "BIG" };
         }
 
-        const recentHistory = history.slice(0, 5);
-        if (recentHistory.length < 5) {
-            return { color: "Red", size: "SMALL" };
+        // Hybrid Strategy
+        let predictedColor, predictedSize;
+
+        // Mode 1: Human-like Pattern Recognition (Default)
+        // Check for double-downs (e.g., Red, Red -> Green)
+        if (relevantHistory.length >= 2) {
+            const lastColor = getColorFromNumber(
+                parseInt(relevantHistory[0].number)
+            );
+            const secondLastColor = getColorFromNumber(
+                parseInt(relevantHistory[1].number)
+            );
+            if (lastColor === secondLastColor) {
+                predictedColor = lastColor === "Red" ? "Green" : "Red";
+            }
         }
 
-        const colors = recentHistory.map((item) =>
-            getColorFromNumber(parseInt(item.number))
-        );
-        const sizes = recentHistory.map((item) =>
-            getSizeFromNumber(parseInt(item.number))
-        );
+        // Check for zig-zag patterns (e.g., Red, Green, Red -> Green)
+        if (!predictedColor && relevantHistory.length >= 3) {
+            const lastThreeColors = relevantHistory
+                .slice(0, 3)
+                .map((item) => getColorFromNumber(parseInt(item.number)));
+            if (
+                lastThreeColors[0] !== lastThreeColors[1] &&
+                lastThreeColors[1] !== lastThreeColors[2]
+            ) {
+                predictedColor = lastThreeColors[0] === "Red" ? "Green" : "Red";
+            }
+        }
 
-        const colorCounts = {};
-        const sizeCounts = {};
+        // Fallback to simple last-result reversal if no pattern is found
+        if (!predictedColor) {
+            const lastColor = getColorFromNumber(
+                parseInt(relevantHistory[0].number)
+            );
+            predictedColor = lastColor === "Red" ? "Green" : "Red";
+        }
 
-        colors.forEach((color) => {
-            colorCounts[color] = (colorCounts[color] || 0) + 1;
-        });
-        sizes.forEach((size) => {
-            sizeCounts[size] = (sizeCounts[size] || 0) + 1;
-        });
-
-        const mostFrequentColor = Object.keys(colorCounts).reduce((a, b) =>
-            colorCounts[a] > colorCounts[b] ? a : b
+        // Apply same logic for size
+        let lastSize = getSizeFromNumber(parseInt(relevantHistory[0].number));
+        let secondLastSize = getSizeFromNumber(
+            parseInt(relevantHistory[1].number)
         );
-        const mostFrequentSize = Object.keys(sizeCounts).reduce((a, b) =>
-            sizeCounts[a] > sizeCounts[b] ? a : b
-        );
+        if (lastSize === secondLastSize) {
+            predictedSize = lastSize === "BIG" ? "SMALL" : "BIG";
+        } else {
+            predictedSize = lastSize === "BIG" ? "SMALL" : "BIG";
+        }
 
-        const predictedColor = mostFrequentColor === "Red" ? "Green" : "Red";
-        const predictedSize = mostFrequentSize === "BIG" ? "SMALL" : "BIG";
+        // Mode 2: Robot-like Frequency Analysis (after consecutive losses)
+        if (consecutiveLosses >= 2) {
+            const colorCounts = {};
+            const sizeCounts = {};
+            relevantHistory.forEach((item) => {
+                const color = getColorFromNumber(parseInt(item.number));
+                const size = getSizeFromNumber(parseInt(item.number));
+                colorCounts[color] = (colorCounts[color] || 0) + 1;
+                sizeCounts[size] = (sizeCounts[size] || 0) + 1;
+            });
+
+            // CORRECTED LOGIC: Predict the more frequent outcome
+            const moreFrequentColor =
+                colorCounts["Red"] >= colorCounts["Green"] ? "Red" : "Green";
+            const moreFrequentSize =
+                sizeCounts["BIG"] >= sizeCounts["SMALL"] ? "BIG" : "SMALL";
+
+            // Overwrite human prediction with robot prediction
+            predictedColor = moreFrequentColor;
+            predictedSize = moreFrequentSize;
+        }
 
         return { color: predictedColor, size: predictedSize };
-    }, [consecutiveLosses, history]);
+    }, [history, consecutiveLosses]);
 
     const getNumbersToDisplay = (prediction) => {
         const uniqueNumbers = new Set();
