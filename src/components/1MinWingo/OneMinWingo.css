@@ -2,7 +2,7 @@
 .one-min-wrapper {
   padding: 0px;
   font-family: "Segoe UI", sans-serif;
-  background: linear-gradient(160deg, #e9f1ff, #f7faff);
+  background-color: #f0f4f7; /* Changed to a solid light blue-gray background */
   min-height: 100vh;
   box-sizing: border-box;
   display: flex;
@@ -76,7 +76,7 @@ p {
 .wingo-result-card {
   width: 60%;
   max-width: 300px;
-  height: 80px;
+ height: 60px; /* Added min-height */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -84,7 +84,7 @@ p {
   padding: 20px;
   border-radius: 15px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  color: #333; /* Darker text for readability on a white background */
+  color: #333;
   background-color: white;
   border: 1px solid #e0e0e0;
   position: relative;
@@ -132,6 +132,7 @@ p {
   font-weight: bold;
   letter-spacing: 2px;
   text-transform: uppercase;
+  margin: 5px 0; /* Adjusted margin */
 }
 
 .wingo-prediction-numbers {
@@ -141,9 +142,9 @@ p {
   color: #555; /* Adjust color for readability */
 }
 
-/* AI Predict Button */
-.predict-btn {
-  background-color: #3f51b5;
+/* AI Predict Button - Custom Styles */
+.ai-predict-btn {
+  background-color: #ff5722; /* A vibrant orange for attention */
   color: white;
   font-size: 16px;
   padding: 10px 20px;
@@ -156,16 +157,17 @@ p {
   width: 100%;
 }
 
-.predict-btn:hover {
-  background-color: #303f9f;
+.ai-predict-btn:hover {
+  background-color: #e64a19; /* A darker orange on hover */
   transform: translateY(-2px);
 }
 
-.predict-btn:disabled {
+.ai-predict-btn:disabled {
   background-color: #ccc;
   cursor: not-allowed;
   box-shadow: none;
 }
+
 
 /* Refresh Button */
 .refresh-btn {
@@ -319,6 +321,7 @@ p {
   justify-content: center;
   align-items: center;
   width: 100%;
+  gap: 10px; /* Added gap for spacing between buttons */
 }
 
 .Topline {
@@ -421,65 +424,3 @@ p {
   }
 }
 
-/* New button styles */
-.predict-btn {
-  background-color: #3f51b5;
-  color: white;
-  font-size: 16px;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  width: 100%;
-}
-
-.predict-btn:hover {
-  background-color: #303f9f;
-  transform: translateY(-2px);
-}
-
-.predict-btn:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-.refresh-btn {
-  background-color: #9e9e9e;
-  color: white;
-  font-size: 16px;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.refresh-btn:hover {
-  background-color: #757575;
-  transform: rotate(5deg);
-}
-
-.copy-btn {
-  background-color: #4caf50;
-  color: white;
-  font-size: 16px;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  width: 100%;
-  margin-top: 10px;
-}
-
-.copy-btn:hover {
-  background-color: #388e3c;
-  transform: translateY(-2px);
-}
