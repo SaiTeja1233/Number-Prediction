@@ -76,7 +76,7 @@ p {
 /* Base styles for the new white card */
 .wingo-result-card {
     margin: 20px auto;
-    width: 90%;
+    width: 70%;
     max-width: 300px;
     height: 15vh;
     display: flex;
@@ -102,27 +102,49 @@ p {
 
 /* Keyframes for Gradient Animations */
 @keyframes redGradientAnimation {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
 }
 
 @keyframes greenGradientAnimation {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
 }
 
 /* Color of the card background for Red prediction with animation */
 .wingo-result-card.red {
-    background: linear-gradient(90deg, #f44336, #ffffff, #f44336); /* Red, White, Red */
+    background: linear-gradient(
+        90deg,
+        #f44336,
+        #ffffff,
+        #f44336
+    ); /* Red, White, Red */
     background-size: 200% 100%; /* Make the gradient larger than the element */
     animation: redGradientAnimation 4s ease infinite; /* Apply animation */
 }
 
 /* Color of the card background for Green prediction with animation */
 .wingo-result-card.green {
-    background: linear-gradient(90deg, #4caf50, #ffffff, #4caf50); /* Green, White, Green */
+    background: linear-gradient(
+        90deg,
+        #4caf50,
+        #ffffff,
+        #4caf50
+    ); /* Green, White, Green */
     background-size: 200% 100%;
     animation: greenGradientAnimation 4s ease infinite;
 }
@@ -174,7 +196,6 @@ p {
 .wingo-result-card.green .wingo-prediction-numbers {
     color: #4caf50;
 }
-
 
 /* AI Predict Button - Custom Styles */
 .ai-predict-btn {
@@ -330,7 +351,7 @@ p {
     max-width: 500px;
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 10px;
 }
 
 .prediction-control-box {

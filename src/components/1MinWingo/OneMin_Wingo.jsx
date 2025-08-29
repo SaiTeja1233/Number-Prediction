@@ -229,6 +229,26 @@ const OneMinWingo = () => {
                     </p>
                 </div>
             </div>
+
+            {aiPredictionDisplay && (
+                <div className={cardClassName}>
+                    <div className="ai-prediction-card-header">
+                        <div className="ai-prediction-card-indicator"></div>
+                        <p className="wingo-period">
+                            Period: {aiPredictionDisplay.period}
+                        </p>
+                    </div>
+                    <h3 className="wingo-prediction-text">
+                        {aiPredictionDisplay.prediction}
+                    </h3>
+                    <p className="wingo-prediction-numbers">
+                        {aiPredictionDisplay.associatedNumbers.join(", ")}
+                    </p>
+                </div>
+            )}
+            {error && (
+                <p style={{ color: "red", textAlign: "center" }}>{error}</p>
+            )}
             <div className="button-wrapper">
                 <div className="prediction-control-box">
                     <button
@@ -267,25 +287,6 @@ const OneMinWingo = () => {
                     )}
                 </div>
             </div>
-            {aiPredictionDisplay && (
-                <div className={cardClassName}>
-                    <div className="ai-prediction-card-header">
-                        <div className="ai-prediction-card-indicator"></div>
-                        <p className="wingo-period">
-                            Period: {aiPredictionDisplay.period}
-                        </p>
-                    </div>
-                    <h3 className="wingo-prediction-text">
-                        {aiPredictionDisplay.prediction}
-                    </h3>
-                    <p className="wingo-prediction-numbers">
-                        {aiPredictionDisplay.associatedNumbers.join(", ")}
-                    </p>
-                </div>
-            )}
-            {error && (
-                <p style={{ color: "red", textAlign: "center" }}>{error}</p>
-            )}
             {history.length === 0 ? (
                 <table className="history-table">
                     <tbody>
