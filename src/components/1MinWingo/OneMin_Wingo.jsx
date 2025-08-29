@@ -4,6 +4,8 @@ import React, { useEffect, useState, useCallback } from "react";
 import "./OneMinWingo.css";
 import { useNavigate } from "react-router-dom";
 import { getISTTime, fetchOptimizedData } from "../../predictionLogic";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const OneMinWingo = () => {
     const [latestPeriod, setLatestPeriod] = useState("");
@@ -14,6 +16,9 @@ const OneMinWingo = () => {
     const [aiPredictionDisplay, setAiPredictionDisplay] = useState(null);
     const [isFadingOut, setIsFadingOut] = useState(false);
     const [isShaking, setIsShaking] = useState(false);
+
+    const [predictionMode, setPredictionMode] = useState("COLOR");
+    const [lastPrediction, setLastPrediction] = useState(null);
 
     const navigate = useNavigate();
 
@@ -26,110 +31,177 @@ const OneMinWingo = () => {
     }, []);
 
     const getColorFromNumber = useCallback((number) => {
+        if (number === 0) return "RED";
+        if (number === 5) return "GREEN";
         return number % 2 === 0 ? "RED" : "GREEN";
     }, []);
 
-    const calculateAndPredict = useCallback((data) => {
+    const calculateAndPredict = useCallback((data, mode) => {
         if (!Array.isArray(data) || data.length === 0) {
             console.log("No numbers to calculate for AI prediction.");
             setAiPredictionDisplay(null);
             return;
         }
 
-        const latestEntry = data[0];
-        const nextPeriodBigInt = BigInt(latestEntry.issueNumber) + 1n;
+        const nextPeriodBigInt = BigInt(data[0].issueNumber) + 1n;
         const nextPeriod = String(nextPeriodBigInt);
+        const relevantHistory = data.slice(0, 50);
 
-        // 1. Determine color prediction based on the sum of a reasonable history length
-        const relevantHistory = data.slice(0, 20); // Analyze the last 20 entries for a more accurate trend
-        const allNumbers = relevantHistory.map((item) => parseInt(item.number));
-        const sumOfNumbers = allNumbers.reduce((sum, num) => sum + num, 0);
-        const predictionValue = sumOfNumbers % 2 === 0 ? "RED" : "GREEN";
-
-        // 2. Predict two numbers based on the predicted color and frequency analysis
+        let mainPrediction = "";
         let predictedNumbers = [];
-        const evenNumbers = [0, 2, 4, 6, 8];
-        const oddNumbers = [1, 3, 5, 7, 9];
+        let predictionType = mode;
 
-        const relevantNumbers = relevantHistory
-            .map((item) => parseInt(item.number))
-            .filter((num) => {
-                if (predictionValue === "GREEN") {
-                    return oddNumbers.includes(num);
-                } else {
-                    // RED
-                    return evenNumbers.includes(num);
-                }
+        if (mode === "COLOR") {
+            const colorScores = { RED: 0, GREEN: 0 };
+            const evenNumbers = [0, 2, 4, 6, 8];
+            const oddNumbers = [1, 3, 5, 7, 9];
+
+            relevantHistory.forEach((item, index) => {
+                const number = parseInt(item.number);
+                const weight = 50 - index;
+                if (evenNumbers.includes(number)) colorScores.RED += weight;
+                if (oddNumbers.includes(number)) colorScores.GREEN += weight;
             });
 
-        // Count frequencies of the relevant numbers
-        const frequencyMap = relevantNumbers.reduce((acc, num) => {
-            acc[num] = (acc[num] || 0) + 1;
-            return acc;
-        }, {});
+            let alternatingPatternCount = 0;
+            for (let i = 0; i < relevantHistory.length - 1; i++) {
+                const currentIsEven = evenNumbers.includes(
+                    parseInt(relevantHistory[i].number)
+                );
+                const nextIsEven = evenNumbers.includes(
+                    parseInt(relevantHistory[i + 1].number)
+                );
+                if (currentIsEven !== nextIsEven) alternatingPatternCount++;
+                else break;
+            }
 
-        // Sort numbers by frequency in descending order
-        const sortedNumbers = Object.keys(frequencyMap).sort((a, b) => {
-            return frequencyMap[b] - frequencyMap[a];
-        });
+            if (alternatingPatternCount >= 3) {
+                const latestNumber = parseInt(data[0].number);
+                mainPrediction = evenNumbers.includes(latestNumber)
+                    ? "GREEN"
+                    : "RED";
+            } else {
+                const sortedColors = Object.keys(colorScores).sort(
+                    (a, b) => colorScores[b] - colorScores[a]
+                );
+                mainPrediction = sortedColors[0];
+            }
 
-        // Select the top two unique numbers
-        const topTwoNumbers = sortedNumbers.slice(0, 2).map(Number);
-
-        // Fill predictedNumbers ensuring no repeats
-        predictedNumbers = [...new Set(topTwoNumbers)];
-
-        // Fallback if not enough numbers are found
-        if (predictedNumbers.length < 2) {
-            const fallbackSet =
-                predictionValue === "GREEN" ? oddNumbers : evenNumbers;
-            const existingNumbers = new Set(predictedNumbers);
-            const numbersToAdd = fallbackSet
-                .filter((num) => !existingNumbers.has(num))
-                .sort((a, b) => b - a); // Sort to add highest number first
-            predictedNumbers = [...predictedNumbers, ...numbersToAdd].slice(
-                0,
-                2
+            const targetNumbers =
+                mainPrediction === "GREEN" ? oddNumbers : evenNumbers;
+            const numberFrequencyMap = relevantHistory.reduce((acc, item) => {
+                const num = parseInt(item.number);
+                if (targetNumbers.includes(num)) {
+                    acc[num] = (acc[num] || 0) + 1;
+                }
+                return acc;
+            }, {});
+            const sortedNumbers = Object.keys(numberFrequencyMap)
+                .sort((a, b) => numberFrequencyMap[b] - numberFrequencyMap[a])
+                .map(Number);
+            predictedNumbers = sortedNumbers.slice(0, 2);
+            if (predictedNumbers.length < 2) {
+                const existingNumbers = new Set(predictedNumbers);
+                const numbersToAdd = targetNumbers
+                    .filter((num) => !existingNumbers.has(num))
+                    .sort((a, b) => b - a);
+                predictedNumbers = [...predictedNumbers, ...numbersToAdd].slice(
+                    0,
+                    2
+                );
+            }
+        } else if (mode === "SIZE") {
+            const allNumbers = relevantHistory.map((item) =>
+                parseInt(item.number)
             );
-        }
+            const sumOfNumbers = allNumbers.reduce((sum, num) => sum + num, 0);
+            const lastDigitOfSum = sumOfNumbers % 10;
+            mainPrediction = lastDigitOfSum >= 5 ? "BIG" : "SMALL";
 
-        console.log(
-            `Sum of all numbers: ${sumOfNumbers}, Prediction: ${predictionValue}, Predicted Numbers: ${predictedNumbers}`
-        );
+            const targetNumbers =
+                mainPrediction === "BIG" ? [5, 6, 7, 8, 9] : [0, 1, 2, 3, 4];
+            const numberFrequencyMap = relevantHistory.reduce((acc, item) => {
+                const num = parseInt(item.number);
+                if (targetNumbers.includes(num)) {
+                    acc[num] = (acc[num] || 0) + 1;
+                }
+                return acc;
+            }, {});
+            const sortedNumbers = Object.keys(numberFrequencyMap)
+                .sort((a, b) => numberFrequencyMap[b] - numberFrequencyMap[a])
+                .map(Number);
+            predictedNumbers = sortedNumbers.slice(0, 2);
+            if (predictedNumbers.length < 2) {
+                const existingNumbers = new Set(predictedNumbers);
+                const numbersToAdd = targetNumbers
+                    .filter((num) => !existingNumbers.has(num))
+                    .sort((a, b) => b - a);
+                predictedNumbers = [...predictedNumbers, ...numbersToAdd].slice(
+                    0,
+                    2
+                );
+            }
+        }
 
         setAiPredictionDisplay({
             period: nextPeriod,
-            prediction: predictionValue,
+            mainPrediction: mainPrediction,
             associatedNumbers: predictedNumbers,
-            type: "COLOR",
+            type: predictionType,
             outcome: null,
             actual: null,
+        });
+
+        setLastPrediction({
+            period: nextPeriod,
+            mainPrediction: mainPrediction,
+            type: predictionType,
         });
     }, []);
 
     const handleAiPredict = () => {
-        calculateAndPredict(history);
+        calculateAndPredict(history, predictionMode);
         setIsFadingOut(false);
     };
 
-    const handleCopyPrediction = () => {
+    const handleCopyPrediction = async () => {
         if (aiPredictionDisplay) {
             const nextPeriod = aiPredictionDisplay.period;
-            const predictionText = aiPredictionDisplay.prediction;
+            const predictionText = aiPredictionDisplay.mainPrediction;
             const predictedNumbersText =
                 aiPredictionDisplay.associatedNumbers.join(", ");
 
             const textToCopy = `
 ╭⚬──────────────────⚬╮
 │ 🎯 WINGO      : 1 Min WinGo
-│ ⏳ PERIOD     : ${nextPeriod}
-│ 🔮 PREDICTION : ${predictionText}
-│ 🔢 NUMBERS    : ${predictedNumbersText}
+│ ⏳ PERIOD      : ${nextPeriod}
+│ 🔮 PREDICTION : ${predictionText} (${aiPredictionDisplay.type})
+│ 🔢 NUMBERS     : ${predictedNumbersText}
 ╰⚬──────────────────⚬╯
 `;
-            navigator.clipboard.writeText(textToCopy).catch((err) => {
+            try {
+                await navigator.clipboard.writeText(textToCopy);
+                toast.success("Prediction copied to clipboard! 📋", {
+                    position: "top-center",
+                    autoClose: 2000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                });
+            } catch (err) {
                 console.error("Failed to copy text: ", err);
-            });
+                toast.error("Failed to copy. Please try again.", {
+                    position: "top-center",
+                    autoClose: 2000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                });
+            }
         }
     };
 
@@ -143,6 +215,80 @@ const OneMinWingo = () => {
                         setLatestPeriod(currentPeriod);
                         setHistory(list);
                         setError(null);
+
+                        if (lastPrediction) {
+                            const lastActualNumber = parseInt(
+                                list.find(
+                                    (item) =>
+                                        item.issueNumber ===
+                                        lastPrediction.period
+                                )?.number
+                            );
+                            if (
+                                lastActualNumber !== undefined &&
+                                !isNaN(lastActualNumber)
+                            ) {
+                                let isCorrect = false;
+                                let message = "";
+
+                                // Styling for smaller text in toasts
+                                const toastStyle = {
+                                    fontSize: "14px", // Adjust this value as needed
+                                };
+
+                                if (lastPrediction.type === "COLOR") {
+                                    const actualColor =
+                                        getColorFromNumber(lastActualNumber);
+                                    isCorrect =
+                                        lastPrediction.mainPrediction ===
+                                        actualColor;
+                                    message = isCorrect
+                                        ? ` WIN: Prediction "${lastPrediction.mainPrediction}" was correct!`
+                                        : `LOSS:Switching to SIZE prediction mode.`;
+
+                                    if (isCorrect) {
+                                        toast.success(message, {
+                                            style: toastStyle,
+                                            autoClose: 3000,
+                                        });
+                                    } else {
+                                        toast.error(message, {
+                                            style: toastStyle,
+                                            autoClose: 3000,
+                                        });
+                                    }
+                                } else if (lastPrediction.type === "SIZE") {
+                                    const actualSize =
+                                        getSizeFromNumber(lastActualNumber);
+                                    isCorrect =
+                                        lastPrediction.mainPrediction ===
+                                        actualSize;
+                                    message = isCorrect
+                                        ? ` WIN: Prediction "${lastPrediction.mainPrediction}" was correct!`
+                                        : `LOSS:Switching to COLOR prediction mode.`;
+
+                                    if (isCorrect) {
+                                        toast.success(message, {
+                                            style: toastStyle,
+                                            autoClose: 3000,
+                                        });
+                                    } else {
+                                        toast.error(message, {
+                                            style: toastStyle,
+                                            autoClose: 3000,
+                                        });
+                                    }
+                                }
+
+                                if (!isCorrect) {
+                                    setPredictionMode(
+                                        lastPrediction.type === "COLOR"
+                                            ? "SIZE"
+                                            : "COLOR"
+                                    );
+                                }
+                            }
+                        }
                     } else if (!isRetry) {
                         setTimeout(() => fetchHistory(true), 1000);
                     }
@@ -154,13 +300,15 @@ const OneMinWingo = () => {
                 setError("Failed to load data");
             }
         },
-        [latestPeriod]
+        [latestPeriod, lastPrediction, getColorFromNumber, getSizeFromNumber]
     );
 
     const handleRefresh = () => {
         setIsShaking(true);
         fetchHistory();
         setAiPredictionDisplay(null);
+        setPredictionMode("COLOR");
+        setLastPrediction(null);
         setIsFadingOut(false);
         setTimeout(() => {
             setIsShaking(false);
@@ -198,11 +346,18 @@ const OneMinWingo = () => {
     }, [fetchHistory]);
 
     const cardClassName = `wingo-result-card ${
-        aiPredictionDisplay?.prediction?.toLowerCase() || ""
+        aiPredictionDisplay?.type === "COLOR"
+            ? aiPredictionDisplay.mainPrediction?.toLowerCase()
+            : aiPredictionDisplay?.type === "SIZE"
+            ? aiPredictionDisplay.mainPrediction?.toLowerCase() === "small"
+                ? "bg-small"
+                : "bg-big"
+            : ""
     } ${isFadingOut ? "is-fading-out" : ""}`.trim();
 
     return (
         <div className="one-min-wrapper">
+            <ToastContainer />
             <div className="Wingo-header">
                 <img
                     src="back (1).png"
@@ -239,7 +394,7 @@ const OneMinWingo = () => {
                         </p>
                     </div>
                     <h3 className="wingo-prediction-text">
-                        {aiPredictionDisplay.prediction}
+                        {aiPredictionDisplay.mainPrediction}
                     </h3>
                     <p className="wingo-prediction-numbers">
                         {aiPredictionDisplay.associatedNumbers.join(", ")}

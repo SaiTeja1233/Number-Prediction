@@ -368,7 +368,52 @@ p {
     width: 100%;
     gap: 10px;
 }
+/* Other existing styles in OneMinWingo.css */
 
+/* Animation for the gradient background */
+@keyframes gradient-animation {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.wingo-result-card.bg-small {
+    background: linear-gradient(
+        -45deg,
+        #4a90e2,
+        #a7d9f7,
+        #ffffff,
+        #a7d9f7,
+        #4a90e2
+    ); /* Blue-white gradient */
+    background-size: 400% 400%;
+    animation: gradient-animation 10s ease infinite;
+}
+
+.wingo-result-card.bg-big {
+    background: linear-gradient(
+        -45deg,
+        #ffa500,
+        #ffda97,
+        #ffffff,
+        #ffda97,
+        #ffa500
+    ); /* Orange-white gradient */
+    background-size: 400% 400%;
+    animation: gradient-animation 10s ease infinite;
+}
+
+/* Ensure fading out works with new backgrounds */
+.wingo-result-card.is-fading-out {
+    opacity: 0.5;
+    transition: opacity 0.5s ease-out;
+}
 .Topline {
     width: 100%;
     height: 2px;
