@@ -1,426 +1,464 @@
 /* ========== BASE ========== */
 .one-min-wrapper {
-  padding: 0px;
-  font-family: "Segoe UI", sans-serif;
-  background-color: #f0f4f7; /* Changed to a solid light blue-gray background */
-  min-height: 100vh;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 15px;
+    background-color: #2e476d;
+    min-height: 100vh;
+    padding: 0px;
+    box-sizing: border-box;
+    font-family: "Segoe UI", sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
 }
 
 h2 {
-  text-align: center;
-  color: #030838;
-  margin: 10px 0;
-  font-size: 20px;
+    text-align: center;
+    color: #ffffff; /* Changed to white for visibility on dark background */
+    margin: 10px 0;
+    font-size: 20px;
 }
 
 p {
-  font-size: 14px;
-  margin: 6px 0;
+    font-size: 14px;
+    margin: 6px 0;
+    color: #e0e0e0; /* Changed to a light gray for visibility */
 }
 
 /* ========== PREDICTION BOX ========== */
 .timer-container {
-  width: 95%;
-  max-width: 950px;
-  height: auto;
-  min-height: 120px;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  justify-content: center;
-  background-color: #007bff;
-  border: 1px solid #4cc6ff;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+    width: 95%;
+    max-width: 950px;
+    height: auto;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    background-color: #007bff;
+    border: 1px solid #4cc6ff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
 }
 
 .prediction-box-upper {
-  flex: 1;
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 6px;
-  color: white;
+    flex: 1;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    color: white;
 }
 
 .prediction-box-upper p {
-  margin: 0;
-  font-size: 1rem;
-  color: white;
-  text-align: center;
+    margin: 0;
+    font-size: 1rem;
+    color: white;
+    text-align: center;
 }
 
 .next-period-num {
-  font-size: 1.2rem;
-  font-weight: bold;
+    font-size: 1.2rem;
+    font-weight: bold;
 }
 
 /* Updated styles for the new prediction display */
 .prediction-section {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 10px;
-  width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+    width: 100%;
 }
 
 /* Base styles for the new white card */
 .wingo-result-card {
-  width: 60%;
-  max-width: 300px;
- height: 60px; /* Added min-height */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
-  border-radius: 15px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  color: #333;
-  background-color: white;
-  border: 1px solid #e0e0e0;
-  position: relative;
-  transition: all 0.3s ease-in-out;
+    margin: 20px auto;
+    width: 90%;
+    max-width: 300px;
+    height: 15vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    color: #333;
+    background-color: white; /* Default background, will be overridden by gradients */
+    border: none;
+    position: relative;
+    transition: all 0.3s ease-in-out;
+    overflow: hidden;
+    text-align: center;
 }
 
-/* The color-changing left line */
+/* The color-changing left line - removed to use the animated background directly */
 .wingo-result-card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 8px; /* Width of the color line */
-  border-top-left-radius: 15px;
-  border-bottom-left-radius: 15px;
+    display: none; /* Hide the ::before pseudo-element as we're using full card gradient */
 }
 
-/* Color of the line for Red prediction */
-.wingo-result-card.red::before {
-  background-color: #f44336;
+/* Keyframes for Gradient Animations */
+@keyframes redGradientAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
-/* Color of the line for Green prediction */
-.wingo-result-card.green::before {
-  background-color: #4caf50;
+@keyframes greenGradientAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
-/* Color of the line for Big/Small prediction */
-.wingo-result-card.big::before,
-.wingo-result-card.small::before {
-  background-color: #2196f3;
+/* Color of the card background for Red prediction with animation */
+.wingo-result-card.red {
+    background: linear-gradient(90deg, #f44336, #ffffff, #f44336); /* Red, White, Red */
+    background-size: 200% 100%; /* Make the gradient larger than the element */
+    animation: redGradientAnimation 4s ease infinite; /* Apply animation */
+}
+
+/* Color of the card background for Green prediction with animation */
+.wingo-result-card.green {
+    background: linear-gradient(90deg, #4caf50, #ffffff, #4caf50); /* Green, White, Green */
+    background-size: 200% 100%;
+    animation: greenGradientAnimation 4s ease infinite;
 }
 
 /* Text styles for the new card */
 .wingo-period {
-  font-size: 14px;
-  font-weight: 500;
-  margin-bottom: 5px;
-  color: #666; /* Adjust color for readability */
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 5px;
+    color: #666;
+    position: relative; /* Ensure text is above background */
+    z-index: 1;
 }
 
 .wingo-prediction-text {
-  font-size: 2.5em;
-  font-weight: bold;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  margin: 5px 0; /* Adjusted margin */
+    font-size: 2.5em;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin: 5px 0;
+    color: #333; /* Default color */
+    position: relative; /* Ensure text is above background */
+    z-index: 1;
+}
+
+/* Color styles for prediction text based on card class */
+.wingo-result-card.red .wingo-prediction-text {
+    color: #f44336;
+}
+
+.wingo-result-card.green .wingo-prediction-text {
+    color: #4caf50;
 }
 
 .wingo-prediction-numbers {
-  font-size: 1.2em;
-  font-weight: 600;
-  margin-top: 10px;
-  color: #555; /* Adjust color for readability */
+    font-size: 1.5em;
+    font-weight: 700;
+    margin-top: 15px;
+    color: #444; /* Default color */
+    position: relative; /* Ensure text is above background */
+    z-index: 1;
 }
+
+/* Color styles for predicted numbers based on card class */
+.wingo-result-card.red .wingo-prediction-numbers {
+    color: #f44336;
+}
+
+.wingo-result-card.green .wingo-prediction-numbers {
+    color: #4caf50;
+}
+
 
 /* AI Predict Button - Custom Styles */
 .ai-predict-btn {
-  background-color: #ff5722; /* A vibrant orange for attention */
-  color: white;
-  font-size: 16px;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  width: 100%;
+    background-color: #ff5722;
+    position: fixed;
+    bottom: 5%;
+    color: white;
+    font-size: 16px;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    width: 50%;
+    margin-top: 20px;
 }
 
 .ai-predict-btn:hover {
-  background-color: #e64a19; /* A darker orange on hover */
-  transform: translateY(-2px);
+    background-color: #e64a19;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
 }
 
 .ai-predict-btn:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-  box-shadow: none;
+    background-color: #ccc;
+    cursor: not-allowed;
+    box-shadow: none;
 }
-
 
 /* Refresh Button */
 .refresh-btn {
-  background-color: #9e9e9e;
-  color: white;
-  font-size: 16px;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+    background-color: #9e9e9e;
+    color: white;
+    font-size: 16px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    flex: 1;
 }
 
 .refresh-btn:hover {
-  background-color: #757575;
-  transform: rotate(5deg);
+    background-color: #757575;
+    transform: rotate(5deg);
 }
 
-/* Copy Prediction Button */
+/* Copy Prediction Button - PROFESSIONAL LOOK */
 .copy-btn {
-  background-color: #4caf50;
-  color: white;
-  font-size: 16px;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  width: 100%;
-  margin-top: 10px;
+    background-color: #4caf50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex: 1;
 }
 
 .copy-btn:hover {
-  background-color: #388e3c;
-  transform: translateY(-2px);
+    background-color: #388e3c;
+    transform: scale(1.05);
 }
 
 /* ========== TABLE ========== */
 .history-table {
-  width: 100%;
-  max-width: 950px;
-  border-collapse: collapse;
-  background-color: white;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  margin-top: 10px;
+    width: 100%;
+    max-width: 950px;
+    border-collapse: collapse;
+    background-color: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-top: 10px;
 }
 
 .history-table thead {
-  background-color: #007bff;
-  color: white;
+    background-color: #007bff;
+    color: white;
 }
 
 .history-table th,
 .history-table td {
-  padding: 8px;
-  text-align: center;
-  font-weight: bold;
-  white-space: nowrap;
-  font-size: 12px;
+    padding: 8px;
+    text-align: center;
+    font-weight: bold;
+    white-space: nowrap;
+    font-size: 12px;
 }
 
 .history-table td {
-  background-color: white;
+    background-color: white;
 }
 
 /* ========== TIMER ========== */
 .digital-timer-container {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-family: "Courier New", monospace;
-  font-weight: bold;
-  font-size: 20px;
-  color: white;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-family: "Courier New", monospace;
+    font-weight: bold;
+    font-size: 20px;
+    color: white;
 }
 
 .timer-box {
-  background-color: rgba(0, 0, 0, 0.4);
-  padding: 5px;
-  border-radius: 6px;
-  min-width: 20px;
-  text-align: center;
+    background-color: rgba(0, 0, 0, 0.4);
+    padding: 5px;
+    border-radius: 6px;
+    min-width: 20px;
+    text-align: center;
 }
 
 .colon {
-  font-size: 20px;
-  font-weight: bold;
-  color: white;
-}
-
-/* ========== NUMBER COLOR & BG ========== */
-.number-even {
-  color: red;
-  font-weight: bold;
-}
-
-.number-odd {
-  color: green;
-  font-weight: bold;
-}
-
-.red-purple-bg {
-  background: linear-gradient(90deg, red, purple);
-  color: white;
-  border-radius: 6px;
-  padding: 4px 8px;
-}
-
-.green-purple-bg {
-  background: linear-gradient(90deg, green, purple);
-  color: white;
-  border-radius: 6px;
-  padding: 4px 8px;
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
 }
 
 /* ========== HEADER & BUTTONS ========== */
 .Wingo-header {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  background-color: #007bff;
-  margin-bottom: 10px;
-  border: 1px solid #4cc6ff;
-  padding: 10px;
-  box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    background-color: #007bff;
+    margin-bottom: 10px;
+    border: 1px solid #4cc6ff;
+    padding: 10px;
+    box-sizing: border-box;
 }
 
 .Wingo-header img {
-  position: absolute;
-  left: 10px;
-  width: 20px;
+    position: absolute;
+    left: 10px;
+    width: 20px;
 }
 
 .Wingo-header h2 {
-  margin: 0;
+    margin: 0;
 }
 
 .button-wrapper {
-  width: 90%;
-  max-width: 300px;
+    width: 90%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
 .prediction-control-box {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  gap: 10px; /* Added gap for spacing between buttons */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.secondary-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    gap: 10px;
 }
 
 .Topline {
-  width: 100%;
-  height: 2px;
-  background: linear-gradient(
-    to right,
-    blue 0%,
-    rgb(18, 18, 97) 30%,
-    rgb(2, 2, 96) 70%,
-    rgb(1, 1, 93) 100%
-  );
-  mask-image: linear-gradient(
-    to right,
-    transparent 0%,
-    black 30%,
-    black 70%,
-    transparent 100%
-  );
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(
+        to right,
+        blue 0%,
+        rgb(18, 18, 97) 30%,
+        rgb(2, 2, 96) 70%,
+        rgb(1, 1, 93) 100%
+    );
+    mask-image: linear-gradient(
+        to right,
+        transparent 0%,
+        black 30%,
+        black 70%,
+        transparent 100%
+    );
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+.wingo-result-card.is-fading-out {
+    animation: fadeOut 0.5s forwards ease-out;
 }
 
 /* ========== RESPONSIVE ========== */
 /* General Mobile (up to 768px) */
 @media (max-width: 768px) {
-  .one-min-wrapper {
-    padding: 0px;
-    gap: 10px;
-  }
+    .one-min-wrapper {
+        padding: 0px;
+        gap: 10px;
+    }
 
-  h2 {
-    font-size: 18px;
-  }
+    h2 {
+        font-size: 18px;
+    }
 
-  .timer-container {
-    width: 95%;
-  }
+    .timer-container {
+        width: 95%;
+    }
 
-  .digital-timer-container {
-    gap: 5px;
-    font-size: 20px;
-  }
+    .digital-timer-container {
+        gap: 5px;
+        font-size: 20px;
+    }
 
-  .timer-box {
-    padding: 5px 8px;
-    min-width: 20px;
-  }
+    .timer-box {
+        padding: 5px 8px;
+        min-width: 20px;
+    }
 
-  .history-table th,
-  .history-table td {
-    font-size: 12px;
-    padding: 8px 4px;
-  }
+    .history-table th,
+    .history-table td {
+        font-size: 12px;
+        padding: 8px 4px;
+    }
 
-  .Wingo-header {
-    padding: 8px 10px;
-  }
+    .Wingo-header {
+        padding: 8px 10px;
+    }
 
-  .Wingo-header img {
-    left: 5px;
-  }
+    .Wingo-header img {
+        left: 5px;
+    }
 }
 
 /* Small Phones (up to 480px) */
 @media (max-width: 480px) {
-  .one-min-wrapper {
-    padding: 0px;
-    gap: 8px;
-  }
+    .one-min-wrapper {
+        padding: 0px;
+        gap: 0px;
+    }
 
-  h2 {
-    font-size: 16px;
-  }
+    h2 {
+        font-size: 16px;
+    }
 
-  .digital-timer-container {
-    font-size: 16px;
-    gap: 3px;
-  }
+    .digital-timer-container {
+        font-size: 16px;
+        gap: 3px;
+    }
 
-  .timer-box {
-    padding: 4px;
-    min-width: 15px;
-  }
+    .timer-box {
+        padding: 4px;
+        min-width: 15px;
+    }
 
-  .wingo-prediction-text {
-    font-size: 2em;
-  }
+    .wingo-prediction-text {
+        font-size: 2em;
+    }
 
-  .wingo-prediction-numbers {
-    font-size: 1em;
-  }
+    .wingo-prediction-numbers {
+        font-size: 1em;
+    }
 
-  .history-table th,
-  .history-table td {
-    font-size: 10px;
-    padding: 6px 3px;
-  }
+    .history-table th,
+    .history-table td {
+        font-size: 10px;
+        padding: 6px 3px;
+    }
 
-  .Wingo-header img {
-    left: 2px;
-  }
+    .Wingo-header img {
+        left: 2px;
+    }
 }
-

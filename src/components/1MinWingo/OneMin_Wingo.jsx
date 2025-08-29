@@ -4,7 +4,6 @@ import React, { useEffect, useState, useCallback } from "react";
 import "./OneMinWingo.css";
 import { useNavigate } from "react-router-dom";
 import { getISTTime, fetchOptimizedData } from "../../predictionLogic";
-import StatusPopup from "./StatusPopup";
 
 const OneMinWingo = () => {
     const [latestPeriod, setLatestPeriod] = useState("");
@@ -13,9 +12,8 @@ const OneMinWingo = () => {
     const [secondsLeft, setSecondsLeft] = useState(59);
 
     const [aiPredictionDisplay, setAiPredictionDisplay] = useState(null);
-    const [lastTwoOutcomes, setLastTwoOutcomes] = useState([]);
-    const [predictionType, setPredictionType] = useState("COLOR");
-    const [popupMessage, setPopupMessage] = useState(null);
+    const [isFadingOut, setIsFadingOut] = useState(false);
+    const [isShaking, setIsShaking] = useState(false);
 
     const navigate = useNavigate();
 
@@ -31,141 +29,107 @@ const OneMinWingo = () => {
         return number % 2 === 0 ? "RED" : "GREEN";
     }, []);
 
-    const updateOutcomes = useCallback((outcome) => {
-        setLastTwoOutcomes((prevOutcomes) => {
-            const newOutcomes = [outcome, ...prevOutcomes.slice(0, 1)];
-            return newOutcomes;
+    const calculateAndPredict = useCallback((data) => {
+        if (!Array.isArray(data) || data.length === 0) {
+            console.log("No numbers to calculate for AI prediction.");
+            setAiPredictionDisplay(null);
+            return;
+        }
+
+        const latestEntry = data[0];
+        const nextPeriodBigInt = BigInt(latestEntry.issueNumber) + 1n;
+        const nextPeriod = String(nextPeriodBigInt);
+
+        // 1. Determine color prediction based on the sum of a reasonable history length
+        const relevantHistory = data.slice(0, 20); // Analyze the last 20 entries for a more accurate trend
+        const allNumbers = relevantHistory.map((item) => parseInt(item.number));
+        const sumOfNumbers = allNumbers.reduce((sum, num) => sum + num, 0);
+        const predictionValue = sumOfNumbers % 2 === 0 ? "RED" : "GREEN";
+
+        // 2. Predict two numbers based on the predicted color and frequency analysis
+        let predictedNumbers = [];
+        const evenNumbers = [0, 2, 4, 6, 8];
+        const oddNumbers = [1, 3, 5, 7, 9];
+
+        const relevantNumbers = relevantHistory
+            .map((item) => parseInt(item.number))
+            .filter((num) => {
+                if (predictionValue === "GREEN") {
+                    return oddNumbers.includes(num);
+                } else {
+                    // RED
+                    return evenNumbers.includes(num);
+                }
+            });
+
+        // Count frequencies of the relevant numbers
+        const frequencyMap = relevantNumbers.reduce((acc, num) => {
+            acc[num] = (acc[num] || 0) + 1;
+            return acc;
+        }, {});
+
+        // Sort numbers by frequency in descending order
+        const sortedNumbers = Object.keys(frequencyMap).sort((a, b) => {
+            return frequencyMap[b] - frequencyMap[a];
+        });
+
+        // Select the top two unique numbers
+        const topTwoNumbers = sortedNumbers.slice(0, 2).map(Number);
+
+        // Fill predictedNumbers ensuring no repeats
+        predictedNumbers = [...new Set(topTwoNumbers)];
+
+        // Fallback if not enough numbers are found
+        if (predictedNumbers.length < 2) {
+            const fallbackSet =
+                predictionValue === "GREEN" ? oddNumbers : evenNumbers;
+            const existingNumbers = new Set(predictedNumbers);
+            const numbersToAdd = fallbackSet
+                .filter((num) => !existingNumbers.has(num))
+                .sort((a, b) => b - a); // Sort to add highest number first
+            predictedNumbers = [...predictedNumbers, ...numbersToAdd].slice(
+                0,
+                2
+            );
+        }
+
+        console.log(
+            `Sum of all numbers: ${sumOfNumbers}, Prediction: ${predictionValue}, Predicted Numbers: ${predictedNumbers}`
+        );
+
+        setAiPredictionDisplay({
+            period: nextPeriod,
+            prediction: predictionValue,
+            associatedNumbers: predictedNumbers,
+            type: "COLOR",
+            outcome: null,
+            actual: null,
         });
     }, []);
 
-    const calculateAndPredict = useCallback(
-        (data) => {
-            if (!Array.isArray(data) || data.length === 0) {
-                console.log("No numbers to calculate for AI prediction.");
-                setAiPredictionDisplay(null);
-                return;
-            }
-
-            const nextPeriod = String(BigInt(latestPeriod) + 1n);
-
-            let predictionValue, associatedNumbers;
-
-            if (predictionType === "COLOR") {
-                const lastNumbers = data
-                    .slice(0, 5)
-                    .map((item) => parseInt(item.number));
-                const lastRed = lastNumbers.filter(
-                    (n) => getColorFromNumber(n) === "RED"
-                ).length;
-                const lastGreen = lastNumbers.filter(
-                    (n) => getColorFromNumber(n) === "GREEN"
-                ).length;
-                predictionValue = lastRed > lastGreen ? "GREEN" : "RED";
-                associatedNumbers = [];
-            } else {
-                const lastNumbers = data
-                    .slice(0, 5)
-                    .map((item) => parseInt(item.number));
-                const lastBig = lastNumbers.filter(
-                    (n) => getSizeFromNumber(n) === "BIG"
-                ).length;
-                const lastSmall = lastNumbers.filter(
-                    (n) => getSizeFromNumber(n) === "SMALL"
-                ).length;
-                predictionValue = lastBig > lastSmall ? "SMALL" : "BIG";
-                associatedNumbers = [];
-            }
-
-            setAiPredictionDisplay({
-                period: nextPeriod,
-                prediction: predictionValue,
-                associatedNumbers: associatedNumbers,
-                type: predictionType,
-                outcome: null,
-                actual: null,
-            });
-        },
-        [latestPeriod, predictionType, getColorFromNumber, getSizeFromNumber]
-    );
-
-    const checkPredictionStatus = useCallback(
-        (newData) => {
-            if (aiPredictionDisplay && newData.length > 0) {
-                const lastResult = newData[0];
-                const predictedPeriod = aiPredictionDisplay.period;
-
-                if (lastResult.issueNumber === predictedPeriod) {
-                    const actualNumber = parseInt(lastResult.number);
-                    const actualValue =
-                        aiPredictionDisplay.type === "COLOR"
-                            ? getColorFromNumber(actualNumber)
-                            : getSizeFromNumber(actualNumber);
-
-                    const newOutcome =
-                        aiPredictionDisplay.prediction === actualValue
-                            ? "win"
-                            : "loss";
-
-                    setPopupMessage({
-                        type: newOutcome,
-                        text: `Period ${predictedPeriod} was a ${newOutcome.toUpperCase()}!`,
-                    });
-
-                    setTimeout(() => {
-                        setPopupMessage(null);
-                    }, 5000);
-
-                    setAiPredictionDisplay((prev) => ({
-                        ...prev,
-                        outcome: newOutcome,
-                        actual: actualValue,
-                    }));
-
-                    updateOutcomes(newOutcome);
-                    const isTwoColorLosses =
-                        lastTwoOutcomes.length === 2 &&
-                        lastTwoOutcomes.every((o) => o === "loss");
-
-                    if (newOutcome === "win") {
-                        setLastTwoOutcomes([]);
-                        console.log("Win detected. Resetting loss streak.");
-                    } else if (isTwoColorLosses) {
-                        setPredictionType("SIZE");
-                        console.log(
-                            "Two consecutive COLOR losses detected. Switching to SIZE."
-                        );
-                        setLastTwoOutcomes([]);
-                    } else {
-                        setPredictionType("COLOR");
-                        console.log("Resetting to COLOR prediction.");
-                    }
-                }
-            }
-        },
-        [
-            aiPredictionDisplay,
-            updateOutcomes,
-            lastTwoOutcomes,
-            getColorFromNumber,
-            getSizeFromNumber,
-        ]
-    );
-
     const handleAiPredict = () => {
         calculateAndPredict(history);
+        setIsFadingOut(false);
     };
 
     const handleCopyPrediction = () => {
         if (aiPredictionDisplay) {
-            const textToCopy = aiPredictionDisplay.prediction;
-            navigator.clipboard
-                .writeText(textToCopy)
-                .then(() => {
-                    alert("Prediction copied to clipboard!");
-                })
-                .catch((err) => {
-                    console.error("Failed to copy text: ", err);
-                });
+            const nextPeriod = aiPredictionDisplay.period;
+            const predictionText = aiPredictionDisplay.prediction;
+            const predictedNumbersText =
+                aiPredictionDisplay.associatedNumbers.join(", ");
+
+            const textToCopy = `
+╭⚬──────────────────⚬╮
+│ 🎯 WINGO      : 1 Min WinGo
+│ ⏳ PERIOD     : ${nextPeriod}
+│ 🔮 PREDICTION : ${predictionText}
+│ 🔢 NUMBERS    : ${predictedNumbersText}
+╰⚬──────────────────⚬╯
+`;
+            navigator.clipboard.writeText(textToCopy).catch((err) => {
+                console.error("Failed to copy text: ", err);
+            });
         }
     };
 
@@ -179,7 +143,6 @@ const OneMinWingo = () => {
                         setLatestPeriod(currentPeriod);
                         setHistory(list);
                         setError(null);
-                        checkPredictionStatus(list);
                     } else if (!isRetry) {
                         setTimeout(() => fetchHistory(true), 1000);
                     }
@@ -191,16 +154,24 @@ const OneMinWingo = () => {
                 setError("Failed to load data");
             }
         },
-        [latestPeriod, checkPredictionStatus]
+        [latestPeriod]
     );
 
     const handleRefresh = () => {
+        setIsShaking(true);
         fetchHistory();
         setAiPredictionDisplay(null);
-        setLastTwoOutcomes([]);
-        setPredictionType("COLOR");
-        setPopupMessage(null);
+        setIsFadingOut(false);
+        setTimeout(() => {
+            setIsShaking(false);
+        }, 500);
     };
+
+    useEffect(() => {
+        if (secondsLeft === 2 && aiPredictionDisplay) {
+            setIsFadingOut(true);
+        }
+    }, [secondsLeft, aiPredictionDisplay]);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -209,8 +180,9 @@ const OneMinWingo = () => {
             const remainingSeconds = (59 - seconds + 60) % 60;
             setSecondsLeft(remainingSeconds);
 
-            if (remainingSeconds <= 3) {
+            if (remainingSeconds === 0) {
                 setAiPredictionDisplay(null);
+                setIsFadingOut(false);
             }
 
             if (remainingSeconds === 59) {
@@ -225,19 +197,12 @@ const OneMinWingo = () => {
         fetchHistory();
     }, [fetchHistory]);
 
-    const cardClassName =
-        aiPredictionDisplay && aiPredictionDisplay.prediction
-            ? `wingo-result-card ${aiPredictionDisplay.prediction.toLowerCase()}`
-            : "wingo-result-card";
+    const cardClassName = `wingo-result-card ${
+        aiPredictionDisplay?.prediction?.toLowerCase() || ""
+    } ${isFadingOut ? "is-fading-out" : ""}`.trim();
 
     return (
         <div className="one-min-wrapper">
-            <StatusPopup
-                message={popupMessage?.text}
-                type={popupMessage?.type}
-                onClose={() => setPopupMessage(null)}
-            />
-
             <div className="Wingo-header">
                 <img
                     src="back (1).png"
@@ -272,45 +237,51 @@ const OneMinWingo = () => {
                     >
                         AI PREDICT.X
                     </button>
-                    <button onClick={handleRefresh} className="refresh-btn">
+                </div>
+                <div className="secondary-buttons">
+                    <button
+                        onClick={handleRefresh}
+                        className={`refresh-btn ${isShaking ? "shake" : ""}`}
+                    >
                         REFRESH
                     </button>
+                    {aiPredictionDisplay && (
+                        <button
+                            onClick={handleCopyPrediction}
+                            className="copy-btn"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="16"
+                                height="16"
+                                fill="currentColor"
+                                className="bi bi-copy"
+                                viewBox="0 0 16 16"
+                            >
+                                <path
+                                    fillRule="evenodd"
+                                    d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"
+                                />
+                            </svg>
+                        </button>
+                    )}
                 </div>
             </div>
             {aiPredictionDisplay && (
-                <>
-                    <div className={cardClassName}>
-                        <div className="ai-prediction-card-header">
-                            <div className="ai-prediction-card-indicator"></div>
-                            <p>Period: {aiPredictionDisplay.period}</p>
-                        </div>
-                        <h3 className="ai-prediction-value">
-                            {aiPredictionDisplay.prediction}
-                        </h3>
-                        {aiPredictionDisplay.outcome ? (
-                            <>
-                                <p
-                                    className={`status-text ${aiPredictionDisplay.outcome}`}
-                                >
-                                    {aiPredictionDisplay.outcome.toUpperCase()}
-                                </p>
-                                <p className="prediction-detail">
-                                    Predicted: {aiPredictionDisplay.prediction},
-                                    Actual: {aiPredictionDisplay.actual}
-                                </p>
-                            </>
-                        ) : (
-                            <p className="ai-prediction-numbers">
-                                {aiPredictionDisplay.associatedNumbers.join(
-                                    ", "
-                                )}
-                            </p>
-                        )}
+                <div className={cardClassName}>
+                    <div className="ai-prediction-card-header">
+                        <div className="ai-prediction-card-indicator"></div>
+                        <p className="wingo-period">
+                            Period: {aiPredictionDisplay.period}
+                        </p>
                     </div>
-                    <button onClick={handleCopyPrediction} className="copy-btn">
-                        Copy Prediction
-                    </button>
-                </>
+                    <h3 className="wingo-prediction-text">
+                        {aiPredictionDisplay.prediction}
+                    </h3>
+                    <p className="wingo-prediction-numbers">
+                        {aiPredictionDisplay.associatedNumbers.join(", ")}
+                    </p>
+                </div>
             )}
             {error && (
                 <p style={{ color: "red", textAlign: "center" }}>{error}</p>

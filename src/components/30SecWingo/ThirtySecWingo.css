@@ -369,12 +369,6 @@
 }
 
 /* Styles for the rest of the component */
-.one-min-wrapper {
-    background-color: #f0f2f5;
-    min-height: 100vh;
-    padding: 0px;
-    box-sizing: border-box;
-}
 
 .Wingo-header {
     display: flex;
@@ -755,7 +749,7 @@
         text-shadow: 0 0 10px #fff, 0 0 20px #33cc66, 0 0 40px #33cc66;
     }
 }
-.stop-prediction-btn{
+.stop-prediction-btn {
     position: fixed;
     bottom: 150px;
     left: 70%;
@@ -763,39 +757,43 @@
     z-index: 1001;
     padding: 8px 12px;
     border-radius: 8px;
-    border: 2px solid transparent; 
-    background-color: transparent; 
+    border: 2px solid transparent;
+    background-color: transparent;
     color: #ff4d4f;
     font-weight: bold;
     font-size: 12px;
     cursor: pointer;
-    text-shadow: 0 0 5px #ff4d4f; 
-    box-shadow: 0 0 8px #ff4d4f; 
-    transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out, box-shadow 0.3s ease-in-out, color 0.3s ease-in-out, border-color 0.3s ease-in-out, text-shadow 0.3s ease-in-out;
+    text-shadow: 0 0 5px #ff4d4f;
+    box-shadow: 0 0 8px #ff4d4f;
+    transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out,
+        box-shadow 0.3s ease-in-out, color 0.3s ease-in-out,
+        border-color 0.3s ease-in-out, text-shadow 0.3s ease-in-out;
 }
 .copy-prediction-btn {
-  /* Change this line */
-  position: fixed; 
-  
-  /* You will need to change the positioning properties to be relative to the viewport. */
-  /* This places it 20 pixels from the bottom of the screen. */
-  bottom: 80px;
-  
-  /* The rest of your code to center it horizontally remains the same. */
-  left: 70%;
-  transform: translateX(-50%);
-  z-index: 1001;
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: 2px solid transparent; 
-  background-color: transparent; 
-  color: #00bfff;
-  font-weight: bold;
-  font-size: 12px;
-  cursor: pointer;
-  text-shadow: 0 0 5px #00bfff; 
-  box-shadow: 0 0 8px #00bfff; 
-  transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out, box-shadow 0.3s ease-in-out, color 0.3s ease-in-out, border-color 0.3s ease-in-out, text-shadow 0.3s ease-in-out;
+    /* Change this line */
+    position: fixed;
+
+    /* You will need to change the positioning properties to be relative to the viewport. */
+    /* This places it 20 pixels from the bottom of the screen. */
+    bottom: 80px;
+
+    /* The rest of your code to center it horizontally remains the same. */
+    left: 70%;
+    transform: translateX(-50%);
+    z-index: 1001;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    background-color: transparent;
+    color: #00bfff;
+    font-weight: bold;
+    font-size: 12px;
+    cursor: pointer;
+    text-shadow: 0 0 5px #00bfff;
+    box-shadow: 0 0 8px #00bfff;
+    transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out,
+        box-shadow 0.3s ease-in-out, color 0.3s ease-in-out,
+        border-color 0.3s ease-in-out, text-shadow 0.3s ease-in-out;
 }
 .copy-prediction-btn:hover {
     color: #add8e6;
