@@ -60,15 +60,15 @@ export const fetchOptimizedData = async () => {
 
 // **NEW FETCH FUNCTION FOR 30-SECOND WINGO**
 export const fetchThirtySecData = async () => {
-     try {
-         const response = await fetch(
-             `https://draw.ar-lottery01.com/WinGo/WinGo_30S/GetHistoryIssuePage.json?ts=${Date.now()}`
-         );
-         const data = await response.json();
-         return data?.data?.list || [];
-     } catch (err) {
-         console.error("Error fetching optimized data:", err);
-     }
+    try {
+        const response = await fetch(
+            `https://draw.ar-lottery01.com/WinGo/WinGo_30S/GetHistoryIssuePage.json?ts=${Date.now()}`
+        );
+        const data = await response.json();
+        return data?.data?.list || [];
+    } catch (err) {
+        console.error("Error fetching optimized data:", err);
+    }
 };
 
 /**

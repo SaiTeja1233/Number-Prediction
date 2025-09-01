@@ -13,7 +13,7 @@
 
 h2 {
     text-align: center;
-    color: #ffffff; /* Changed to white for visibility on dark background */
+    color: #ffffff;
     margin: 10px 0;
     font-size: 20px;
 }
@@ -21,7 +21,7 @@ h2 {
 p {
     font-size: 14px;
     margin: 6px 0;
-    color: #e0e0e0; /* Changed to a light gray for visibility */
+    color: #e0e0e0;
 }
 
 /* ========== PREDICTION BOX ========== */
@@ -87,7 +87,7 @@ p {
     border-radius: 15px;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
     color: #333;
-    background-color: white; /* Default background, will be overridden by gradients */
+    background-color: white;
     border: none;
     position: relative;
     transition: all 0.3s ease-in-out;
@@ -97,7 +97,7 @@ p {
 
 /* The color-changing left line - removed to use the animated background directly */
 .wingo-result-card::before {
-    display: none; /* Hide the ::before pseudo-element as we're using full card gradient */
+    display: none;
 }
 
 /* Keyframes for Gradient Animations */
@@ -132,9 +132,9 @@ p {
         #f44336,
         #ffffff,
         #f44336
-    ); /* Red, White, Red */
-    background-size: 200% 100%; /* Make the gradient larger than the element */
-    animation: redGradientAnimation 4s ease infinite; /* Apply animation */
+    );
+    background-size: 200% 100%;
+    animation: redGradientAnimation 4s ease infinite;
 }
 
 /* Color of the card background for Green prediction with animation */
@@ -144,7 +144,7 @@ p {
         #4caf50,
         #ffffff,
         #4caf50
-    ); /* Green, White, Green */
+    );
     background-size: 200% 100%;
     animation: greenGradientAnimation 4s ease infinite;
 }
@@ -155,7 +155,7 @@ p {
     font-weight: 500;
     margin-bottom: 5px;
     color: #666;
-    position: relative; /* Ensure text is above background */
+    position: relative;
     z-index: 1;
 }
 
@@ -165,8 +165,8 @@ p {
     letter-spacing: 2px;
     text-transform: uppercase;
     margin: 5px 0;
-    color: #333; /* Default color */
-    position: relative; /* Ensure text is above background */
+    color: #333;
+    position: relative;
     z-index: 1;
 }
 
@@ -183,8 +183,8 @@ p {
     font-size: 1.5em;
     font-weight: 700;
     margin-top: 15px;
-    color: #444; /* Default color */
-    position: relative; /* Ensure text is above background */
+    color: #444;
+    position: relative;
     z-index: 1;
 }
 
@@ -250,7 +250,7 @@ p {
 .copy-btn {
     background-color: #4caf50;
     color: white;
-    padding: 10px 20px;
+    padding: 4px 10px;
     border: none;
     border-radius: 8px;
     cursor: pointer;
@@ -269,29 +269,26 @@ p {
 }
 
 /* ========== TABLE ========== */
-.history-table {
+.oneMinhistory-table {
     width: 100%;
     max-width: 950px;
     border-collapse: collapse;
-    background-color: white;
     border-radius: 10px;
-    overflow: hidden;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    margin-top: 10px;
 }
 
-.history-table thead {
+.oneMinhistory-table thead {
     background-color: #007bff;
     color: white;
 }
 
-.history-table th,
-.history-table td {
+.oneMinhistory-table th,
+.oneMinhistory-table td {
     padding: 8px;
     text-align: center;
     font-weight: bold;
     white-space: nowrap;
-    font-size: 12px;
+    font-size: 10px;
 }
 
 .history-table td {
@@ -391,7 +388,7 @@ p {
         #ffffff,
         #a7d9f7,
         #4a90e2
-    ); /* Blue-white gradient */
+    );
     background-size: 400% 400%;
     animation: gradient-animation 10s ease infinite;
 }
@@ -404,7 +401,7 @@ p {
         #ffffff,
         #ffda97,
         #ffa500
-    ); /* Orange-white gradient */
+    );
     background-size: 400% 400%;
     animation: gradient-animation 10s ease infinite;
 }
@@ -422,7 +419,7 @@ p {
         blue 0%,
         rgb(18, 18, 97) 30%,
         rgb(2, 2, 96) 70%,
-        rgb(1, 1, 93) 100%
+        transparent 100%
     );
     mask-image: linear-gradient(
         to right,
@@ -446,6 +443,242 @@ p {
 
 .wingo-result-card.is-fading-out {
     animation: fadeOut 0.5s forwards ease-out;
+}
+
+/* New CSS for the view tabs */
+.view-tabs {
+    display: flex;
+    justify-content: center;
+    width: 95%;
+    max-width: 950px;
+    margin: 10px 0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.view-tabs button {
+    flex: 1;
+    padding: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+    background-color: #2e476d;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.view-tabs button:last-child {
+    border-right: none;
+}
+
+.view-tabs button.active-tab {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.view-tabs button:hover:not(.active-tab) {
+    background-color: #3f5a82;
+}
+
+/* New CSS for the chart container */
+.chart-container {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 95%;
+    max-width: 950px;
+    height: 450px; /* Adjusted for vertical chart */
+    margin-top: 10px;
+    box-sizing: border-box;
+}
+
+/* Table container styling for a professional look */
+.oneMintable-container {
+    width: 95%;
+    max-width: 950px;
+    overflow-x: auto;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-top: 10px;
+}
+/* Container for the table */
+.tableResult-container {
+    width: 95%;
+    max-width: 950px;
+    background-color: white;
+    border-radius: 12px; /* Increased border-radius for a softer look */
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15); /* Enhanced shadow for depth */
+    margin: 20px auto;
+    overflow: hidden; /* Ensures the border-radius applies to child elements */
+}
+
+/* Base table styles */
+.historyResult-table {
+    width: 100%;
+    border-collapse: collapse; /* Cleaner look without border spacing */
+    text-align: center;
+    font-family: Arial, sans-serif;
+    color: #333; /* Darker text for better readability */
+}
+
+/* Table header styles */
+.historyResult-table thead {
+    background-color: #007bff; /* Professional blue */
+    color: white;
+}
+
+.historyResult-table th {
+    padding: 14px 8px; /* Slightly more padding for a roomier header */
+    text-transform: uppercase;
+    font-size: 13px; /* Consistent font size */
+    font-weight: bold;
+    letter-spacing: 0.8px; /* Increased letter-spacing for header */
+    border-bottom: 2px solid #0056b3; /* A slight, subtle border */
+}
+
+/* Table body and row styles */
+.historyResult-table tbody tr:nth-child(even) {
+    background-color: #f8fbff; /* Very light blue tint for even rows */
+}
+
+.historyResult-table tbody tr:hover {
+    background-color: #eaf3ff; /* Lighter blue on hover for interactivity */
+    transition: background-color 0.3s ease;
+}
+
+/* Table data cell styles */
+.historyResult-table td {
+    padding: 12px 8px; /* Consistent padding */
+    font-size: 13px; /* Consistent font size */
+    border-bottom: 1px solid #e0e0e0; /* Subtle horizontal lines */
+    line-height: 1.4; /* Improved line spacing for content */
+
+}
+
+/* Remove bottom border from the last row for a cleaner finish */
+.historyResult-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Specific styling for the Outcome column */
+.historyResult-table td.outcome-win {
+    color: #28a746; /* A more vibrant green for wins */
+    font-weight: bold;
+}
+
+.historyResult-table td.outcome-loss {
+    color: #dc3545; /* A standard red for losses */
+    font-weight: bold;
+}
+
+/* Centered text for "No history yet" message */
+.historyResult-table td[colspan="4"] {
+    
+    font-style: italic;
+    color: #888;
+    padding: 20px;
+    border: none;
+}
+/* Add to your OneMinWingo.css file */
+
+/* Main glass popup container */
+.glass-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60%;
+    height: 70vh;
+    z-index: 1000;
+    background: linear-gradient(135deg, rgba(80, 160, 200, 0.563), rgba(5, 64, 193, 0.612));
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow:rgba(0, 0, 0, 0.541) 0px 46px 40px, rgba(0, 0, 0, 0.22) 0px 44px 12px;
+    color: #fff;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    animation: fadeIn 0.5s ease-in-out forwards;
+}
+
+/* Styles for the information inside the popup */
+.glass-popup h2 {
+    font-size: 1.5em;
+    font-weight: 700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    margin-bottom: 0.5em;
+}
+
+.glass-popup p {
+    font-size: 1.2em;
+    margin: 0.5em 0;
+    background-color: rgba(0, 0, 0, 0.393);
+    padding: 0.5rem 1rem;
+    border-radius: 10px;
+}
+
+.result-status {
+    font-size: 1.8em;
+    font-weight: bold;
+    margin-top: 1em;
+    padding: 0.5em 1em;
+    border-radius: 15px;
+}
+
+.result-status.win {
+    background-color: rgba(0, 190, 79, 0.7); /* Muted green for win */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.result-status.loss {
+    background-color: rgba(240, 24, 0, 0.7); /* Muted red for loss */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 600px) {
+    .historyResult-table th,
+    .historyResult-table td {
+        font-size: 11px; /* Smaller font size for very small screens */
+        padding: 10px 3px; /* Adjusted padding */
+        border: black;
+    }
+
+    .historyResult-table th {
+        letter-spacing: 0.5px;
+    }
+}
+
+/* Prediction history table row colors */
+.outcome-win {
+    color: #4caf50;
+    font-weight: bold;
+}
+
+.outcome-loss {
+    color: #f44336;
+    font-weight: bold;
 }
 
 /* ========== RESPONSIVE ========== */

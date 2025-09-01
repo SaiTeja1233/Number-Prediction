@@ -1,26 +1,190 @@
 /* global BigInt */
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import "./OneMinWingo.css";
 import { useNavigate } from "react-router-dom";
 import { getISTTime, fetchOptimizedData } from "../../predictionLogic";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+
+// A custom chart component to render the SVG based on history data
+const WinGoChart = ({ history, getColorFromNumber }) => {
+    const chartRef = useRef(null);
+    const [chartWidth, setChartWidth] = useState(0);
+
+    useEffect(() => {
+        const updateWidth = () => {
+            if (chartRef.current) {
+                setChartWidth(chartRef.current.offsetWidth);
+            }
+        };
+        updateWidth();
+        window.addEventListener("resize", updateWidth);
+        return () => window.removeEventListener("resize", updateWidth);
+    }, []);
+
+    const data = history;
+    const padding = 1;
+    const rowHeight = 40;
+    const chartHeight = data.length * rowHeight + padding * 2;
+    const numberPadding = 100;
+    const numberWidth = (chartWidth - numberPadding - padding) / 10;
+    const numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+    const getLineColor = (num) => {
+        if (num === 0) return "#E94646";
+        if (num === 5) return "#00A854";
+        return getColorFromNumber(num) === "RED" ? "#E94646" : "#00A854";
+    };
+
+    return (
+        <div ref={chartRef} style={{ width: "100%" }}>
+            {chartWidth > 0 && (
+                <svg width={chartWidth} height={chartHeight}>
+                    {data.map((item, index) => {
+                        const yPos = padding + index * rowHeight;
+                        const resultNumber = parseInt(item.number);
+                        const previousResult = data[index - 1]
+                            ? parseInt(data[index - 1].number)
+                            : null;
+
+                        return (
+                            <g key={item.issueNumber}>
+                                <text
+                                    x={padding}
+                                    y={yPos + rowHeight / 2}
+                                    textAnchor="start"
+                                    alignmentBaseline="middle"
+                                    fill="#243C65"
+                                    fontSize="10"
+                                    fontWeight="bold"
+                                >
+                                    {item.issueNumber}
+                                </text>
+
+                                {previousResult !== null && (
+                                    <line
+                                        x1={
+                                            numberPadding +
+                                            previousResult * numberWidth +
+                                            numberWidth / 2
+                                        }
+                                        y1={yPos - rowHeight / 2}
+                                        x2={
+                                            numberPadding +
+                                            resultNumber * numberWidth +
+                                            numberWidth / 2
+                                        }
+                                        y2={yPos + rowHeight / 2}
+                                        stroke="#2196F3"
+                                        strokeWidth="0.8"
+                                    />
+                                )}
+
+                                {numbers.map((num, i) => {
+                                    const xPos =
+                                        numberPadding +
+                                        i * numberWidth +
+                                        numberWidth / 2;
+                                    const isResult = num === resultNumber;
+                                    const circleFill = isResult
+                                        ? getLineColor(num)
+                                        : "transparent";
+                                    const circleStroke = isResult
+                                        ? getLineColor(num)
+                                        : "#ccc";
+                                    const textColor = isResult
+                                        ? "#fff"
+                                        : "#243C65";
+
+                                    return (
+                                        <g key={i}>
+                                            <circle
+                                                cx={xPos}
+                                                cy={yPos + rowHeight / 2}
+                                                r="8"
+                                                fill={circleFill}
+                                                stroke={circleStroke}
+                                                strokeWidth="1"
+                                                opacity={isResult ? 1 : 0.6}
+                                            />
+                                            <text
+                                                x={xPos}
+                                                y={yPos + rowHeight / 2 + 1}
+                                                textAnchor="middle"
+                                                alignmentBaseline="middle"
+                                                fill={textColor}
+                                                fontSize="10"
+                                                fontWeight="bold"
+                                            >
+                                                {num}
+                                            </text>
+                                        </g>
+                                    );
+                                })}
+                            </g>
+                        );
+                    })}
+                </svg>
+            )}
+        </div>
+    );
+};
+
+// Custom popup component for win/loss message
+const PredictionGlassPopup = ({
+    period,
+    prediction,
+    actualResult,
+    resultType,
+    onClose,
+}) => {
+    // Auto-close the popup after a few seconds
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            onClose();
+        }, 3000); // 3 seconds instead of 5
+
+        return () => clearTimeout(timer);
+    }, [onClose]);
+
+    return (
+        <div className="glass-popup-overlay">
+            <div className="glass-popup">
+                <h2>Game Result</h2>
+                <p>
+                    <strong>Period Number:</strong> {period}
+                </p>
+                <p>
+                    <strong>Your Prediction:</strong> {prediction}
+                </p>
+                <p>
+                    <strong>Actual Result:</strong> {actualResult}
+                </p>
+                <div className={`result-status ${resultType}`}>
+                    {resultType.toUpperCase()}
+                </div>
+            </div>
+        </div>
+    );
+};
 
 const OneMinWingo = () => {
     const [latestPeriod, setLatestPeriod] = useState("");
     const [history, setHistory] = useState([]);
     const [error, setError] = useState(null);
     const [secondsLeft, setSecondsLeft] = useState(59);
-
     const [aiPredictionDisplay, setAiPredictionDisplay] = useState(null);
     const [isFadingOut, setIsFadingOut] = useState(false);
     const [isShaking, setIsShaking] = useState(false);
-
     const [predictionMode, setPredictionMode] = useState("COLOR");
     const [lastPrediction, setLastPrediction] = useState(null);
-
+    const [activeView, setActiveView] = useState("chart");
+    const [predictionRecords, setPredictionRecords] = useState([]);
+    // The popupMessage state is removed as it was not being used
+    const [popupData, setPopupData] = useState(null);
     const navigate = useNavigate();
+
+    // ✅ Prevent duplicate toasts
+    const lastEvaluatedPeriodRef = useRef(null);
 
     const backToDashboard = () => {
         navigate(-1);
@@ -36,128 +200,126 @@ const OneMinWingo = () => {
         return number % 2 === 0 ? "RED" : "GREEN";
     }, []);
 
-    const calculateAndPredict = useCallback((data, mode) => {
-        if (!Array.isArray(data) || data.length === 0) {
-            console.log("No numbers to calculate for AI prediction.");
-            setAiPredictionDisplay(null);
-            return;
-        }
+    const calculateAndPredict = useCallback(
+        (data, mode) => {
+            if (!Array.isArray(data) || data.length === 0) {
+                setAiPredictionDisplay(null);
+                return;
+            }
 
-        const nextPeriodBigInt = BigInt(data[0].issueNumber) + 1n;
-        const nextPeriod = String(nextPeriodBigInt);
-        const relevantHistory = data.slice(0, 50);
+            const nextPeriodBigInt = BigInt(data[0].issueNumber) + 1n;
+            const nextPeriod = String(nextPeriodBigInt);
+            const relevantHistory = data.slice(0, 50);
 
-        let mainPrediction = "";
-        let predictedNumbers = [];
-        let predictionType = mode;
+            let mainPrediction = "";
+            let predictedNumbers = [];
+            let predictionType = mode;
 
-        if (mode === "COLOR") {
-            const colorScores = { RED: 0, GREEN: 0 };
-            const evenNumbers = [0, 2, 4, 6, 8];
-            const oddNumbers = [1, 3, 5, 7, 9];
+            if (mode === "COLOR") {
+                const colorScores = { RED: 0, GREEN: 0 };
+                const evenNumbers = [0, 2, 4, 6, 8];
+                const oddNumbers = [1, 3, 5, 7, 9];
 
-            relevantHistory.forEach((item, index) => {
-                const number = parseInt(item.number);
-                const weight = 50 - index;
-                if (evenNumbers.includes(number)) colorScores.RED += weight;
-                if (oddNumbers.includes(number)) colorScores.GREEN += weight;
+                relevantHistory.forEach((item, index) => {
+                    const number = parseInt(item.number);
+                    const weight = 50 - index;
+                    if (getColorFromNumber(number) === "RED") {
+                        colorScores.RED += weight;
+                    } else {
+                        colorScores.GREEN += weight;
+                    }
+                });
+                mainPrediction =
+                    colorScores.RED > colorScores.GREEN ? "RED" : "GREEN";
+
+                const targetNumbers =
+                    mainPrediction === "GREEN" ? oddNumbers : evenNumbers;
+                const numberFrequencyMap = relevantHistory.reduce(
+                    (acc, item) => {
+                        const num = parseInt(item.number);
+                        if (targetNumbers.includes(num)) {
+                            acc[num] = (acc[num] || 0) + 1;
+                        }
+                        return acc;
+                    },
+                    {}
+                );
+                const sortedNumbers = Object.keys(numberFrequencyMap)
+                    .sort(
+                        (a, b) => numberFrequencyMap[b] - numberFrequencyMap[a]
+                    )
+                    .map(Number);
+                predictedNumbers = sortedNumbers.slice(0, 2);
+                if (predictedNumbers.length < 2) {
+                    const existingNumbers = new Set(predictedNumbers);
+                    const numbersToAdd = targetNumbers
+                        .filter((num) => !existingNumbers.has(num))
+                        .sort((a, b) => b - a);
+                    predictedNumbers = [
+                        ...predictedNumbers,
+                        ...numbersToAdd,
+                    ].slice(0, 2);
+                }
+            } else if (mode === "SIZE") {
+                const allNumbers = relevantHistory.map((item) =>
+                    parseInt(item.number)
+                );
+                const sumOfNumbers = allNumbers.reduce(
+                    (sum, num) => sum + num,
+                    0
+                );
+                const lastDigitOfSum = sumOfNumbers % 10;
+                mainPrediction = lastDigitOfSum >= 5 ? "BIG" : "SMALL";
+
+                const targetNumbers =
+                    mainPrediction === "BIG"
+                        ? [5, 6, 7, 8, 9]
+                        : [0, 1, 2, 3, 4];
+                const numberFrequencyMap = relevantHistory.reduce(
+                    (acc, item) => {
+                        const num = parseInt(item.number);
+                        if (targetNumbers.includes(num)) {
+                            acc[num] = (acc[num] || 0) + 1;
+                        }
+                        return acc;
+                    },
+                    {}
+                );
+                const sortedNumbers = Object.keys(numberFrequencyMap)
+                    .sort(
+                        (a, b) => numberFrequencyMap[b] - numberFrequencyMap[a]
+                    )
+                    .map(Number);
+                predictedNumbers = sortedNumbers.slice(0, 2);
+                if (predictedNumbers.length < 2) {
+                    const existingNumbers = new Set(predictedNumbers);
+                    const numbersToAdd = targetNumbers
+                        .filter((num) => !existingNumbers.has(num))
+                        .sort((a, b) => b - a);
+                    predictedNumbers = [
+                        ...predictedNumbers,
+                        ...numbersToAdd,
+                    ].slice(0, 2);
+                }
+            }
+
+            setAiPredictionDisplay({
+                period: nextPeriod,
+                mainPrediction: mainPrediction,
+                associatedNumbers: predictedNumbers,
+                type: predictionType,
+                outcome: null,
+                actual: null,
             });
 
-            let alternatingPatternCount = 0;
-            for (let i = 0; i < relevantHistory.length - 1; i++) {
-                const currentIsEven = evenNumbers.includes(
-                    parseInt(relevantHistory[i].number)
-                );
-                const nextIsEven = evenNumbers.includes(
-                    parseInt(relevantHistory[i + 1].number)
-                );
-                if (currentIsEven !== nextIsEven) alternatingPatternCount++;
-                else break;
-            }
-
-            if (alternatingPatternCount >= 3) {
-                const latestNumber = parseInt(data[0].number);
-                mainPrediction = evenNumbers.includes(latestNumber)
-                    ? "GREEN"
-                    : "RED";
-            } else {
-                const sortedColors = Object.keys(colorScores).sort(
-                    (a, b) => colorScores[b] - colorScores[a]
-                );
-                mainPrediction = sortedColors[0];
-            }
-
-            const targetNumbers =
-                mainPrediction === "GREEN" ? oddNumbers : evenNumbers;
-            const numberFrequencyMap = relevantHistory.reduce((acc, item) => {
-                const num = parseInt(item.number);
-                if (targetNumbers.includes(num)) {
-                    acc[num] = (acc[num] || 0) + 1;
-                }
-                return acc;
-            }, {});
-            const sortedNumbers = Object.keys(numberFrequencyMap)
-                .sort((a, b) => numberFrequencyMap[b] - numberFrequencyMap[a])
-                .map(Number);
-            predictedNumbers = sortedNumbers.slice(0, 2);
-            if (predictedNumbers.length < 2) {
-                const existingNumbers = new Set(predictedNumbers);
-                const numbersToAdd = targetNumbers
-                    .filter((num) => !existingNumbers.has(num))
-                    .sort((a, b) => b - a);
-                predictedNumbers = [...predictedNumbers, ...numbersToAdd].slice(
-                    0,
-                    2
-                );
-            }
-        } else if (mode === "SIZE") {
-            const allNumbers = relevantHistory.map((item) =>
-                parseInt(item.number)
-            );
-            const sumOfNumbers = allNumbers.reduce((sum, num) => sum + num, 0);
-            const lastDigitOfSum = sumOfNumbers % 10;
-            mainPrediction = lastDigitOfSum >= 5 ? "BIG" : "SMALL";
-
-            const targetNumbers =
-                mainPrediction === "BIG" ? [5, 6, 7, 8, 9] : [0, 1, 2, 3, 4];
-            const numberFrequencyMap = relevantHistory.reduce((acc, item) => {
-                const num = parseInt(item.number);
-                if (targetNumbers.includes(num)) {
-                    acc[num] = (acc[num] || 0) + 1;
-                }
-                return acc;
-            }, {});
-            const sortedNumbers = Object.keys(numberFrequencyMap)
-                .sort((a, b) => numberFrequencyMap[b] - numberFrequencyMap[a])
-                .map(Number);
-            predictedNumbers = sortedNumbers.slice(0, 2);
-            if (predictedNumbers.length < 2) {
-                const existingNumbers = new Set(predictedNumbers);
-                const numbersToAdd = targetNumbers
-                    .filter((num) => !existingNumbers.has(num))
-                    .sort((a, b) => b - a);
-                predictedNumbers = [...predictedNumbers, ...numbersToAdd].slice(
-                    0,
-                    2
-                );
-            }
-        }
-
-        setAiPredictionDisplay({
-            period: nextPeriod,
-            mainPrediction: mainPrediction,
-            associatedNumbers: predictedNumbers,
-            type: predictionType,
-            outcome: null,
-            actual: null,
-        });
-
-        setLastPrediction({
-            period: nextPeriod,
-            mainPrediction: mainPrediction,
-            type: predictionType,
-        });
-    }, []);
+            setLastPrediction({
+                period: nextPeriod,
+                mainPrediction: mainPrediction,
+                type: predictionType,
+            });
+        },
+        [getColorFromNumber]
+    );
 
     const handleAiPredict = () => {
         calculateAndPredict(history, predictionMode);
@@ -173,37 +335,48 @@ const OneMinWingo = () => {
 
             const textToCopy = `
 ╭⚬──────────────────⚬╮
-│ 🎯 WINGO      : 1 Min WinGo
-│ ⏳ PERIOD      : ${nextPeriod}
+│ 🎯 WINGO   : 1 Min WinGo
+│ ⏳ PERIOD   : ${nextPeriod}
 │ 🔮 PREDICTION : ${predictionText} (${aiPredictionDisplay.type})
-│ 🔢 NUMBERS     : ${predictedNumbersText}
+│ 🔢 NUMBERS  : ${predictedNumbersText}
 ╰⚬──────────────────⚬╯
 `;
             try {
                 await navigator.clipboard.writeText(textToCopy);
-                toast.success("Prediction copied to clipboard! 📋", {
-                    position: "top-center",
-                    autoClose: 2000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
+                // The popupMessage state is removed, so we'll directly set popupData
+                setPopupData({
+                    period: "Clipboard",
+                    prediction: "Copied!",
+                    actualResult: "Success",
+                    resultType: "win",
                 });
             } catch (err) {
-                console.error("Failed to copy text: ", err);
-                toast.error("Failed to copy. Please try again.", {
-                    position: "top-center",
-                    autoClose: 2000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
+                setPopupData({
+                    period: "Clipboard",
+                    prediction: "Failed!",
+                    actualResult: "Error",
+                    resultType: "loss",
                 });
             }
         }
     };
+
+    const handleResult = useCallback(
+        (period, prediction, actualResult, resultType) => {
+            // Show the popup by setting the data
+            setPopupData({
+                period,
+                prediction,
+                actualResult,
+                resultType,
+            });
+
+            setTimeout(() => {
+                setPopupData(null);
+            }, 3000);
+        },
+        []
+    );
 
     const fetchHistory = useCallback(
         async (isRetry = false) => {
@@ -216,77 +389,75 @@ const OneMinWingo = () => {
                         setHistory(list);
                         setError(null);
 
-                        if (lastPrediction) {
-                            const lastActualNumber = parseInt(
-                                list.find(
-                                    (item) =>
-                                        item.issueNumber ===
-                                        lastPrediction.period
-                                )?.number
+                        if (
+                            lastPrediction &&
+                            lastEvaluatedPeriodRef.current !==
+                                lastPrediction.period
+                        ) {
+                            lastEvaluatedPeriodRef.current =
+                                lastPrediction.period;
+
+                            const lastActualEntry = list.find(
+                                (item) =>
+                                    item.issueNumber === lastPrediction.period
                             );
-                            if (
-                                lastActualNumber !== undefined &&
-                                !isNaN(lastActualNumber)
-                            ) {
-                                let isCorrect = false;
-                                let message = "";
+                            if (lastActualEntry) {
+                                const lastActualNumber = parseInt(
+                                    lastActualEntry.number
+                                );
 
-                                // Styling for smaller text in toasts
-                                const toastStyle = {
-                                    fontSize: "14px", // Adjust this value as needed
-                                };
+                                setPredictionRecords((prevRecords) => {
+                                    let isCorrect = false;
+                                    let actualResult = "";
 
-                                if (lastPrediction.type === "COLOR") {
-                                    const actualColor =
-                                        getColorFromNumber(lastActualNumber);
-                                    isCorrect =
-                                        lastPrediction.mainPrediction ===
-                                        actualColor;
-                                    message = isCorrect
-                                        ? ` WIN: Prediction "${lastPrediction.mainPrediction}" was correct!`
-                                        : `LOSS:Switching to SIZE prediction mode.`;
+                                    const currentPrediction = {
+                                        period: lastPrediction.period,
+                                        prediction:
+                                            lastPrediction.mainPrediction,
+                                        type: lastPrediction.type,
+                                        actualNumber: lastActualNumber,
+                                    };
 
-                                    if (isCorrect) {
-                                        toast.success(message, {
-                                            style: toastStyle,
-                                            autoClose: 3000,
-                                        });
-                                    } else {
-                                        toast.error(message, {
-                                            style: toastStyle,
-                                            autoClose: 3000,
-                                        });
+                                    if (lastPrediction.type === "COLOR") {
+                                        const actualColor =
+                                            getColorFromNumber(
+                                                lastActualNumber
+                                            );
+                                        isCorrect =
+                                            lastPrediction.mainPrediction ===
+                                            actualColor;
+                                        currentPrediction.isWin = isCorrect;
+                                        currentPrediction.actualResult =
+                                            actualColor;
+                                        actualResult = actualColor;
+                                        setPredictionMode(
+                                            isCorrect ? "COLOR" : "SIZE"
+                                        );
+                                    } else if (lastPrediction.type === "SIZE") {
+                                        const actualSize =
+                                            getSizeFromNumber(lastActualNumber);
+                                        isCorrect =
+                                            lastPrediction.mainPrediction ===
+                                            actualSize;
+                                        currentPrediction.isWin = isCorrect;
+                                        currentPrediction.actualResult =
+                                            actualSize;
+                                        actualResult = actualSize;
+                                        setPredictionMode(
+                                            isCorrect ? "SIZE" : "COLOR"
+                                        );
                                     }
-                                } else if (lastPrediction.type === "SIZE") {
-                                    const actualSize =
-                                        getSizeFromNumber(lastActualNumber);
-                                    isCorrect =
-                                        lastPrediction.mainPrediction ===
-                                        actualSize;
-                                    message = isCorrect
-                                        ? ` WIN: Prediction "${lastPrediction.mainPrediction}" was correct!`
-                                        : `LOSS:Switching to COLOR prediction mode.`;
 
-                                    if (isCorrect) {
-                                        toast.success(message, {
-                                            style: toastStyle,
-                                            autoClose: 3000,
-                                        });
-                                    } else {
-                                        toast.error(message, {
-                                            style: toastStyle,
-                                            autoClose: 3000,
-                                        });
-                                    }
-                                }
-
-                                if (!isCorrect) {
-                                    setPredictionMode(
-                                        lastPrediction.type === "COLOR"
-                                            ? "SIZE"
-                                            : "COLOR"
+                                    // Display the popup
+                                    handleResult(
+                                        lastPrediction.period,
+                                        lastPrediction.mainPrediction,
+                                        actualResult,
+                                        isCorrect ? "win" : "loss"
                                     );
-                                }
+
+                                    return [currentPrediction, ...prevRecords];
+                                });
                             }
                         }
                     } else if (!isRetry) {
@@ -296,11 +467,16 @@ const OneMinWingo = () => {
                     throw new Error("Unexpected data format or empty list");
                 }
             } catch (err) {
-                console.error("Fetch error:", err);
                 setError("Failed to load data");
             }
         },
-        [latestPeriod, lastPrediction, getColorFromNumber, getSizeFromNumber]
+        [
+            latestPeriod,
+            lastPrediction,
+            getColorFromNumber,
+            getSizeFromNumber,
+            handleResult,
+        ]
     );
 
     const handleRefresh = () => {
@@ -310,6 +486,8 @@ const OneMinWingo = () => {
         setPredictionMode("COLOR");
         setLastPrediction(null);
         setIsFadingOut(false);
+        setPredictionRecords([]);
+        setPopupData(null); // Reset popup on refresh
         setTimeout(() => {
             setIsShaking(false);
         }, 500);
@@ -328,21 +506,16 @@ const OneMinWingo = () => {
             const remainingSeconds = (59 - seconds + 60) % 60;
             setSecondsLeft(remainingSeconds);
 
-            if (remainingSeconds === 0) {
+            if (remainingSeconds === 59) {
+                fetchHistory();
                 setAiPredictionDisplay(null);
                 setIsFadingOut(false);
             }
-
-            if (remainingSeconds === 59) {
-                fetchHistory();
-            }
         }, 1000);
 
-        return () => clearInterval(interval);
-    }, [fetchHistory]);
-
-    useEffect(() => {
         fetchHistory();
+
+        return () => clearInterval(interval);
     }, [fetchHistory]);
 
     const cardClassName = `wingo-result-card ${
@@ -357,7 +530,15 @@ const OneMinWingo = () => {
 
     return (
         <div className="one-min-wrapper">
-            <ToastContainer />
+            {popupData && (
+                <PredictionGlassPopup
+                    period={popupData.period}
+                    prediction={popupData.prediction}
+                    actualResult={popupData.actualResult}
+                    resultType={popupData.resultType}
+                    onClose={() => setPopupData(null)}
+                />
+            )}
             <div className="Wingo-header">
                 <img
                     src="back (1).png"
@@ -390,7 +571,7 @@ const OneMinWingo = () => {
                     <div className="ai-prediction-card-header">
                         <div className="ai-prediction-card-indicator"></div>
                         <p className="wingo-period">
-                            Period: {aiPredictionDisplay.period}
+                            Period:{aiPredictionDisplay.period}
                         </p>
                     </div>
                     <h3 className="wingo-prediction-text">
@@ -401,9 +582,11 @@ const OneMinWingo = () => {
                     </p>
                 </div>
             )}
+
             {error && (
                 <p style={{ color: "red", textAlign: "center" }}>{error}</p>
             )}
+
             <div className="button-wrapper">
                 <div className="prediction-control-box">
                     <button
@@ -413,6 +596,7 @@ const OneMinWingo = () => {
                         AI PREDICT.X
                     </button>
                 </div>
+
                 <div className="secondary-buttons">
                     <button
                         onClick={handleRefresh}
@@ -420,81 +604,161 @@ const OneMinWingo = () => {
                     >
                         REFRESH
                     </button>
+
                     {aiPredictionDisplay && (
                         <button
                             onClick={handleCopyPrediction}
                             className="copy-btn"
                         >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="16"
-                                height="16"
-                                fill="currentColor"
-                                className="bi bi-copy"
-                                viewBox="0 0 16 16"
-                            >
-                                <path
-                                    fillRule="evenodd"
-                                    d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"
-                                />
-                            </svg>
+                            COPY PREDICTION
                         </button>
                     )}
                 </div>
             </div>
-            {history.length === 0 ? (
-                <table className="history-table">
-                    <tbody>
-                        <tr>
-                            <td colSpan="4" style={{ textAlign: "center" }}>
-                                Loading...
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            ) : (
-                <table className="history-table">
-                    <thead>
-                        <tr>
-                            <th>Period</th>
-                            <th>Number</th>
-                            <th>Big/Small</th>
-                            <th>Color</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {history.map((item) => {
-                            const number = parseInt(item.number);
-                            return (
-                                <tr key={item.issueNumber}>
-                                    <td>{item.issueNumber}</td>
+
+            <div className="view-tabs">
+                <button
+                    onClick={() => setActiveView("chart")}
+                    className={activeView === "chart" ? "active-tab" : ""}
+                >
+                    Chart
+                </button>
+                <button
+                    onClick={() => setActiveView("history")}
+                    className={activeView === "history" ? "active-tab" : ""}
+                >
+                    History
+                </button>
+
+                <button
+                    onClick={() => setActiveView("prediction-history")}
+                    className={
+                        activeView === "prediction-history" ? "active-tab" : ""
+                    }
+                >
+                    Prediction History
+                </button>
+            </div>
+            {/* Content based on active view */}
+            {activeView === "chart" && (
+                <div className="chart-container">
+                    <WinGoChart
+                        history={history}
+                        getColorFromNumber={getColorFromNumber}
+                    />
+                </div>
+            )}
+
+            {activeView === "history" && (
+                <div className="oneMintable-container">
+                    <table className="oneMinhistory-table">
+                        <thead>
+                            <tr>
+                                <th>Period</th>
+                                <th>Number</th>
+                                <th>Big/Small</th>
+                                <th>Color</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {history.length === 0 ? (
+                                <tr>
                                     <td
-                                        className={
-                                            number % 2 === 0
-                                                ? "number-even"
-                                                : "number-odd"
-                                        }
+                                        colSpan="4"
+                                        style={{ textAlign: "center" }}
                                     >
-                                        {number}
-                                    </td>
-                                    <td>{getSizeFromNumber(number)}</td>
-                                    <td>
-                                        {number === 0 ? (
-                                            <>🔴🟣</>
-                                        ) : number === 5 ? (
-                                            <>🟢🟣</>
-                                        ) : getColorFromNumber(number) ===
-                                          "GREEN" ? (
-                                            <>🟢</>
-                                        ) : (
-                                            <>🔴</>
-                                        )}
+                                        Loading...
                                     </td>
                                 </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
+                            ) : (
+                                history.map((item) => {
+                                    const number = parseInt(item.number);
+                                    return (
+                                        <tr key={item.issueNumber}>
+                                            <td>{item.issueNumber}</td>
+                                            <td
+                                                className={
+                                                    number % 2 === 0
+                                                        ? "number-even"
+                                                        : "number-odd"
+                                                }
+                                            >
+                                                {number}
+                                            </td>
+                                            <td>{getSizeFromNumber(number)}</td>
+                                            <td>
+                                                {number === 0 ? (
+                                                    <>🔴🟣</>
+                                                ) : number === 5 ? (
+                                                    <>🟢🟣</>
+                                                ) : getColorFromNumber(
+                                                      number
+                                                  ) === "GREEN" ? (
+                                                    <>🟢</>
+                                                ) : (
+                                                    <>🔴</>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    );
+                                })
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+            {activeView === "prediction-history" && (
+                <div className="tableResult-container">
+                    <table className="historyResult-table">
+                        <thead>
+                            <tr>
+                                <th>Period</th>
+                                <th>Prediction</th>
+                                <th> Result</th>
+                                <th>Outcome</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {predictionRecords.length === 0 ? (
+                                <tr>
+                                    <td
+                                        colSpan="4"
+                                        style={{
+                                            textAlign: "center",
+                                            fontStyle: "italic",
+                                            padding: "20px",
+                                        }}
+                                    >
+                                        No prediction history yet.
+                                    </td>
+                                </tr>
+                            ) : (
+                                predictionRecords.map((record, index) => (
+                                    <tr key={index}>
+                                        <td>{record.period}</td>
+                                        <td>
+                                            {record.prediction} ({record.type})
+                                        </td>
+                                        <td>
+                                            {record.actualNumber} (
+                                            {record.actualResult})
+                                        </td>
+                                        <td
+                                            className={
+                                                record.isWin
+                                                    ? "outcome-win"
+                                                    : "outcome-loss"
+                                            }
+                                        >
+                                            {record.isWin ? "WIN" : "LOSS"}
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             )}
         </div>
     );

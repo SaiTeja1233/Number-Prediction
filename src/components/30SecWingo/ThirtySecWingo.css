@@ -424,7 +424,7 @@
     font-size: 1rem; /* Increased font size for the entire table */
 }
 
-.history-table thead th {
+.thirtySechistory-table thead th {
     background: linear-gradient(135deg, #007bff, #00bfff);
     color: white;
     padding: 15px 10px;

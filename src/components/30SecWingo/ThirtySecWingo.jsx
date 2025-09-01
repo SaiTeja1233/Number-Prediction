@@ -408,7 +408,7 @@ const ThirtySecWingo = () => {
             )}
 
             {history.length === 0 ? (
-                <table className="history-table">
+                <table className="thirtySechistory-table">
                     <tbody>
                         <tr>
                             <td colSpan="4" style={{ textAlign: "center" }}>
