@@ -4,6 +4,8 @@ import React, { useEffect, useState, useCallback, useRef } from "react";
 import "./OneMinWingo.css";
 import { useNavigate } from "react-router-dom";
 import { getISTTime, fetchOptimizedData } from "../../predictionLogic";
+import RefreshIcon from "./RefreshIcon";
+import LoadingSpinner from "./LoadingSpinner";
 
 // A custom chart component to render the SVG based on history data
 const WinGoChart = ({ history, getColorFromNumber }) => {
@@ -179,11 +181,9 @@ const OneMinWingo = () => {
     const [lastPrediction, setLastPrediction] = useState(null);
     const [activeView, setActiveView] = useState("chart");
     const [predictionRecords, setPredictionRecords] = useState([]);
-    // The popupMessage state is removed as it was not being used
     const [popupData, setPopupData] = useState(null);
     const navigate = useNavigate();
 
-    // ✅ Prevent duplicate toasts
     const lastEvaluatedPeriodRef = useRef(null);
 
     const backToDashboard = () => {
@@ -301,6 +301,66 @@ const OneMinWingo = () => {
                         ...numbersToAdd,
                     ].slice(0, 2);
                 }
+            } else if (mode === "STREAK") {
+                const lastResult = relevantHistory[0];
+                const lastNumber = parseInt(lastResult.number);
+                const lastColor = getColorFromNumber(lastNumber);
+                const lastSize = getSizeFromNumber(lastNumber);
+
+                let streakCount = 0;
+                let lastValue = null;
+
+                if (lastResult) {
+                    // Determine the most recent streak
+                    if (lastColor === "RED" || lastColor === "GREEN") {
+                        lastValue = lastColor;
+                        for (const item of relevantHistory) {
+                            if (
+                                getColorFromNumber(parseInt(item.number)) ===
+                                lastValue
+                            ) {
+                                streakCount++;
+                            } else {
+                                break;
+                            }
+                        }
+                        if (streakCount >= 2) {
+                            // Consider a streak of at least 2
+                            mainPrediction = lastColor;
+                            predictedNumbers =
+                                lastColor === "GREEN" ? [5, 7, 9] : [0, 2, 8];
+                        }
+                    }
+
+                    if (
+                        streakCount < 2 &&
+                        (lastSize === "BIG" || lastSize === "SMALL")
+                    ) {
+                        lastValue = lastSize;
+                        streakCount = 0;
+                        for (const item of relevantHistory) {
+                            if (
+                                getSizeFromNumber(parseInt(item.number)) ===
+                                lastValue
+                            ) {
+                                streakCount++;
+                            } else {
+                                break;
+                            }
+                        }
+                        if (streakCount >= 2) {
+                            mainPrediction = lastSize;
+                            predictedNumbers =
+                                lastSize === "BIG" ? [5, 7, 9] : [0, 2, 4];
+                        }
+                    }
+                }
+
+                // If no streak is found or it's too short, fallback to COLOR mode
+                if (streakCount < 2) {
+                    predictionType = "COLOR";
+                    return calculateAndPredict(data, "COLOR");
+                }
             }
 
             setAiPredictionDisplay({
@@ -318,7 +378,7 @@ const OneMinWingo = () => {
                 type: predictionType,
             });
         },
-        [getColorFromNumber]
+        [getColorFromNumber, getSizeFromNumber]
     );
 
     const handleAiPredict = () => {
@@ -335,35 +395,24 @@ const OneMinWingo = () => {
 
             const textToCopy = `
 ╭⚬──────────────────⚬╮
-│ 🎯 WINGO   : 1 Min WinGo
-│ ⏳ PERIOD   : ${nextPeriod}
+│ 🎯 WINGO  : 1 Min WinGo
+│ ⏳ PERIOD  : ${nextPeriod}
 │ 🔮 PREDICTION : ${predictionText} (${aiPredictionDisplay.type})
 │ 🔢 NUMBERS  : ${predictedNumbersText}
 ╰⚬──────────────────⚬╯
 `;
             try {
                 await navigator.clipboard.writeText(textToCopy);
-                // The popupMessage state is removed, so we'll directly set popupData
-                setPopupData({
-                    period: "Clipboard",
-                    prediction: "Copied!",
-                    actualResult: "Success",
-                    resultType: "win",
-                });
+                alert("Prediction copied to clipboard!");
             } catch (err) {
-                setPopupData({
-                    period: "Clipboard",
-                    prediction: "Failed!",
-                    actualResult: "Error",
-                    resultType: "loss",
-                });
+                console.error("Failed to copy text: ", err);
+                alert("Failed to copy prediction.");
             }
         }
     };
 
     const handleResult = useCallback(
         (period, prediction, actualResult, resultType) => {
-            // Show the popup by setting the data
             setPopupData({
                 period,
                 prediction,
@@ -410,14 +459,6 @@ const OneMinWingo = () => {
                                     let isCorrect = false;
                                     let actualResult = "";
 
-                                    const currentPrediction = {
-                                        period: lastPrediction.period,
-                                        prediction:
-                                            lastPrediction.mainPrediction,
-                                        type: lastPrediction.type,
-                                        actualNumber: lastActualNumber,
-                                    };
-
                                     if (lastPrediction.type === "COLOR") {
                                         const actualColor =
                                             getColorFromNumber(
@@ -426,29 +467,62 @@ const OneMinWingo = () => {
                                         isCorrect =
                                             lastPrediction.mainPrediction ===
                                             actualColor;
-                                        currentPrediction.isWin = isCorrect;
-                                        currentPrediction.actualResult =
-                                            actualColor;
                                         actualResult = actualColor;
-                                        setPredictionMode(
-                                            isCorrect ? "COLOR" : "SIZE"
-                                        );
                                     } else if (lastPrediction.type === "SIZE") {
                                         const actualSize =
                                             getSizeFromNumber(lastActualNumber);
                                         isCorrect =
                                             lastPrediction.mainPrediction ===
                                             actualSize;
-                                        currentPrediction.isWin = isCorrect;
-                                        currentPrediction.actualResult =
-                                            actualSize;
                                         actualResult = actualSize;
-                                        setPredictionMode(
-                                            isCorrect ? "SIZE" : "COLOR"
-                                        );
+                                    } else if (
+                                        lastPrediction.type === "STREAK"
+                                    ) {
+                                        const actualColor =
+                                            getColorFromNumber(
+                                                lastActualNumber
+                                            );
+                                        const actualSize =
+                                            getSizeFromNumber(lastActualNumber);
+                                        if (
+                                            lastPrediction.mainPrediction ===
+                                                actualColor ||
+                                            lastPrediction.mainPrediction ===
+                                                actualSize
+                                        ) {
+                                            isCorrect = true;
+                                        }
+                                        actualResult = `${actualColor}/${actualSize}`; // Display both for streak
                                     }
 
-                                    // Display the popup
+                                    // Cycle through the modes on a loss, stay on win
+                                    setPredictionMode((prevMode) => {
+                                        if (isCorrect) {
+                                            return prevMode;
+                                        } else {
+                                            switch (prevMode) {
+                                                case "COLOR":
+                                                    return "SIZE";
+                                                case "SIZE":
+                                                    return "STREAK";
+                                                case "STREAK":
+                                                    return "COLOR";
+                                                default:
+                                                    return "COLOR";
+                                            }
+                                        }
+                                    });
+
+                                    const currentPrediction = {
+                                        period: lastPrediction.period,
+                                        prediction:
+                                            lastPrediction.mainPrediction,
+                                        type: lastPrediction.type,
+                                        actualNumber: lastActualNumber,
+                                        actualResult: actualResult,
+                                        isWin: isCorrect,
+                                    };
+
                                     handleResult(
                                         lastPrediction.period,
                                         lastPrediction.mainPrediction,
@@ -487,7 +561,7 @@ const OneMinWingo = () => {
         setLastPrediction(null);
         setIsFadingOut(false);
         setPredictionRecords([]);
-        setPopupData(null); // Reset popup on refresh
+        setPopupData(null);
         setTimeout(() => {
             setIsShaking(false);
         }, 500);
@@ -571,7 +645,7 @@ const OneMinWingo = () => {
                     <div className="ai-prediction-card-header">
                         <div className="ai-prediction-card-indicator"></div>
                         <p className="wingo-period">
-                            Period:{aiPredictionDisplay.period}
+                            Period: {aiPredictionDisplay.period}
                         </p>
                     </div>
                     <h3 className="wingo-prediction-text">
@@ -583,6 +657,11 @@ const OneMinWingo = () => {
                 </div>
             )}
 
+            {!aiPredictionDisplay && (
+                <div className="svg-frame">
+                    <LoadingSpinner />
+                </div>
+            )}
             {error && (
                 <p style={{ color: "red", textAlign: "center" }}>{error}</p>
             )}
@@ -599,18 +678,22 @@ const OneMinWingo = () => {
 
                 <div className="secondary-buttons">
                     <button
+                        type="button"
                         onClick={handleRefresh}
                         className={`refresh-btn ${isShaking ? "shake" : ""}`}
                     >
-                        REFRESH
+                        <RefreshIcon className="refresh-svg" />
+                        Refresh
                     </button>
 
                     {aiPredictionDisplay && (
                         <button
                             onClick={handleCopyPrediction}
                             className="copy-btn"
+                            onBlur={(e) => e.currentTarget.blur()}
                         >
-                            COPY PREDICTION
+                            <span>PREDICTION</span>
+                            <span>COPIED!</span>
                         </button>
                     )}
                 </div>
@@ -639,7 +722,6 @@ const OneMinWingo = () => {
                     Prediction History
                 </button>
             </div>
-            {/* Content based on active view */}
             {activeView === "chart" && (
                 <div className="chart-container">
                     <WinGoChart

@@ -127,24 +127,14 @@ p {
 
 /* Color of the card background for Red prediction with animation */
 .wingo-result-card.red {
-    background: linear-gradient(
-        90deg,
-        #f44336,
-        #ffffff,
-        #f44336
-    );
+    background: linear-gradient(90deg, #f44336, #ffffff, #f44336);
     background-size: 200% 100%;
     animation: redGradientAnimation 4s ease infinite;
 }
 
 /* Color of the card background for Green prediction with animation */
 .wingo-result-card.green {
-    background: linear-gradient(
-        90deg,
-        #4caf50,
-        #ffffff,
-        #4caf50
-    );
+    background: linear-gradient(90deg, #4caf50, #ffffff, #4caf50);
     background-size: 200% 100%;
     animation: greenGradientAnimation 4s ease infinite;
 }
@@ -229,45 +219,169 @@ p {
 
 /* Refresh Button */
 .refresh-btn {
-    background-color: #9e9e9e;
     color: white;
-    font-size: 16px;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 8px;
+    background-color: #222;
+    font-weight: 500;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    line-height: 2rem;
+    padding-left: 1rem;
+    width: 130px;
+    height: 48px;
     cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    flex: 1;
+    text-align: center;
+    margin-right: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    border: none;
 }
 
 .refresh-btn:hover {
-    background-color: #757575;
-    transform: rotate(5deg);
+    background-color: #333;
+}
+
+.refresh-btn .refresh-svg {
+    display: inline;
+    width: 1.3rem;
+    height: 1.3rem;
+    margin-right: 0.75rem;
+    color: white;
+}
+
+.refresh-btn:focus .refresh-svg {
+    animation: spin_357 0.5s linear;
+}
+
+@keyframes spin_357 {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+.svg-frame {
+    background-color: rgb(0, 3, 48);
+    position: relative;
+    width: 300px;
+    height: 230px;
+    margin: 2%;
+    transform-style: preserve-3d;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 15px;
+}
+
+.svg-frame svg {
+    position: absolute;
+    transition: 0.5s;
+    z-index: calc(1 - (0.2 * var(--j)));
+    transform-origin: center;
+    width: 344px;
+    height: 344px;
+    fill: none;
+}
+
+/* .svg-frame:hover svg {
+  transform: rotate(-80deg) skew(30deg) translateX(calc(45px * var(--i))) translateY(calc(-35px * var(--i)));
+} */
+
+.svg-frame svg #center {
+    transition: 0.5s;
+    transform-origin: center;
+}
+
+/* .svg-frame:hover svg #center {
+  transform: rotate(-30deg) translateX(45px) translateY(-3px);
+} */
+
+#out2 {
+    animation: rotate16 7s ease-in-out infinite alternate;
+    transform-origin: center;
+}
+
+#out3 {
+    animation: rotate16 3s ease-in-out infinite alternate;
+    transform-origin: center;
+    stroke: #ff0;
+}
+
+#inner3,
+#inner1 {
+    animation: rotate16 4s ease-in-out infinite alternate;
+    transform-origin: center;
+}
+
+#center1 {
+    fill: #ff0;
+    animation: rotate16 2s ease-in-out infinite alternate;
+    transform-origin: center;
+}
+
+@keyframes rotate16 {
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 /* Copy Prediction Button - PROFESSIONAL LOOK */
 .copy-btn {
-    background-color: #4caf50;
     color: white;
-    padding: 4px 10px;
+    background-color: #222;
+    width: 120px;
+    height: 48px;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
+    font-weight: 600;
     cursor: pointer;
-    font-weight: bold;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    flex: 1;
+    overflow: hidden;
+    transition-duration: 700ms;
+    position: relative; /* Added to position the spans correctly */
 }
 
-.copy-btn:hover {
-    background-color: #388e3c;
-    transform: scale(1.05);
+.copy-btn span:first-child {
+    color: white;
+    position: absolute;
+    transform: translate(-50%, -50%);
+    top: 50%;
+    left: 50%;
+    transition-duration: 500ms;
 }
 
+.copy-btn span:last-child {
+    position: absolute;
+    color: #b5ccf3;
+    opacity: 0;
+    transform: translateY(100%) translateX(-50%);
+    height: 14px;
+    line-height: 13px;
+    top: 50%;
+    left: 50%;
+}
+
+.copy-btn:focus {
+    background-color: #0e418f;
+    width: 120px;
+    height: 40px;
+    transition-delay: 100ms;
+    transition-duration: 500ms;
+}
+
+.copy-btn:focus span:first-child {
+    color: #b5ccf3;
+    transform: translateX(-50%) translateY(-150%);
+    opacity: 0;
+    transition-duration: 500ms;
+}
+
+.copy-btn:focus span:last-child {
+    transform: translateX(-50%) translateY(-50%);
+    opacity: 1;
+    transition-delay: 300ms;
+    transition-duration: 500ms;
+}
 /* ========== TABLE ========== */
 .oneMinhistory-table {
     width: 100%;
@@ -348,7 +462,7 @@ p {
     max-width: 500px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 2px;
 }
 
 .prediction-control-box {
@@ -459,11 +573,11 @@ p {
 
 .view-tabs button {
     flex: 1;
-    padding: 5px;
+    padding: 10px;
     font-size: 14px;
     font-weight: bold;
     color: #fff;
-    background-color: #2e476d;
+    background-color: #1e2f47;
     border: none;
     cursor: pointer;
     transition: background-color 0.3s ease;
@@ -557,7 +671,6 @@ p {
     font-size: 13px; /* Consistent font size */
     border-bottom: 1px solid #e0e0e0; /* Subtle horizontal lines */
     line-height: 1.4; /* Improved line spacing for content */
-
 }
 
 /* Remove bottom border from the last row for a cleaner finish */
@@ -578,7 +691,6 @@ p {
 
 /* Centered text for "No history yet" message */
 .historyResult-table td[colspan="4"] {
-    
     font-style: italic;
     color: #888;
     padding: 20px;
@@ -595,19 +707,24 @@ p {
     width: 60%;
     height: 70vh;
     z-index: 1000;
-    background: linear-gradient(135deg, rgba(80, 160, 200, 0.563), rgba(5, 64, 193, 0.612));
+    background: linear-gradient(
+        135deg,
+        rgba(80, 160, 200, 0.563),
+        rgba(5, 64, 193, 0.612)
+    );
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border-radius: 20px;
     border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow:rgba(0, 0, 0, 0.541) 0px 46px 40px, rgba(0, 0, 0, 0.22) 0px 44px 12px;
+    box-shadow: rgba(0, 0, 0, 0.541) 0px 46px 40px,
+        rgba(0, 0, 0, 0.22) 0px 44px 12px;
     color: #fff;
     padding: 2rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
     animation: fadeIn 0.5s ease-in-out forwards;
 }
 
